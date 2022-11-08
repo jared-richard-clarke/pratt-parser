@@ -1,3 +1,3 @@
-# pratt-parser
+# Pratt Parser
 
-This repository is the beginnings of an experimental Pratt parser, written in Go.
+This repository is the beginnings of an experimental Pratt parser or top down operator precedence parsing.
