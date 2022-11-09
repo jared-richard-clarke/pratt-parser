@@ -47,9 +47,9 @@ func TestScan(t *testing.T) {
 	result, _ := Scan(text)
 	for i, c := range result {
 		e := expect[i]
-		r := *c
-		if e != r {
-			t.Errorf("Test Scan (Part 1) failed. Expected: %v, Got: %v", e, r)
+		g := *c
+		if e != g {
+			t.Errorf("Test Scan (Part 1) failed. Expected: %v, Got: %v", e, g)
 		}
 	}
 
@@ -95,9 +95,9 @@ func TestScan(t *testing.T) {
 	result, _ = Scan(text)
 	for i, c := range result {
 		e := expect[i]
-		r := *c
-		if e != r {
-			t.Errorf("Test Scan (Part 2) failed. Expected: %v, Got: %v", e, r)
+		g := *c
+		if e != g {
+			t.Errorf("Test Scan (Part 2) failed. Expected: %v, Got: %v", e, g)
 		}
 	}
 }
