@@ -89,21 +89,6 @@ func (sc *scanner) peekNext() rune {
 	return r
 }
 
-func (sc *scanner) match(e rune) bool {
-	if sc.isAtEnd() {
-		return false
-	}
-
-	r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
-	if r != e {
-		return false
-	}
-
-	sc.column += 1
-	sc.offset = sc.start + w
-	return true
-}
-
 func (sc *scanner) addToken(t lexType, v any) {
 	sc.tokens = append(sc.tokens, &token{
 		typeof: t,
