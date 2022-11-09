@@ -25,7 +25,7 @@ const (
 	lexMul
 	lexDiv
 	lexNumber
-	lexUnknown
+	lexError
 	lexEOF
 )
 
@@ -40,8 +40,6 @@ func (t *token) String() string {
 	switch {
 	case t.typeof == lexEOF:
 		return "EOF"
-	case t.typeof == lexUnknown:
-		return fmt.Sprintf("%s", t.value)
 	case t.typeof < lexNumber:
 		return fmt.Sprintf("%c", t.value)
 	default:
@@ -50,10 +48,9 @@ func (t *token) String() string {
 }
 
 type scanner struct {
-	source  string
-	tokens  []*token
-	length  int // The number of bytes in source string.
-	unknown bool
+	source string
+	tokens []*token
+	length int // The number of bytes in source string.
 
 	offset int // The total offset from the beginning of a string. Counts runes by byte size.
 	start  int // The start of a lexeme within source string. Counts runes by byte size.
@@ -122,7 +119,7 @@ func (sc *scanner) scanToken() {
 		num, err := strconv.ParseFloat(text, 64)
 		if err != nil {
 			err = fmt.Errorf("parsing float %q: %w", text, err)
-			sc.addToken(lexUnknown, err)
+			sc.addToken(lexError, err)
 		} else {
 			sc.addToken(lexNumber, num)
 		}
@@ -146,23 +143,21 @@ func (sc *scanner) scanToken() {
 		sc.addToken(lexDiv, r)
 		return
 	default:
-		sc.unknown = true
-		sc.addToken(lexUnknown, fmt.Errorf("unknown: %c", r))
+		sc.addToken(lexError, fmt.Errorf("unknown: %c", r))
 		return
 	}
 }
 
 // The Lexer API: drives the scanner.
-func Scan(t string) ([]*token, bool) {
+func Scan(t string) []*token {
 	sc := scanner{
-		source:  t,
-		tokens:  make([]*token, 0),
-		length:  len(t),
-		unknown: false,
-		offset:  0,
-		start:   0,
-		line:    1,
-		column:  0,
+		source: t,
+		tokens: make([]*token, 0),
+		length: len(t),
+		offset: 0,
+		start:  0,
+		line:   1,
+		column: 0,
 	}
 	for !sc.isAtEnd() {
 		sc.start = sc.offset
@@ -174,5 +169,5 @@ func Scan(t string) ([]*token, bool) {
 		line:   sc.line,
 		column: sc.column + 1,
 	})
-	return sc.tokens, sc.unknown
+	return sc.tokens
 }
