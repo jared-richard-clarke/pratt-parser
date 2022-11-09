@@ -18,15 +18,15 @@ const (
 type lexType int
 
 const (
-	oParen lexType = iota
-	cParen
-	add
-	sub
-	mul
-	div
-	number
-	unknown
-	eof
+	lexOpenParen lexType = iota
+	lexCloseParen
+	lexAdd
+	lexSub
+	lexMul
+	lexDiv
+	lexNumber
+	lexUnknown
+	lexEOF
 )
 
 type token struct {
@@ -38,11 +38,11 @@ type token struct {
 
 func (t *token) String() string {
 	switch {
-	case t.typeof == eof:
+	case t.typeof == lexEOF:
 		return "EOF"
-	case t.typeof == unknown:
+	case t.typeof == lexUnknown:
 		return fmt.Sprintf("%s", t.value)
-	case t.typeof < number:
+	case t.typeof < lexNumber:
 		return fmt.Sprintf("%c", t.value)
 	default:
 		return fmt.Sprintf("%d", t.value)
@@ -122,32 +122,32 @@ func (sc *scanner) scanToken() {
 		num, err := strconv.ParseFloat(text, 64)
 		if err != nil {
 			err = fmt.Errorf("parsing float %q: %w", text, err)
-			sc.addToken(unknown, err)
+			sc.addToken(lexUnknown, err)
 		} else {
-			sc.addToken(number, num)
+			sc.addToken(lexNumber, num)
 		}
 		return
 	case r == '(':
-		sc.addToken(oParen, r)
+		sc.addToken(lexOpenParen, r)
 		return
 	case r == ')':
-		sc.addToken(cParen, r)
+		sc.addToken(lexCloseParen, r)
 		return
 	case r == '-':
-		sc.addToken(sub, r)
+		sc.addToken(lexSub, r)
 		return
 	case r == '+':
-		sc.addToken(add, r)
+		sc.addToken(lexAdd, r)
 		return
 	case r == '*':
-		sc.addToken(mul, r)
+		sc.addToken(lexMul, r)
 		return
 	case r == '/':
-		sc.addToken(div, r)
+		sc.addToken(lexDiv, r)
 		return
 	default:
 		sc.unknown = true
-		sc.addToken(unknown, fmt.Errorf("unknown: %c", r))
+		sc.addToken(lexUnknown, fmt.Errorf("unknown: %c", r))
 		return
 	}
 }
@@ -169,7 +169,7 @@ func Scan(t string) ([]*token, bool) {
 		sc.scanToken()
 	}
 	sc.tokens = append(sc.tokens, &token{
-		typeof: eof,
+		typeof: lexEOF,
 		value:  nil,
 		line:   sc.line,
 		column: sc.column + 1,
