@@ -10,37 +10,37 @@ func TestScan(t *testing.T) {
 
 	expect := []token{
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  1.0,
 			line:   1,
 			column: 1,
 		},
 		{
-			typeof: add,
+			typeof: lexAdd,
 			value:  '+',
 			line:   1,
 			column: 3,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  2.0,
 			line:   1,
 			column: 5,
 		},
 		{
-			typeof: mul,
+			typeof: lexMul,
 			value:  '*',
 			line:   1,
 			column: 7,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  3.0,
 			line:   1,
 			column: 9,
 		},
 		{
-			typeof: eof,
+			typeof: lexEOF,
 			value:  nil,
 			line:   1,
 			column: 10,
@@ -60,37 +60,37 @@ func TestScan(t *testing.T) {
 
 	expect = []token{
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  1.0,
 			line:   1,
 			column: 1,
 		},
 		{
-			typeof: add,
+			typeof: lexAdd,
 			value:  '+',
 			line:   1,
 			column: 3,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  2.0,
 			line:   1,
 			column: 5,
 		},
 		{
-			typeof: mul,
+			typeof: lexMul,
 			value:  '*',
 			line:   2,
 			column: 2,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  3.0,
 			line:   2,
 			column: 4,
 		},
 		{
-			typeof: eof,
+			typeof: lexEOF,
 			value:  nil,
 			line:   2,
 			column: 5,
@@ -112,37 +112,37 @@ func TestScan(t *testing.T) {
 
 	expect = []token{
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  1.0,
 			line:   1,
 			column: 1,
 		},
 		{
-			typeof: add,
+			typeof: lexAdd,
 			value:  '+',
 			line:   1,
 			column: 3,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  2.0,
 			line:   2,
 			column: 10,
 		},
 		{
-			typeof: mul,
+			typeof: lexMul,
 			value:  '*',
 			line:   2,
 			column: 12,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  3.0,
 			line:   3,
 			column: 10,
 		},
 		{
-			typeof: eof,
+			typeof: lexEOF,
 			value:  nil,
 			line:   3,
 			column: 11,
@@ -162,49 +162,49 @@ func TestScan(t *testing.T) {
 
 	expect = []token{
 		{
-			typeof: oParen,
+			typeof: lexOpenParen,
 			value:  '(',
 			line:   1,
 			column: 1,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  1.0,
 			line:   1,
 			column: 2,
 		},
 		{
-			typeof: add,
+			typeof: lexAdd,
 			value:  '+',
 			line:   1,
 			column: 4,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  2.0,
 			line:   1,
 			column: 6,
 		},
 		{
-			typeof: cParen,
+			typeof: lexCloseParen,
 			value:  ')',
 			line:   1,
 			column: 7,
 		},
 		{
-			typeof: mul,
+			typeof: lexMul,
 			value:  '*',
 			line:   1,
 			column: 9,
 		},
 		{
-			typeof: number,
+			typeof: lexNumber,
 			value:  3.0,
 			line:   1,
 			column: 11,
 		},
 		{
-			typeof: eof,
+			typeof: lexEOF,
 			value:  nil,
 			line:   1,
 			column: 12,
