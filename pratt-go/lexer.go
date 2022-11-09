@@ -100,8 +100,14 @@ func (sc *scanner) addToken(t lexType, v any) {
 
 func (sc *scanner) scanToken() {
 	r := sc.next()
-	// numbers
-	if unicode.IsDigit(r) {
+	switch {
+	case r == whiteSpace, r == carriageReturn, r == tab:
+		return
+	case r == newline:
+		sc.column = 0
+		sc.line += 1
+		return
+	case unicode.IsDigit(r):
 		for unicode.IsDigit(sc.peek()) {
 			sc.next()
 		}
@@ -120,31 +126,22 @@ func (sc *scanner) scanToken() {
 			sc.addToken(number, num)
 		}
 		return
-	}
-	// punctuators
-	switch r {
-	case whiteSpace, carriageReturn, tab:
-		return
-	case newline:
-		sc.column = 0
-		sc.line += 1
-		return
-	case '(':
+	case r == '(':
 		sc.addToken(oParen, r)
 		return
-	case ')':
+	case r == ')':
 		sc.addToken(cParen, r)
 		return
-	case '-':
+	case r == '-':
 		sc.addToken(sub, r)
 		return
-	case '+':
+	case r == '+':
 		sc.addToken(add, r)
 		return
-	case '*':
+	case r == '*':
 		sc.addToken(mul, r)
 		return
-	case '/':
+	case r == '/':
 		sc.addToken(div, r)
 		return
 	default:
