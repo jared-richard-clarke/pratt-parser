@@ -164,7 +164,7 @@ func (sc *scanner) scanToken() {
 		return
 	default:
 		sc.unknown = true
-		sc.addToken(unknown, fmt.Sprintf("unknown: %v", r))
+		sc.addToken(unknown, fmt.Errorf("unknown: %c", r))
 		return
 	}
 }
