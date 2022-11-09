@@ -178,6 +178,7 @@ func Scan(t string) ([]*token, bool) {
 		offset:  0,
 		start:   0,
 		line:    1,
+		column:  0,
 	}
 	for !sc.isAtEnd() {
 		sc.start = sc.offset
