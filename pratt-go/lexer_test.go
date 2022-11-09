@@ -47,7 +47,7 @@ func TestScan(t *testing.T) {
 		},
 	}
 
-	result, _ := Scan(text)
+	result := Scan(text)
 	for i, c := range result {
 		e := expect[i]
 		g := *c
@@ -97,7 +97,7 @@ func TestScan(t *testing.T) {
 		},
 	}
 
-	result, _ = Scan(text)
+	result = Scan(text)
 	for i, c := range result {
 		e := expect[i]
 		g := *c
@@ -149,7 +149,7 @@ func TestScan(t *testing.T) {
 		},
 	}
 
-	result, _ = Scan(text)
+	result = Scan(text)
 	for i, c := range result {
 		e := expect[i]
 		g := *c
@@ -211,7 +211,7 @@ func TestScan(t *testing.T) {
 		},
 	}
 
-	result, _ = Scan(text)
+	result = Scan(text)
 	for i, c := range result {
 		e := expect[i]
 		g := *c
