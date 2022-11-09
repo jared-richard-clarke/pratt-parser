@@ -41,7 +41,7 @@ func (t *token) String() string {
 	case t.typeof == eof:
 		return "EOF"
 	case t.typeof == unknown:
-		return fmt.Sprintf("Unknown: %s", t.value)
+		return fmt.Sprintf("%s", t.value)
 	case t.typeof < number:
 		return fmt.Sprintf("%c", t.value)
 	default:
