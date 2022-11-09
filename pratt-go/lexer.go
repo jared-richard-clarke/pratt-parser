@@ -52,6 +52,7 @@ func (t *token) String() string {
 type scanner struct {
 	source  string
 	tokens  []*token
+	length  int // The number of bytes in source string.
 	unknown bool
 
 	offset int // The total offset from the beginning of a string. Counts runes by byte size.
@@ -61,7 +62,7 @@ type scanner struct {
 }
 
 func (sc *scanner) isAtEnd() bool {
-	return sc.offset >= len(sc.source)
+	return sc.offset >= sc.length
 }
 
 func (sc *scanner) next() rune {
@@ -82,7 +83,7 @@ func (sc *scanner) peek() rune {
 func (sc *scanner) peekNext() rune {
 	_, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
 	offset := sc.offset + w
-	if offset >= len(sc.source) {
+	if offset >= sc.length {
 		return 0
 	}
 	r, _ := utf8.DecodeRuneInString(sc.source[offset:])
@@ -156,6 +157,7 @@ func Scan(t string) ([]*token, bool) {
 	sc := scanner{
 		source:  t,
 		tokens:  make([]*token, 0),
+		length:  len(t),
 		unknown: false,
 		offset:  0,
 		start:   0,
