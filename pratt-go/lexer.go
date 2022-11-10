@@ -122,12 +122,14 @@ func (sc *scanner) addTokenError(e error) {
 func (sc *scanner) scanToken() {
 	r := sc.next()
 	switch {
+	// whitespace
 	case r == whiteSpace, r == carriageReturn, r == tab:
 		return
 	case r == newline:
 		sc.column = 0
 		sc.line += 1
 		return
+	// punctuators
 	case r == '(':
 		sc.addToken(lexOpenParen, r)
 		return
@@ -146,6 +148,7 @@ func (sc *scanner) scanToken() {
 	case r == '/':
 		sc.addToken(lexDiv, r)
 		return
+	// numbers
 	case unicode.IsDigit(r):
 		for unicode.IsDigit(sc.peek()) {
 			sc.next()
@@ -165,6 +168,7 @@ func (sc *scanner) scanToken() {
 			sc.addToken(lexNumber, num)
 		}
 		return
+	// identifiers
 	case unicode.IsLetter(r):
 		for isAlphaNumeric(sc.peek()) {
 			sc.next()
@@ -172,6 +176,7 @@ func (sc *scanner) scanToken() {
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(lexIdent, text)
 		return
+	// unknown lexemes
 	default:
 		sc.addTokenError(fmt.Errorf("unknown %v", r))
 		return
