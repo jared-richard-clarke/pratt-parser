@@ -13,6 +13,7 @@ const (
 	tab            = '\t'
 	whiteSpace     = ' '
 	decPoint       = '.'
+	underscore     = '_'
 )
 
 type lexType int
@@ -25,6 +26,7 @@ const (
 	lexMul
 	lexDiv
 	lexNumber
+	lexIdent
 	lexError
 	lexEOF
 )
@@ -32,25 +34,32 @@ const (
 type token struct {
 	typeof lexType
 	value  any
+	err    error
 	line   int
 	column int
 }
 
 func (t *token) String() string {
 	switch {
-	case t.typeof == lexEOF:
-		return "EOF"
 	case t.typeof < lexNumber:
 		return fmt.Sprintf("%c", t.value)
-	default:
+	case t.typeof == lexNumber:
 		return fmt.Sprintf("%d", t.value)
+	case t.typeof == lexIdent:
+		return fmt.Sprintf("%s", t.value)
+	case t.typeof == lexError:
+		return t.err.Error()
+	case t.typeof == lexEOF:
+		return "EOF"
+	default:
+		return fmt.Sprintf("%v", t.value)
 	}
 }
 
 type scanner struct {
 	source string
 	tokens []*token
-	length int // The number of bytes in source string.
+	length int // The number of bytes in the source string. Compute only once.
 
 	offset int // The total offset from the beginning of a string. Counts runes by byte size.
 	start  int // The start of a lexeme within source string. Counts runes by byte size.
@@ -60,6 +69,10 @@ type scanner struct {
 
 func (sc *scanner) isAtEnd() bool {
 	return sc.offset >= sc.length
+}
+
+func isAlphaNumeric(r rune) bool {
+	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == underscore
 }
 
 func (sc *scanner) next() rune {
@@ -96,6 +109,16 @@ func (sc *scanner) addToken(t lexType, v any) {
 	})
 }
 
+func (sc *scanner) addTokenError(e error) {
+	sc.tokens = append(sc.tokens, &token{
+		typeof: lexError,
+		value:  nil,
+		err:    fmt.Errorf("%w line: %d, column: %d", e, sc.line, sc.column),
+		line:   sc.line,
+		column: sc.column,
+	})
+}
+
 func (sc *scanner) scanToken() {
 	r := sc.next()
 	switch {
@@ -104,25 +127,6 @@ func (sc *scanner) scanToken() {
 	case r == newline:
 		sc.column = 0
 		sc.line += 1
-		return
-	case unicode.IsDigit(r):
-		for unicode.IsDigit(sc.peek()) {
-			sc.next()
-		}
-		if sc.peek() == decPoint && unicode.IsDigit(sc.peekNext()) {
-			sc.next()
-			for unicode.IsDigit(sc.peek()) {
-				sc.next()
-			}
-		}
-		text := string(sc.source[sc.start:sc.offset])
-		num, err := strconv.ParseFloat(text, 64)
-		if err != nil {
-			err = fmt.Errorf("parsing float %q: %w", text, err)
-			sc.addToken(lexError, err)
-		} else {
-			sc.addToken(lexNumber, num)
-		}
 		return
 	case r == '(':
 		sc.addToken(lexOpenParen, r)
@@ -142,8 +146,34 @@ func (sc *scanner) scanToken() {
 	case r == '/':
 		sc.addToken(lexDiv, r)
 		return
+	case unicode.IsDigit(r):
+		for unicode.IsDigit(sc.peek()) {
+			sc.next()
+		}
+		if sc.peek() == decPoint && unicode.IsDigit(sc.peekNext()) {
+			sc.next()
+			for unicode.IsDigit(sc.peek()) {
+				sc.next()
+			}
+		}
+		text := string(sc.source[sc.start:sc.offset])
+		num, err := strconv.ParseFloat(text, 64)
+		if err != nil {
+			err = fmt.Errorf("parsing float %q: %w", text, err)
+			sc.addTokenError(err)
+		} else {
+			sc.addToken(lexNumber, num)
+		}
+		return
+	case unicode.IsLetter(r):
+		for isAlphaNumeric(sc.peek()) {
+			sc.next()
+		}
+		text := sc.source[sc.start:sc.offset]
+		sc.addToken(lexIdent, text)
+		return
 	default:
-		sc.addToken(lexError, fmt.Errorf("unknown: %c", r))
+		sc.addTokenError(fmt.Errorf("unknown %v", r))
 		return
 	}
 }
