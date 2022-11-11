@@ -224,7 +224,7 @@ func TestIdent(t *testing.T) {
 			typeof: lexIdent,
 			value:  "wyvern",
 			line:   1,
-			column: 5, // (bug #2) given column 10, the end of the Ident value.
+			column: 5,
 		},
 		{
 			typeof: lexMul,
