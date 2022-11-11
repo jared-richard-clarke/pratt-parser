@@ -111,6 +111,7 @@ func (sc *scanner) addToken(t lexType, v any) {
 		length -= 1
 	}
 	// Subtract lexeme rune count from column number for lexemes with more than one rune.
+	// Ensures column count begins at start of lexeme.
 	column := sc.column - length
 
 	switch t {
