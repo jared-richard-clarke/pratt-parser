@@ -1,6 +1,7 @@
 package pratt
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -48,119 +49,14 @@ func TestScan(t *testing.T) {
 	}
 
 	result := Scan(text)
-	for i, c := range result {
-		e := expect[i]
-		g := *c
-		if e != g {
-			t.Errorf("Test Scan (Part 1) failed. Expected: %v, Got: %v", e, g)
-		}
-	}
+	compare(expect, result, t, "TestScan")
+}
 
-	text = "1 + 2\n * 3"
+func TestParens(t *testing.T) {
 
-	expect = []token{
-		{
-			typeof: lexNumber,
-			value:  1.0,
-			line:   1,
-			column: 1,
-		},
-		{
-			typeof: lexAdd,
-			value:  '+',
-			line:   1,
-			column: 3,
-		},
-		{
-			typeof: lexNumber,
-			value:  2.0,
-			line:   1,
-			column: 5,
-		},
-		{
-			typeof: lexMul,
-			value:  '*',
-			line:   2,
-			column: 2,
-		},
-		{
-			typeof: lexNumber,
-			value:  3.0,
-			line:   2,
-			column: 4,
-		},
-		{
-			typeof: lexEOF,
-			value:  nil,
-			line:   2,
-			column: 5,
-		},
-	}
+	text := "(1 + 2) * 3"
 
-	result = Scan(text)
-	for i, c := range result {
-		e := expect[i]
-		g := *c
-		if e != g {
-			t.Errorf("Test Scan (Part 2) failed. Expected: %v, Got: %v", e, g)
-		}
-	}
-
-	text = `1 +
-	        2 *
-	        3`
-
-	expect = []token{
-		{
-			typeof: lexNumber,
-			value:  1.0,
-			line:   1,
-			column: 1,
-		},
-		{
-			typeof: lexAdd,
-			value:  '+',
-			line:   1,
-			column: 3,
-		},
-		{
-			typeof: lexNumber,
-			value:  2.0,
-			line:   2,
-			column: 10,
-		},
-		{
-			typeof: lexMul,
-			value:  '*',
-			line:   2,
-			column: 12,
-		},
-		{
-			typeof: lexNumber,
-			value:  3.0,
-			line:   3,
-			column: 10,
-		},
-		{
-			typeof: lexEOF,
-			value:  nil,
-			line:   3,
-			column: 11,
-		},
-	}
-
-	result = Scan(text)
-	for i, c := range result {
-		e := expect[i]
-		g := *c
-		if e != g {
-			t.Errorf("Test Scan (Part 3) failed. Expected: %v, Got: %v", e, g)
-		}
-	}
-
-	text = "(1 + 2) * 3"
-
-	expect = []token{
+	expect := []token{
 		{
 			typeof: lexOpenParen,
 			value:  '(',
@@ -211,12 +107,157 @@ func TestScan(t *testing.T) {
 		},
 	}
 
+	result := Scan(text)
+	compare(expect, result, t, "TestParens")
+}
+
+func TestNewlines(t *testing.T) {
+	text := "1 + 2\n * 3"
+
+	expect := []token{
+		{
+			typeof: lexNumber,
+			value:  1.0,
+			line:   1,
+			column: 1,
+		},
+		{
+			typeof: lexAdd,
+			value:  '+',
+			line:   1,
+			column: 3,
+		},
+		{
+			typeof: lexNumber,
+			value:  2.0,
+			line:   1,
+			column: 5,
+		},
+		{
+			typeof: lexMul,
+			value:  '*',
+			line:   2,
+			column: 2,
+		},
+		{
+			typeof: lexNumber,
+			value:  3.0,
+			line:   2,
+			column: 4,
+		},
+		{
+			typeof: lexEOF,
+			value:  nil,
+			line:   2,
+			column: 5,
+		},
+	}
+
+	result := Scan(text)
+	compare(expect, result, t, "TestNewlines (Part 1)")
+
+	text = `1 +
+	        2 *
+	        3`
+
+	expect = []token{
+		{
+			typeof: lexNumber,
+			value:  1.0,
+			line:   1,
+			column: 1,
+		},
+		{
+			typeof: lexAdd,
+			value:  '+',
+			line:   1,
+			column: 3,
+		},
+		{
+			typeof: lexNumber,
+			value:  2.0,
+			line:   2,
+			column: 10,
+		},
+		{
+			typeof: lexMul,
+			value:  '*',
+			line:   2,
+			column: 12,
+		},
+		{
+			typeof: lexNumber,
+			value:  3.0,
+			line:   3,
+			column: 10,
+		},
+		{
+			typeof: lexEOF,
+			value:  nil,
+			line:   3,
+			column: 11,
+		},
+	}
+
 	result = Scan(text)
+	compare(expect, result, t, "TestNewlines (Part 2)")
+}
+
+func TestIdent(t *testing.T) {
+
+	text := "x + wyvern * 3"
+
+	expect := []token{
+		{
+			typeof: lexIdent,
+			value:  "x",
+			line:   1,
+			column: 1,
+		},
+		{
+			typeof: lexAdd,
+			value:  '+',
+			line:   1,
+			column: 3,
+		},
+		{
+			typeof: lexIdent,
+			value:  "wyvern",
+			line:   1,
+			column: 5, // (bug #2) given column 10, the end of the Ident value.
+		},
+		{
+			typeof: lexMul,
+			value:  '*',
+			line:   1,
+			column: 12,
+		},
+		{
+			typeof: lexNumber,
+			value:  3.0,
+			line:   1,
+			column: 14,
+		},
+		{
+			typeof: lexEOF,
+			line:   1,
+			column: 15,
+		},
+	}
+
+	result := Scan(text)
+	compare(expect, result, t, "TestIdent")
+
+}
+
+// utility functions
+
+func compare(expect []token, result []*token, t *testing.T, name string) {
 	for i, c := range result {
 		e := expect[i]
 		g := *c
 		if e != g {
-			t.Errorf("Test Scan (Part 4) failed. Expected: %v, Got: %v", e, g)
+			t.Errorf("Test %s failed. Expected: %v, Got: %v", name, e, g)
 		}
 	}
 }
