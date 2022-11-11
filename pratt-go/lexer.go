@@ -64,7 +64,7 @@ type scanner struct {
 	offset int // The total offset from the beginning of a string. Counts runes by byte size.
 	start  int // The start of a lexeme within source string. Counts runes by byte size.
 	line   int // Counts newlines ('\n').
-	column int // The start of a lexeme within a newline. Counts runes by 1.
+	column int // Tracks the start of a lexeme within a newline. Counts runes by 1.
 }
 
 func (sc *scanner) isAtEnd() bool {
@@ -78,7 +78,7 @@ func isAlphaNumeric(r rune) bool {
 func (sc *scanner) next() rune {
 	r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
 	sc.column += 1
-	sc.offset += w // <- Possible source (bug #1): former value: sc.offset = sc.start + w
+	sc.offset += w // <- (Bug #1): caused infinite loop for identifiers: former value: sc.offset = sc.start + w
 	return r
 }
 
@@ -101,22 +101,34 @@ func (sc *scanner) peekNext() rune {
 }
 
 func (sc *scanner) addToken(t lexType, v any) {
-	sc.tokens = append(sc.tokens, &token{
-		typeof: t,
-		value:  v,
-		line:   sc.line,
-		column: sc.column,
-	})
-}
+	length := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
+	// Ensure column number is centered on character representation of rune.
+	// [ w, o, r, d ] not [ w, o, r, d ]
+	//   ^                 ^
+	if length <= 1 {
+		length = 0
+	} else {
+		length -= 1
+	}
+	// Subtract lexeme rune count from column number for lexemes with more than one rune.
+	column := sc.column - length
 
-func (sc *scanner) addTokenError(e error) {
-	sc.tokens = append(sc.tokens, &token{
-		typeof: lexError,
-		value:  nil,
-		err:    fmt.Errorf("%w line: %d, column: %d", e, sc.line, sc.column),
-		line:   sc.line,
-		column: sc.column,
-	})
+	switch t {
+	case lexError:
+		sc.tokens = append(sc.tokens, &token{
+			typeof: t,
+			err:    fmt.Errorf("%s line: %d, column: %d", v, sc.line, column),
+			line:   sc.line,
+			column: column,
+		})
+	default:
+		sc.tokens = append(sc.tokens, &token{
+			typeof: t,
+			value:  v,
+			line:   sc.line,
+			column: column,
+		})
+	}
 }
 
 func (sc *scanner) scanToken() {
@@ -159,11 +171,11 @@ func (sc *scanner) scanToken() {
 				sc.next()
 			}
 		}
-		text := string(sc.source[sc.start:sc.offset])
+		text := sc.source[sc.start:sc.offset]
 		num, err := strconv.ParseFloat(text, 64)
 		if err != nil {
 			err = fmt.Errorf("parsing float %q: %w", text, err)
-			sc.addTokenError(err)
+			sc.addToken(lexError, err.Error())
 		} else {
 			sc.addToken(lexNumber, num)
 		}
@@ -171,14 +183,14 @@ func (sc *scanner) scanToken() {
 	// identifiers
 	case unicode.IsLetter(r):
 		for isAlphaNumeric(sc.peek()) {
-			sc.next() // <- infinite loop (bug #1)
+			sc.next() // <- infinite loop (Bug #1)
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(lexIdent, text)
 		return
 	// unknowns
 	default:
-		sc.addTokenError(fmt.Errorf("unknown %v", r))
+		sc.addToken(lexError, fmt.Sprintf("unknown %v", r))
 		return
 	}
 }
