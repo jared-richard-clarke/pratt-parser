@@ -79,7 +79,7 @@ func (sc *scanner) next() rune {
 	r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
 	sc.column += 1
 	sc.offset += w // <- Possible source (bug #1): former value: sc.offset = sc.start + w
-	return r       //    Any lexeme greater than one Rune fails to drive the lexer forward for the next iteration.
+	return r
 }
 
 func (sc *scanner) peek() rune {
