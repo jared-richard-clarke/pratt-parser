@@ -213,7 +213,6 @@ func Scan(t string) []*token {
 	}
 	sc.tokens = append(sc.tokens, &token{
 		typeof: lexEOF,
-		value:  nil,
 		line:   sc.line,
 		column: sc.column + 1,
 	})
