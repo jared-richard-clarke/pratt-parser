@@ -191,7 +191,7 @@ func (sc *scanner) scanToken() {
 		return
 	// unknowns
 	default:
-		sc.addToken(lexError, fmt.Sprintf("unknown %v", r))
+		sc.addToken(lexError, fmt.Sprintf("unknown rune: '%c'", r))
 		return
 	}
 }
