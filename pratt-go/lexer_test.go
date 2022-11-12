@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestPrint(t *testing.T) {
+	result := Scan("2k \r	+ y + \nz")
+	for _, v := range result {
+		fmt.Println(v)
+	}
+}
+
 func TestScan(t *testing.T) {
 
 	text := "1 + 2 * 3"
@@ -242,8 +249,50 @@ func TestIdent(t *testing.T) {
 	}
 
 	result := Scan(text)
-	compare(expect, result, t, "TestIdent")
+	compare(expect, result, t, "TestIdent (Part 1)")
 
+	text = "x + wyvern/hamster"
+
+	expect = []token{
+		{
+			typeof: lexIdent,
+			value:  "x",
+			line:   1,
+			column: 1,
+		},
+		{
+			typeof: lexAdd,
+			value:  '+',
+			line:   1,
+			column: 3,
+		},
+		{
+			typeof: lexIdent,
+			value:  "wyvern",
+			line:   1,
+			column: 5,
+		},
+		{
+			typeof: lexDiv,
+			value:  '/',
+			line:   1,
+			column: 11,
+		},
+		{
+			typeof: lexIdent,
+			value:  "hamster",
+			line:   1,
+			column: 12,
+		},
+		{
+			typeof: lexEOF,
+			line:   1,
+			column: 19,
+		},
+	}
+
+	result = Scan(text)
+	compare(expect, result, t, "TestIdent (Part 2)")
 }
 
 // utility functions
