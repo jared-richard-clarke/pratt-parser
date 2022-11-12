@@ -42,13 +42,13 @@ type token struct {
 func (t *token) String() string {
 	switch {
 	case t.typeof < lexNumber:
-		return fmt.Sprintf("%c", t.value)
+		return fmt.Sprintf("Punctuator: %c", t.value)
 	case t.typeof == lexNumber:
-		return fmt.Sprintf("%d", t.value)
+		return fmt.Sprintf("Float64: %f", t.value)
 	case t.typeof == lexIdent:
-		return fmt.Sprintf("%s", t.value)
+		return fmt.Sprintf("Identifier: %s", t.value)
 	case t.typeof == lexError:
-		return t.err.Error()
+		return fmt.Sprintf("Error: %s", t.err.Error())
 	case t.typeof == lexEOF:
 		return "EOF"
 	default:
@@ -78,7 +78,7 @@ func isAlphaNumeric(r rune) bool {
 func (sc *scanner) next() rune {
 	r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
 	sc.column += 1
-	sc.offset += w // <- (Bug #1): caused infinite loop for identifiers: former value: sc.offset = sc.start + w
+	sc.offset += w
 	return r
 }
 
@@ -184,7 +184,7 @@ func (sc *scanner) scanToken() {
 	// identifiers
 	case unicode.IsLetter(r):
 		for isAlphaNumeric(sc.peek()) {
-			sc.next() // <- infinite loop (Bug #1)
+			sc.next()
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(lexIdent, text)
