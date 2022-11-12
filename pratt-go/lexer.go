@@ -9,6 +9,7 @@ import (
 
 const (
 	newline        = '\n'
+	formFeed       = '\f'
 	carriageReturn = '\r'
 	tab            = '\t'
 	whiteSpace     = ' '
@@ -136,7 +137,7 @@ func (sc *scanner) scanToken() {
 	r := sc.next()
 	switch {
 	// whitespace
-	case r == whiteSpace, r == carriageReturn, r == tab:
+	case r == whiteSpace, r == formFeed, r == carriageReturn, r == tab:
 		return
 	case r == newline:
 		sc.column = 0
