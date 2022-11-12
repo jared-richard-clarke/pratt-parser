@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestPrint(t *testing.T) {
+	result := Scan("2k + y + \nz")
+	for _, v := range result {
+		fmt.Println(v)
+	}
+}
+
 func TestScan(t *testing.T) {
 
 	text := "1 + 2 * 3"
@@ -42,7 +49,6 @@ func TestScan(t *testing.T) {
 		},
 		{
 			typeof: lexEOF,
-			value:  nil,
 			line:   1,
 			column: 10,
 		},
@@ -101,7 +107,6 @@ func TestParens(t *testing.T) {
 		},
 		{
 			typeof: lexEOF,
-			value:  nil,
 			line:   1,
 			column: 12,
 		},
@@ -147,7 +152,6 @@ func TestNewlines(t *testing.T) {
 		},
 		{
 			typeof: lexEOF,
-			value:  nil,
 			line:   2,
 			column: 5,
 		},
@@ -193,7 +197,6 @@ func TestNewlines(t *testing.T) {
 		},
 		{
 			typeof: lexEOF,
-			value:  nil,
 			line:   3,
 			column: 11,
 		},
