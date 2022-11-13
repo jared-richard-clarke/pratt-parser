@@ -2,7 +2,6 @@ package pratt
 
 import (
 	"fmt"
-	"strconv"
 	"unicode"
 	"unicode/utf8"
 )
@@ -35,7 +34,7 @@ const (
 
 type token struct {
 	typeof lexType
-	value  any
+	value  string
 	line   int
 	column int
 }
@@ -43,9 +42,9 @@ type token struct {
 func (t *token) String() string {
 	switch {
 	case t.typeof < lexNumber:
-		return fmt.Sprintf("Punctuator: %c", t.value)
+		return fmt.Sprintf("Punctuator: %s", t.value)
 	case t.typeof == lexNumber:
-		return fmt.Sprintf("Float64: %f", t.value)
+		return fmt.Sprintf("Float64: %s", t.value)
 	case t.typeof == lexIdent:
 		return fmt.Sprintf("Identifier: %s", t.value)
 	case t.typeof == lexError:
@@ -53,7 +52,7 @@ func (t *token) String() string {
 	case t.typeof == lexEOF:
 		return "EOF"
 	default:
-		return fmt.Sprintf("%v", t.value)
+		return fmt.Sprintf("Unknown: %s", t.value)
 	}
 }
 
@@ -101,7 +100,7 @@ func (sc *scanner) peekNext() rune {
 	return r
 }
 
-func (sc *scanner) addToken(t lexType, v any) {
+func (sc *scanner) addToken(t lexType, v string) {
 	runeCount := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
 	lexOffset := 0
 	// Center column on character representation of rune.
@@ -133,25 +132,25 @@ func (sc *scanner) scanToken() {
 		return
 	// punctuators
 	case r == '(':
-		sc.addToken(lexOpenParen, r)
+		sc.addToken(lexOpenParen, "(")
 		return
 	case r == ')':
-		sc.addToken(lexCloseParen, r)
+		sc.addToken(lexCloseParen, ")")
 		return
 	case r == '-':
-		sc.addToken(lexSub, r)
+		sc.addToken(lexSub, "-")
 		return
 	case r == '+':
-		sc.addToken(lexAdd, r)
+		sc.addToken(lexAdd, "+")
 		return
 	case r == '*':
-		sc.addToken(lexMul, r)
+		sc.addToken(lexMul, "*")
 		return
 	case r == '/':
-		sc.addToken(lexDiv, r)
+		sc.addToken(lexDiv, "/")
 		return
 	case r == '^':
-		sc.addToken(lexExp, r)
+		sc.addToken(lexExp, "^")
 		return
 	// numbers
 	case unicode.IsDigit(r):
@@ -165,12 +164,7 @@ func (sc *scanner) scanToken() {
 			}
 		}
 		text := sc.source[sc.start:sc.offset]
-		num, err := strconv.ParseFloat(text, 64)
-		if err != nil {
-			sc.addToken(lexError, fmt.Sprintf("parsing float %q: %s", text, err.Error()))
-		} else {
-			sc.addToken(lexNumber, num)
-		}
+		sc.addToken(lexNumber, text)
 		return
 	// identifiers
 	case unicode.IsLetter(r):
@@ -182,7 +176,7 @@ func (sc *scanner) scanToken() {
 		return
 	// unknowns
 	default:
-		sc.addToken(lexError, fmt.Sprintf("%c", r))
+		sc.addToken(lexError, string(r))
 		return
 	}
 }
