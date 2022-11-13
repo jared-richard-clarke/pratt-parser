@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestPrint(t *testing.T) {
+	result := Scan("7..0/5")
+	for _, v := range result {
+		fmt.Println(v)
+	}
+}
+
 func TestScan(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := []token{
@@ -138,7 +145,7 @@ func TestNewlines(t *testing.T) {
 		eof(2, 5),
 	}
 	result := Scan(text)
-	compare(expect, result, t, "TestNewlines (Part 1)")
+	compare(expect, result, t, "TestNewlines (Test 1)")
 
 	text = `1 +
 	        2 *
@@ -177,7 +184,7 @@ func TestNewlines(t *testing.T) {
 		eof(3, 11),
 	}
 	result = Scan(text)
-	compare(expect, result, t, "TestNewlines (Part 2)")
+	compare(expect, result, t, "TestNewlines (Test 2)")
 }
 
 func TestIdent(t *testing.T) {
@@ -216,7 +223,7 @@ func TestIdent(t *testing.T) {
 		eof(1, 15),
 	}
 	result := Scan(text)
-	compare(expect, result, t, "TestIdent (Part 1)")
+	compare(expect, result, t, "TestIdent (Test 1)")
 
 	text = "x + wyvern/hamster"
 	expect = []token{
@@ -253,7 +260,7 @@ func TestIdent(t *testing.T) {
 		eof(1, 19),
 	}
 	result = Scan(text)
-	compare(expect, result, t, "TestIdent (Part 2)")
+	compare(expect, result, t, "TestIdent (Test 2)")
 }
 
 func TestNumbers(t *testing.T) {
@@ -280,7 +287,7 @@ func TestNumbers(t *testing.T) {
 		eof(1, 6),
 	}
 	result := Scan(text)
-	compare(expect, result, t, "TestNumbers (Part 1)")
+	compare(expect, result, t, "TestNumbers (Test 1)")
 
 	text = "7.5.0"
 	expect = []token{
@@ -305,7 +312,7 @@ func TestNumbers(t *testing.T) {
 		eof(1, 6),
 	}
 	result = Scan(text)
-	compare(expect, result, t, "TestNumbers (Part 2)")
+	compare(expect, result, t, "TestNumbers (Test 2)")
 }
 
 // utility functions
