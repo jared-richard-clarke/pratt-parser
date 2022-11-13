@@ -102,18 +102,16 @@ func (sc *scanner) peekNext() rune {
 }
 
 func (sc *scanner) addToken(t lexType, v any) {
-	length := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
-	// Ensure column number is centered on character representation of rune.
+	runeCount := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
+	lexOffset := 0
+	// Center column on character representation of rune.
 	// [ w, o, r, d ] not [ w, o, r, d ]
 	//   ^                 ^
-	if length <= 1 {
-		length = 0
-	} else {
-		length -= 1
+	if runeCount > 1 {
+		lexOffset = runeCount - 1
 	}
-	// Subtract lexeme rune count from column number for lexemes with more than one rune.
-	// Ensures column count begins at start of lexeme.
-	column := sc.column - length
+	// Ensure column count begins at start of lexeme.
+	column := sc.column - lexOffset
 
 	switch t {
 	case lexError:
