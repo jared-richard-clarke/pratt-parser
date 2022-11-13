@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestPrint(t *testing.T) {
+	result := Scan("7..0/5")
+	for _, v := range result {
+		fmt.Println(v)
+	}
+}
+
 func TestScan(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := []token{
@@ -286,12 +293,16 @@ func eof(l, c int) token {
 	}
 }
 
-func compare(expect []token, result []*token, t *testing.T, name string) {
-	for i, c := range result {
-		e := expect[i]
-		g := *c
-		if e != g {
-			t.Errorf("Test %s failed. Expected: %v, Got: %v", name, e, g)
+func compare(e []token, r []*token, t *testing.T, n string) {
+	if len(e) != len(r) {
+		t.Errorf("Test %s failed. Token slices of unequal length.", n)
+	} else {
+		for i := range e {
+			exp := e[i]
+			got := *r[i]
+			if exp != got {
+				t.Errorf("Test %s failed. Expected: %v, Got: %v", n, exp, got)
+			}
 		}
 	}
 }
