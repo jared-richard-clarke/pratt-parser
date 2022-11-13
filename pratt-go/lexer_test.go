@@ -318,13 +318,13 @@ func eof(l, c int) token {
 	}
 }
 
-func compare(e []token, r []*token, t *testing.T, n string) {
+func compare(e []token, r []token, t *testing.T, n string) {
 	if len(e) != len(r) {
 		t.Errorf("Test %s failed. Token slices of unequal length.", n)
 	} else {
 		for i := range e {
 			exp := e[i]
-			got := *r[i]
+			got := r[i]
 			if exp != got {
 				t.Errorf("Test %s failed. Expected: %v, Got: %v", n, exp, got)
 			}
