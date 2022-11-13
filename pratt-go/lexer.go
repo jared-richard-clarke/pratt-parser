@@ -13,7 +13,7 @@ const (
 	carriageReturn = '\r'
 	tab            = '\t'
 	whiteSpace     = ' '
-	decPoint       = '.'
+	decimalPoint   = '.'
 	underscore     = '_'
 )
 
@@ -158,7 +158,7 @@ func (sc *scanner) scanToken() {
 		for unicode.IsDigit(sc.peek()) {
 			sc.next()
 		}
-		if sc.peek() == decPoint && unicode.IsDigit(sc.peekNext()) {
+		if sc.peek() == decimalPoint && unicode.IsDigit(sc.peekNext()) {
 			sc.next()
 			for unicode.IsDigit(sc.peek()) {
 				sc.next()
