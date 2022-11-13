@@ -26,6 +26,7 @@ const (
 	lexSub
 	lexMul
 	lexDiv
+	lexExp
 	lexNumber
 	lexIdent
 	lexError
@@ -148,6 +149,9 @@ func (sc *scanner) scanToken() {
 		return
 	case r == '/':
 		sc.addToken(lexDiv, r)
+		return
+	case r == '^':
+		sc.addToken(lexExp, r)
 		return
 	// numbers
 	case unicode.IsDigit(r):
