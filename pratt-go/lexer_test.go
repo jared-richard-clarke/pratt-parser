@@ -44,6 +44,13 @@ func TestScan(t *testing.T) {
 	compare(expect, result, t, "TestScan")
 }
 
+func TestEmpty(t *testing.T) {
+	text := " \n\t"
+	expect := []token{eof(2, 2)}
+	result := Scan(text)
+	compare(expect, result, t, "TestEmpty")
+}
+
 func TestParens(t *testing.T) {
 	text := "(1 + 2) * 3"
 	expect := []token{
