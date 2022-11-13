@@ -35,7 +35,6 @@ const (
 type token struct {
 	typeof lexType
 	value  any
-	err    error
 	line   int
 	column int
 }
@@ -49,7 +48,7 @@ func (t *token) String() string {
 	case t.typeof == lexIdent:
 		return fmt.Sprintf("Identifier: %s", t.value)
 	case t.typeof == lexError:
-		return fmt.Sprintf("Error: %s", t.err.Error())
+		return fmt.Sprintf("Error: %s", t.value)
 	case t.typeof == lexEOF:
 		return "EOF"
 	default:
@@ -113,22 +112,12 @@ func (sc *scanner) addToken(t lexType, v any) {
 	// Ensure column count begins at start of lexeme.
 	column := sc.column - lexOffset
 
-	switch t {
-	case lexError:
-		sc.tokens = append(sc.tokens, &token{
-			typeof: t,
-			err:    fmt.Errorf("%s line: %d, column: %d", v, sc.line, column),
-			line:   sc.line,
-			column: column,
-		})
-	default:
-		sc.tokens = append(sc.tokens, &token{
-			typeof: t,
-			value:  v,
-			line:   sc.line,
-			column: column,
-		})
-	}
+	sc.tokens = append(sc.tokens, &token{
+		typeof: t,
+		value:  v,
+		line:   sc.line,
+		column: column,
+	})
 }
 
 func (sc *scanner) scanToken() {
@@ -174,8 +163,7 @@ func (sc *scanner) scanToken() {
 		text := sc.source[sc.start:sc.offset]
 		num, err := strconv.ParseFloat(text, 64)
 		if err != nil {
-			err = fmt.Errorf("parsing float %q: %w", text, err)
-			sc.addToken(lexError, err.Error())
+			sc.addToken(lexError, fmt.Sprintf("parsing float %q: %s", text, err.Error()))
 		} else {
 			sc.addToken(lexNumber, num)
 		}
