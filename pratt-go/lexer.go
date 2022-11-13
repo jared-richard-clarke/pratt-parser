@@ -59,7 +59,7 @@ func (t *token) String() string {
 
 type scanner struct {
 	source string
-	tokens []*token
+	tokens []token
 	length int // The number of bytes in the source string. Compute only once.
 
 	offset int // The total offset from the beginning of a string. Counts runes by byte size.
@@ -113,7 +113,7 @@ func (sc *scanner) addToken(t lexType, v any) {
 	// Ensure column count begins at start of lexeme.
 	column := sc.column - lexOffset
 
-	sc.tokens = append(sc.tokens, &token{
+	sc.tokens = append(sc.tokens, token{
 		typeof: t,
 		value:  v,
 		line:   sc.line,
@@ -188,10 +188,10 @@ func (sc *scanner) scanToken() {
 }
 
 // The Lexer API: drives the scanner.
-func Scan(t string) []*token {
+func Scan(t string) []token {
 	sc := scanner{
 		source: t,
-		tokens: make([]*token, 0),
+		tokens: make([]token, 0),
 		length: len(t),
 		offset: 0,
 		start:  0,
@@ -202,7 +202,7 @@ func Scan(t string) []*token {
 		sc.start = sc.offset
 		sc.scanToken()
 	}
-	sc.tokens = append(sc.tokens, &token{
+	sc.tokens = append(sc.tokens, token{
 		typeof: lexEOF,
 		line:   sc.line,
 		column: sc.column + 1,
