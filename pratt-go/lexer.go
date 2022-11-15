@@ -42,17 +42,17 @@ type token struct {
 func (t token) String() string {
 	switch {
 	case t.typeof < lexNumber:
-		return fmt.Sprintf("Punctuator: %s", t.value)
+		return fmt.Sprintf("Punct: %q :%d:%d", t.value, t.line, t.column)
 	case t.typeof == lexNumber:
-		return fmt.Sprintf("Float64: %s", t.value)
+		return fmt.Sprintf("Float: %q :%d:%d", t.value, t.line, t.column)
 	case t.typeof == lexIdent:
-		return fmt.Sprintf("Identifier: %s", t.value)
+		return fmt.Sprintf("Ident: %q :%d:%d", t.value, t.line, t.column)
 	case t.typeof == lexError:
-		return fmt.Sprintf("Error: %s", t.value)
+		return fmt.Sprintf("Error: %q :%d:%d", t.value, t.line, t.column)
 	case t.typeof == lexEOF:
-		return "EOF"
+		return fmt.Sprintf("EOF :%d:%d", t.line, t.column)
 	default:
-		return fmt.Sprintf("Unknown: %s", t.value)
+		return fmt.Sprintf("Undef: %q :%d:%d", t.value, t.line, t.column)
 	}
 }
 
