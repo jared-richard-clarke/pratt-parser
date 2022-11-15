@@ -39,7 +39,7 @@ type token struct {
 	column int
 }
 
-func (t *token) String() string {
+func (t token) String() string {
 	switch {
 	case t.typeof < lexNumber:
 		return fmt.Sprintf("Punctuator: %s", t.value)
