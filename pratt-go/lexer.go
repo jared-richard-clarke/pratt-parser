@@ -173,7 +173,7 @@ func (sc *scanner) scanToken() {
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(lexIdent, text)
 		return
-	// unknowns
+	// undefined
 	default:
 		sc.addToken(lexError, string(r))
 		return
