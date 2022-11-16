@@ -45,14 +45,14 @@ func TestScan(t *testing.T) {
 		},
 		eof(1, 10),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestScan")
 }
 
 func TestEmpty(t *testing.T) {
 	text := " \n\t"
 	expect := []token{eof(2, 2)}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestEmpty")
 }
 
@@ -110,7 +110,7 @@ func TestParens(t *testing.T) {
 		},
 		eof(1, 12),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestParens")
 }
 
@@ -154,7 +154,7 @@ func TestNewlines(t *testing.T) {
 		},
 		eof(2, 5),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestNewlines (Test 1)")
 
 	text = `1 +
@@ -198,7 +198,7 @@ func TestNewlines(t *testing.T) {
 		},
 		eof(3, 11),
 	}
-	result = Scan(text)
+	result, _ = Scan(text)
 	compare(expect, result, t, "TestNewlines (Test 2)")
 }
 
@@ -242,7 +242,7 @@ func TestIdent(t *testing.T) {
 		},
 		eof(1, 15),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestIdent (Test 1)")
 
 	text = "x + wyvern/hamster"
@@ -284,7 +284,7 @@ func TestIdent(t *testing.T) {
 		},
 		eof(1, 19),
 	}
-	result = Scan(text)
+	result, _ = Scan(text)
 	compare(expect, result, t, "TestIdent (Test 2)")
 }
 
@@ -314,7 +314,7 @@ func TestNumbers(t *testing.T) {
 		},
 		eof(1, 6),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestNumbers (Test 1)")
 
 	text = "7.5.0"
@@ -342,7 +342,7 @@ func TestNumbers(t *testing.T) {
 		},
 		eof(1, 6),
 	}
-	result = Scan(text)
+	result, _ = Scan(text)
 	compare(expect, result, t, "TestNumbers (Test 2)")
 }
 
