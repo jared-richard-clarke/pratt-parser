@@ -153,6 +153,12 @@ func (sc *scanner) scanToken() {
 	case r == '^':
 		sc.addToken(lexExp, "^")
 		return
+	// comments
+	case r == '#':
+		for sc.peek() != newline && !sc.isAtEnd() {
+			sc.next()
+		}
+		return
 	// numbers
 	case unicode.IsDigit(r):
 		for unicode.IsDigit(sc.peek()) {
@@ -183,8 +189,6 @@ func (sc *scanner) scanToken() {
 }
 
 // The Lexer API: drives the scanner.
-// The scanner returns two values: a slice of tokens and a flag denoting errors.
-// A scan that returns "true" contains lexical errors.
 func Scan(t string) []token {
 	sc := scanner{
 		source: t,
