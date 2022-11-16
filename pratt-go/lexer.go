@@ -153,12 +153,6 @@ func (sc *scanner) scanToken() {
 	case r == '^':
 		sc.addToken(lexExp, "^")
 		return
-	// comments
-	case r == '#':
-		for sc.peek() != newline && !sc.isAtEnd() {
-			sc.next()
-		}
-		return
 	// numbers
 	case unicode.IsDigit(r):
 		for unicode.IsDigit(sc.peek()) {
