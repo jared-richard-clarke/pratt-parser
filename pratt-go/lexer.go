@@ -36,22 +36,23 @@ type token struct {
 	value  string
 	line   int
 	column int
+	length int
 }
 
 func (t token) String() string {
 	switch {
 	case t.typeof < lexNumber:
-		return fmt.Sprintf("Punct: %q :%d:%d", t.value, t.line, t.column)
+		return fmt.Sprintf("Punct: %q :%d:%d:%d", t.value, t.line, t.column, t.length)
 	case t.typeof == lexNumber:
-		return fmt.Sprintf("Float: %q :%d:%d", t.value, t.line, t.column)
+		return fmt.Sprintf("Float: %q :%d:%d:%d", t.value, t.line, t.column, t.length)
 	case t.typeof == lexIdent:
-		return fmt.Sprintf("Ident: %q :%d:%d", t.value, t.line, t.column)
+		return fmt.Sprintf("Ident: %q :%d:%d:%d", t.value, t.line, t.column, t.length)
 	case t.typeof == lexError:
-		return fmt.Sprintf("Error: %q :%d:%d", t.value, t.line, t.column)
+		return fmt.Sprintf("Error: %q :%d:%d:%d", t.value, t.line, t.column, t.length)
 	case t.typeof == lexEOF:
-		return fmt.Sprintf("EOF :%d:%d", t.line, t.column)
+		return fmt.Sprintf("EOF :%d:%d:%d", t.line, t.column, t.length)
 	default:
-		return fmt.Sprintf("Undef: %q :%d:%d", t.value, t.line, t.column)
+		return fmt.Sprintf("Undef: %q :%d:%d:%d", t.value, t.line, t.column, t.length)
 	}
 }
 
@@ -116,6 +117,7 @@ func (sc *scanner) addToken(t lexType, v string) {
 		value:  v,
 		line:   sc.line,
 		column: column,
+		length: runeCount,
 	})
 }
 
@@ -199,6 +201,7 @@ func Scan(t string) []token {
 		typeof: lexEOF,
 		line:   sc.line,
 		column: sc.column + 1,
+		length: 1,
 	})
 	return sc.tokens
 }
