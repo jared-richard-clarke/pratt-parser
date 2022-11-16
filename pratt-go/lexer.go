@@ -57,9 +57,10 @@ func (t token) String() string {
 }
 
 type scanner struct {
-	source string
-	tokens []token
-	length int // The number of bytes in the source string. Compute only once.
+	source   string
+	tokens   []token
+	length   int  // The number of bytes in the source string. Compute only once.
+	hasError bool // Flags token slices that contain errors.
 
 	offset int // The total offset from the beginning of a string. Counts runes by byte size.
 	start  int // The start of a lexeme within source string. Counts runes by byte size.
@@ -177,21 +178,25 @@ func (sc *scanner) scanToken() {
 		return
 	// undefined
 	default:
+		sc.hasError = true
 		sc.addToken(lexError, string(r))
 		return
 	}
 }
 
 // The Lexer API: drives the scanner.
-func Scan(t string) []token {
+// The scanner returns two values: a slice of tokens and a flag denoting errors.
+// A scan that returns "true" contains lexical errors.
+func Scan(t string) ([]token, bool) {
 	sc := scanner{
-		source: t,
-		tokens: make([]token, 0),
-		length: len(t),
-		offset: 0,
-		start:  0,
-		line:   1,
-		column: 0,
+		source:   t,
+		tokens:   make([]token, 0),
+		length:   len(t),
+		hasError: false,
+		offset:   0,
+		start:    0,
+		line:     1,
+		column:   0,
 	}
 	for !sc.isAtEnd() {
 		sc.start = sc.offset
@@ -203,5 +208,5 @@ func Scan(t string) []token {
 		column: sc.column + 1,
 		length: 1,
 	})
-	return sc.tokens
+	return sc.tokens, sc.hasError
 }
