@@ -56,6 +56,10 @@ func (t Token) String() string {
 	}
 }
 
+func isAlphaNumeric(r rune) bool {
+	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == underscore
+}
+
 type scanner struct {
 	source string
 	tokens []Token
@@ -69,10 +73,6 @@ type scanner struct {
 
 func (sc *scanner) isAtEnd() bool {
 	return sc.offset >= sc.length
-}
-
-func isAlphaNumeric(r rune) bool {
-	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == underscore
 }
 
 func (sc *scanner) next() rune {
