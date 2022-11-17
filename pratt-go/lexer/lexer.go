@@ -32,11 +32,11 @@ const (
 )
 
 type Token struct {
-	Typeof lexType
-	Value  string
-	Line   int
-	Column int
-	Length int
+	Typeof lexType // Lexeme type, denoted by "lexType".
+	Value  string  // Lexeme string value.
+	Line   int     // Lexeme line number. Counts newlines ('\n').
+	Column int     // Lexeme starting column within newline. Counts runes.
+	Length int     // Lexeme length. Counts runes.
 }
 
 func (t Token) String() string {
@@ -68,14 +68,14 @@ func isAlphaNumeric(r rune) bool {
 // Internal scanner and methods
 
 type scanner struct {
-	source string
-	tokens []Token
-	length int // The number of bytes in the source string. Compute only once.
+	source string  // Scanner input. Currently a string.
+	tokens []Token // Array slice of accumulating tokens.
+	length int     // Number of bytes in the source string.
 
-	offset int // The total offset from the beginning of a string. Counts runes by byte size.
-	start  int // The start of a lexeme within source string. Counts runes by byte size.
+	offset int // Total string offset. Counts by byte.
+	start  int // Start of a lexeme within source string. Counts bytes.
 	line   int // Counts newlines ('\n').
-	column int // Tracks the start of a lexeme within a newline. Counts runes by 1.
+	column int // Tracks the start of a lexeme within a newline. Counts runes.
 }
 
 func (sc *scanner) isAtEnd() bool {
