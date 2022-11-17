@@ -72,7 +72,7 @@ type scanner struct {
 	tokens []Token // Array slice of accumulating tokens.
 	length int     // Number of bytes in the source string.
 
-	offset int // Total string offset. Counts by byte.
+	offset int // Total string offset. Counts bytes.
 	start  int // Start of a lexeme within source string. Counts bytes.
 	line   int // Counts newlines ('\n').
 	column int // Tracks the start of a lexeme within a newline. Counts runes.
