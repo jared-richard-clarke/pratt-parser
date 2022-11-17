@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestPrint(t *testing.T) {
+	result := Scan("# 7..0/5wyvern\n 100")
+	for _, v := range result {
+		fmt.Println(v)
+	}
+}
+
 func TestScan(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := []Token{
@@ -43,7 +50,7 @@ func TestScan(t *testing.T) {
 			Column: 9,
 			Length: 1,
 		},
-		eof(1, 10),
+		mkEof(1, 10),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestScan")
@@ -51,7 +58,7 @@ func TestScan(t *testing.T) {
 
 func TestEmpty(t *testing.T) {
 	text := " \n\t"
-	expect := []Token{eof(2, 2)}
+	expect := []Token{mkEof(2, 2)}
 	result := Scan(text)
 	compare(expect, result, t, "TestEmpty")
 }
@@ -108,7 +115,7 @@ func TestParens(t *testing.T) {
 			Column: 11,
 			Length: 1,
 		},
-		eof(1, 12),
+		mkEof(1, 12),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestParens")
@@ -152,7 +159,7 @@ func TestNewlines(t *testing.T) {
 			Column: 4,
 			Length: 1,
 		},
-		eof(2, 5),
+		mkEof(2, 5),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestNewlines (Test 1)")
@@ -196,7 +203,7 @@ func TestNewlines(t *testing.T) {
 			Column: 10,
 			Length: 1,
 		},
-		eof(3, 11),
+		mkEof(3, 11),
 	}
 	result = Scan(text)
 	compare(expect, result, t, "TestNewlines (Test 2)")
@@ -240,7 +247,7 @@ func TestIdent(t *testing.T) {
 			Column: 14,
 			Length: 1,
 		},
-		eof(1, 15),
+		mkEof(1, 15),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestIdent (Test 1)")
@@ -282,7 +289,7 @@ func TestIdent(t *testing.T) {
 			Column: 12,
 			Length: 7,
 		},
-		eof(1, 19),
+		mkEof(1, 19),
 	}
 	result = Scan(text)
 	compare(expect, result, t, "TestIdent (Test 2)")
@@ -312,7 +319,7 @@ func TestNumbers(t *testing.T) {
 			Column: 5,
 			Length: 1,
 		},
-		eof(1, 6),
+		mkEof(1, 6),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestNumbers (Test 1)")
@@ -340,7 +347,7 @@ func TestNumbers(t *testing.T) {
 			Column: 5,
 			Length: 1,
 		},
-		eof(1, 6),
+		mkEof(1, 6),
 	}
 	result = Scan(text)
 	compare(expect, result, t, "TestNumbers (Test 2)")
@@ -377,7 +384,7 @@ func TestSub(t *testing.T) {
 			Column: 6,
 			Length: 1,
 		},
-		eof(1, 7),
+		mkEof(1, 7),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestSub")
@@ -407,7 +414,7 @@ func TestExp(t *testing.T) {
 			Column: 3,
 			Length: 1,
 		},
-		eof(1, 4),
+		mkEof(1, 4),
 	}
 	result := Scan(text)
 	compare(expect, result, t, "TestExp")
@@ -415,7 +422,7 @@ func TestExp(t *testing.T) {
 
 // utility functions
 
-func eof(l, c int) Token {
+func mkEof(l, c int) Token {
 	return Token{
 		Typeof: EOF,
 		Line:   l,
