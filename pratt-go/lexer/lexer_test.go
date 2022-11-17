@@ -5,13 +5,6 @@ import (
 	"testing"
 )
 
-func TestPrint(t *testing.T) {
-	result := Scan("# 7..0/5wyvern\n 100")
-	for _, v := range result {
-		fmt.Println(v)
-	}
-}
-
 func TestScan(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := []Token{
