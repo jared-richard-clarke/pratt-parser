@@ -47,18 +47,25 @@ func (t Token) String() string {
 		return fmt.Sprintf("Float: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	case t.Typeof == Ident:
 		return fmt.Sprintf("Ident: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
-	case t.Typeof == Error:
-		return fmt.Sprintf("Error: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	case t.Typeof == EOF:
 		return fmt.Sprintf("EOF :%d:%d:%d", t.Line, t.Column, t.Length)
 	default:
-		return fmt.Sprintf("Undef: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("Error: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	}
 }
+
+// Helper functions and constants
+
+// Whereas lexer uses "EOF" to mark the end of an array of tokens,
+// lexer uses "eof" internally to signal the end of a string or file.
+// "eof" is the untyped int -1, which has no rune alias.
+const eof = -1
 
 func isAlphaNumeric(r rune) bool {
 	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == underscore
 }
+
+// Internal scanner and methods
 
 type scanner struct {
 	source string
@@ -84,7 +91,7 @@ func (sc *scanner) next() rune {
 
 func (sc *scanner) peek() rune {
 	if sc.isAtEnd() {
-		return 0
+		return eof
 	}
 	r, _ := utf8.DecodeRuneInString(sc.source[sc.offset:])
 	return r
@@ -94,7 +101,7 @@ func (sc *scanner) peekNext() rune {
 	_, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
 	offset := sc.offset + w
 	if offset >= sc.length {
-		return 0
+		return eof
 	}
 	r, _ := utf8.DecodeRuneInString(sc.source[offset:])
 	return r
