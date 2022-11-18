@@ -26,7 +26,7 @@ func (n *NumExpr) Nud() (Expr, error) {
 	return n, err
 }
 func (n *NumExpr) Led(e Expr) (Expr, error) {
-	err := fmt.Errorf("expected operator, got %s", n.Lexeme)
+	err := fmt.Errorf("expected operator, got number %s", n.Lexeme)
 	return n, err
 }
 
@@ -38,6 +38,13 @@ type IdentExpr struct {
 type UnaryExpr struct {
 	Op lexer.LexType
 	X  Expr
+}
+
+func AddPrefix(x Expr) UnaryExpr {
+	return UnaryExpr{
+		Op: lexer.Add,
+		X:  x,
+	}
 }
 
 func SubPrefix(x Expr) UnaryExpr {
