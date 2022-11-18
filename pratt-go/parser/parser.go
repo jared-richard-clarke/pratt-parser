@@ -40,7 +40,7 @@ type UnaryExpr struct {
 	X  Expr
 }
 
-func PrefixSub(x Expr) UnaryExpr {
+func SubPrefix(x Expr) UnaryExpr {
 	return UnaryExpr{
 		Op: lexer.Sub,
 		X:  x,
