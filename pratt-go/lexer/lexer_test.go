@@ -383,7 +383,7 @@ func TestSub(t *testing.T) {
 	compare(expect, result, t, "TestSub")
 }
 
-func TestExp(t *testing.T) {
+func TestPow(t *testing.T) {
 	text := "4^2"
 	expect := []Token{
 		{
@@ -394,7 +394,7 @@ func TestExp(t *testing.T) {
 			Length: 1,
 		},
 		{
-			Typeof: Exp,
+			Typeof: Pow,
 			Value:  "^",
 			Line:   1,
 			Column: 2,
@@ -410,7 +410,7 @@ func TestExp(t *testing.T) {
 		mkEof(1, 4),
 	}
 	result := Scan(text)
-	compare(expect, result, t, "TestExp")
+	compare(expect, result, t, "TestPow")
 }
 
 // utility functions
