@@ -15,16 +15,16 @@ const (
 	underscore     = '_'
 )
 
-type lexType int
+type LexType int
 
 const (
-	OpenParen lexType = iota
+	OpenParen LexType = iota
 	CloseParen
 	Add
 	Sub
 	Mul
 	Div
-	Exp
+	Pow
 	Number
 	Ident
 	Error
@@ -32,7 +32,7 @@ const (
 )
 
 type Token struct {
-	Typeof lexType // Lexeme type, denoted by "lexType".
+	Typeof LexType // Lexeme type, denoted by "LexType".
 	Value  string  // Lexeme string value.
 	Line   int     // Lexeme line number. Counts newlines ('\n').
 	Column int     // Lexeme starting column within newline. Counts runes.
@@ -107,7 +107,7 @@ func (sc *scanner) peekNext() rune {
 	return r
 }
 
-func (sc *scanner) addToken(t lexType, v string) {
+func (sc *scanner) addToken(t LexType, v string) {
 	runeCount := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
 	lexOffset := 0
 	// Center column on character representation of rune.
@@ -158,7 +158,7 @@ func (sc *scanner) scanToken() {
 		sc.addToken(Div, "/")
 		return
 	case r == '^':
-		sc.addToken(Exp, "^")
+		sc.addToken(Pow, "^")
 		return
 	// numbers
 	case unicode.IsDigit(r):
