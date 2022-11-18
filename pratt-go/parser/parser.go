@@ -11,7 +11,7 @@ type Expr interface {
 	Led(Expr) (Expr, error) // Left Denotation
 }
 
-// NumExpr may, at some point, be generalized to a expression literal.
+// NumExpr may, at some point, be generalized to an expression literal.
 type NumExpr struct {
 	Lexeme string
 	Value  float64
@@ -31,8 +31,8 @@ func (n *NumExpr) Led(e Expr) (Expr, error) {
 }
 
 type IdentExpr struct {
-	Name  string
-	Value Expr
+	Lexeme string
+	Value  Expr
 }
 
 type UnaryExpr struct {
@@ -97,3 +97,5 @@ func PowExpr(x, y Expr) BinaryExpr {
 		Lbp: 70,
 	}
 }
+
+func Parse(ts []lexer.Token) {}
