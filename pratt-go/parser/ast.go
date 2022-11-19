@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"pratt/lexer"
+	"github/jared-richard-clarke/pratt/lexer"
 	"strconv"
 )
 
