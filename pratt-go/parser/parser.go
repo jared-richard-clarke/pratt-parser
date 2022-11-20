@@ -7,6 +7,6 @@ type (
 	Led     func(Node, lexer.Token) Node // Left denotation
 	NudMap  map[lexer.LexType]Nud        // lexeme -> Nud
 	LedMap  map[lexer.LexType]Led        // lexeme -> Led
-	NudBind map[lexer.LexType]int        // prefix binding powers
-	LedBind map[lexer.LexType]int        // infix binding powers
+	NudBind map[lexer.LexType]int        // prefix precedence
+	LedBind map[lexer.LexType]int        // infix precedence
 )
