@@ -15,8 +15,8 @@ type table struct {
 	nuds map[lexer.LexType]nud // lexeme -> Nud
 	leds map[lexer.LexType]led // lexeme -> Led
 
-	prefix map[lexer.LexType]int // lexeme -> prefix precedence
-	infix  map[lexer.LexType]int // lexeme -> infix precedence
+	rbp map[lexer.LexType]int // lexeme -> right (prefix) binding power
+	lbp map[lexer.LexType]int // lexeme -> left (infix) binding power
 }
 
 type parser struct {
@@ -39,7 +39,7 @@ func (p *parser) expression(rbp int) Node {
 		panic(fmt.Errorf("could not parse %s", token.Value))
 	}
 	left := nud(token)
-	for rbp < p.table.infix[token.Typeof] {
+	for rbp < p.table.lbp[token.Typeof] {
 		token := p.next()
 		led := p.table.leds[token.Typeof]
 		left = led(left, token)
@@ -61,7 +61,7 @@ func (p *parser) parseIdent(t lexer.Token) Node {
 }
 
 func (p *parser) parseUnary(t lexer.Token) Node {
-	x := p.expression(p.prefix[t.Typeof])
+	x := p.expression(p.rbp[t.Typeof])
 	return &Unary{
 		Op: t.Typeof,
 		X:  x,
@@ -69,7 +69,7 @@ func (p *parser) parseUnary(t lexer.Token) Node {
 }
 
 func (p *parser) parseBinary(left Node, t lexer.Token) Node {
-	right := p.expression(p.table.infix[t.Typeof])
+	right := p.expression(p.table.lbp[t.Typeof])
 	return &Binary{
 		Op: t.Typeof,
 		X:  left,
@@ -78,7 +78,7 @@ func (p *parser) parseBinary(left Node, t lexer.Token) Node {
 }
 
 func (p *parser) parseBinaryRight(left Node, t lexer.Token) Node {
-	right := p.expression(p.table.infix[t.Typeof] - 1)
+	right := p.expression(p.table.lbp[t.Typeof] - 1)
 	return &Binary{
 		Op: t.Typeof,
 		X:  left,
