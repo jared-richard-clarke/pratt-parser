@@ -36,7 +36,7 @@ func (p *parser) expression(rbp int) Node {
 	token := p.next()
 	nud, ok := p.table.nuds[token.Typeof]
 	if !ok {
-		panic(fmt.Errorf("Could not parse %s", token.Value))
+		panic(fmt.Errorf("could not parse %s", token.Value))
 	}
 	left := nud(token)
 	for rbp < p.table.infix[token.Typeof] {
@@ -51,22 +51,12 @@ func (p *parser) parseNumber(t lexer.Token) Node {
 	num, _ := strconv.ParseFloat(t.Value, 64)
 	return &Number{
 		Value: num,
-		position: position{
-			line:   t.Line,
-			column: t.Column,
-			length: t.Length,
-		},
 	}
 }
 
 func (p *parser) parseIdent(t lexer.Token) Node {
 	return &Ident{
-		Id: t.Value,
-		position: position{
-			line:   t.Line,
-			column: t.Column,
-			length: t.Length,
-		},
+		Value: t.Value,
 	}
 }
 
@@ -75,11 +65,6 @@ func (p *parser) parseUnary(t lexer.Token) Node {
 	return &Unary{
 		Op: t.Typeof,
 		X:  x,
-		position: position{
-			line:   t.Line,
-			column: t.Column,
-			length: t.Length,
-		},
 	}
 }
 
@@ -89,11 +74,6 @@ func (p *parser) parseBinary(left Node, t lexer.Token) Node {
 		Op: t.Typeof,
 		X:  left,
 		Y:  right,
-		position: position{
-			line:   t.Line,
-			column: t.Column,
-			length: t.Length,
-		},
 	}
 }
 
@@ -103,10 +83,5 @@ func (p *parser) parseBinaryRight(left Node, t lexer.Token) Node {
 		Op: t.Typeof,
 		X:  left,
 		Y:  right,
-		position: position{
-			line:   t.Line,
-			column: t.Column,
-			length: t.Length,
-		},
 	}
 }
