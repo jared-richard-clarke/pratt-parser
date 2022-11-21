@@ -1,6 +1,10 @@
 package parser
 
-import "github/jared-richard-clarke/pratt/lexer"
+import (
+	"fmt"
+	"github/jared-richard-clarke/pratt/lexer"
+	"strconv"
+)
 
 // === Under Heavy Construction ===
 
