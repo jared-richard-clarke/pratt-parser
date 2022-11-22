@@ -72,11 +72,11 @@ func (p *parser) parseNumber(t lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Number{Value: num}, nil
+	return &Number{Value: num, Line: t.Line, Column: t.Column}, nil
 }
 
 func (p *parser) parseIdent(t lexer.Token) (Node, error) {
-	return &Ident{Value: t.Value}, nil
+	return &Ident{Value: t.Value, Line: t.Line, Column: t.Column}, nil
 }
 
 func (p *parser) parseParens(t lexer.Token) (Node, error) {
@@ -96,8 +96,10 @@ func (p *parser) parseUnary(t lexer.Token) (Node, error) {
 		return nil, err
 	}
 	return &Unary{
-		Op: t.Typeof,
-		X:  x,
+		Op:     t.Typeof,
+		X:      x,
+		Line:   t.Line,
+		Column: t.Column,
 	}, nil
 }
 
@@ -107,9 +109,11 @@ func (p *parser) parseBinary(left Node, t lexer.Token) (Node, error) {
 		return nil, err
 	}
 	return &Binary{
-		Op: t.Typeof,
-		X:  left,
-		Y:  right,
+		Op:     t.Typeof,
+		X:      left,
+		Y:      right,
+		Line:   t.Line,
+		Column: t.Column,
 	}, nil
 }
 
@@ -119,8 +123,10 @@ func (p *parser) parseBinaryRight(left Node, t lexer.Token) (Node, error) {
 		return nil, err
 	}
 	return &Binary{
-		Op: t.Typeof,
-		X:  left,
-		Y:  right,
+		Op:     t.Typeof,
+		X:      left,
+		Y:      right,
+		Line:   t.Line,
+		Column: t.Column,
 	}, nil
 }
