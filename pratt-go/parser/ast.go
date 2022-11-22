@@ -7,22 +7,25 @@ type Node interface {
 }
 
 type Number struct {
-	Value float64
-}
-
-type Unary struct {
-	Op lexer.LexType
-	X  Node
-}
-
-type Binary struct {
-	Op lexer.LexType
-	X  Node
-	Y  Node
+	Value        float64
+	Line, Column int
 }
 
 type Ident struct {
-	Value string
+	Value        string
+	Line, Column int
+}
+
+type Unary struct {
+	Op           lexer.LexType
+	X            Node
+	Line, Column int
+}
+
+type Binary struct {
+	Op           lexer.LexType
+	X, Y         Node
+	Line, Column int
 }
 
 func (n *Number) ast() {}
