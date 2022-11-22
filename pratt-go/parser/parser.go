@@ -1,14 +1,15 @@
 package parser
 
 import (
+	"fmt"
 	"github/jared-richard-clarke/pratt/lexer"
 	"strconv"
 )
 
 // === Under Heavy Construction ===
 
-type nud func(lexer.Token) Node       // Null denotation
-type led func(Node, lexer.Token) Node // Left denotation
+type nud func(lexer.Token) (Node, error)       // Null denotation
+type led func(Node, lexer.Token) (Node, error) // Left denotation
 
 type table struct {
 	nuds map[lexer.LexType]nud // lexeme -> Nud
@@ -35,53 +36,91 @@ func (p *parser) next() lexer.Token {
 	return t
 }
 
-func (p *parser) expression(rbp int) Node {
+func (p *parser) peek() lexer.LexType {
+	return p.src[p.index].Typeof
+}
+
+func (p *parser) match(e lexer.LexType) bool {
+	g := p.src[p.index].Typeof
+	if g != e {
+		return false
+	}
+	p.next()
+	return true
+}
+
+func (p *parser) parseExpr(rbp int) (Node, error) {
 	token := p.next()
 	nud := p.nuds[token.Typeof]
-	left := nud(token)
+	left, err := nud(token)
+	if err != nil {
+		return nil, err
+	}
 	for rbp < p.lbp[token.Typeof] {
 		token := p.next()
 		led := p.leds[token.Typeof]
-		left = led(left, token)
+		left, err = led(left, token)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return left
+	return left, nil
 }
 
-func (p *parser) parseNumber(t lexer.Token) Node {
-	num, _ := strconv.ParseFloat(t.Value, 64)
-	return &Number{
-		Value: num,
+func (p *parser) parseNumber(t lexer.Token) (Node, error) {
+	num, err := strconv.ParseFloat(t.Value, 64)
+	if err != nil {
+		return nil, err
 	}
+	return &Number{Value: num}, nil
 }
 
-func (p *parser) parseIdent(t lexer.Token) Node {
-	return &Ident{
-		Value: t.Value,
-	}
+func (p *parser) parseIdent(t lexer.Token) (Node, error) {
+	return &Ident{Value: t.Value}, nil
 }
 
-func (p *parser) parseUnary(t lexer.Token) Node {
-	x := p.expression(p.rbp[t.Typeof])
+func (p *parser) parseParens(t lexer.Token) (Node, error) {
+	x, err := p.parseExpr(0)
+	if err != nil {
+		return nil, err
+	}
+	if !p.match(lexer.CloseParen) {
+		return nil, fmt.Errorf("expected ')', got '%s'", t.Value)
+	}
+	return x, nil
+}
+
+func (p *parser) parseUnary(t lexer.Token) (Node, error) {
+	x, err := p.parseExpr(p.rbp[t.Typeof])
+	if err != nil {
+		return nil, err
+	}
 	return &Unary{
 		Op: t.Typeof,
 		X:  x,
-	}
+	}, nil
 }
 
-func (p *parser) parseBinary(left Node, t lexer.Token) Node {
-	right := p.expression(p.lbp[t.Typeof])
+func (p *parser) parseBinary(left Node, t lexer.Token) (Node, error) {
+	right, err := p.parseExpr(p.lbp[t.Typeof])
+	if err != nil {
+		return nil, err
+	}
 	return &Binary{
 		Op: t.Typeof,
 		X:  left,
 		Y:  right,
-	}
+	}, nil
 }
 
-func (p *parser) parseBinaryRight(left Node, t lexer.Token) Node {
-	right := p.expression(p.lbp[t.Typeof] - 1)
+func (p *parser) parseBinaryRight(left Node, t lexer.Token) (Node, error) {
+	right, err := p.parseExpr(p.lbp[t.Typeof] - 1)
+	if err != nil {
+		return nil, err
+	}
 	return &Binary{
 		Op: t.Typeof,
 		X:  left,
 		Y:  right,
-	}
+	}, nil
 }
