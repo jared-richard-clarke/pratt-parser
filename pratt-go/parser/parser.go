@@ -72,11 +72,19 @@ func (p *parser) parseNumber(t lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Number{Value: num, Line: t.Line, Column: t.Column}, nil
+	return &Number{
+		Value:  num,
+		Line:   t.Line,
+		Column: t.Column,
+	}, nil
 }
 
 func (p *parser) parseIdent(t lexer.Token) (Node, error) {
-	return &Ident{Value: t.Value, Line: t.Line, Column: t.Column}, nil
+	return &Ident{
+		Value:  t.Value,
+		Line:   t.Line,
+		Column: t.Column,
+	}, nil
 }
 
 func (p *parser) parseParens(t lexer.Token) (Node, error) {
