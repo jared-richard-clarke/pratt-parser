@@ -18,13 +18,18 @@ type table struct {
 }
 
 type parser struct {
-	src    []lexer.Token
-	length int
-	index  int
-	table
+	src    []lexer.Token // token source
+	length int           // len(src)
+	index  int           // src[index]
+	end    int           // src[len(src) - 1]
+	table                // parser and binding lookup
 }
 
 func (p *parser) next() lexer.Token {
+	// From source end onwards, returns final token — usually EOF.
+	if p.index >= p.length {
+		return p.src[p.end]
+	}
 	t := p.src[p.index]
 	p.index += 1
 	return t
