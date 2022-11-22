@@ -26,7 +26,7 @@ type parser struct {
 }
 
 func (p *parser) next() lexer.Token {
-	// From source end onwards, returns final token — usually EOF.
+	// From final index onwards, returns final token — usually EOF.
 	if p.index >= p.length {
 		return p.src[p.end]
 	}
