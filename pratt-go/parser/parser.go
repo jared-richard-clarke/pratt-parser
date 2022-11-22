@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"github/jared-richard-clarke/pratt/lexer"
 	"strconv"
 )
@@ -34,14 +33,11 @@ func (p *parser) next() lexer.Token {
 
 func (p *parser) expression(rbp int) Node {
 	token := p.next()
-	nud, ok := p.table.nuds[token.Typeof]
-	if !ok {
-		panic(fmt.Errorf("could not parse %s", token.Value))
-	}
+	nud := p.nuds[token.Typeof]
 	left := nud(token)
-	for rbp < p.table.lbp[token.Typeof] {
+	for rbp < p.lbp[token.Typeof] {
 		token := p.next()
-		led := p.table.leds[token.Typeof]
+		led := p.leds[token.Typeof]
 		left = led(left, token)
 	}
 	return left
@@ -69,7 +65,7 @@ func (p *parser) parseUnary(t lexer.Token) Node {
 }
 
 func (p *parser) parseBinary(left Node, t lexer.Token) Node {
-	right := p.expression(p.table.lbp[t.Typeof])
+	right := p.expression(p.lbp[t.Typeof])
 	return &Binary{
 		Op: t.Typeof,
 		X:  left,
@@ -78,7 +74,7 @@ func (p *parser) parseBinary(left Node, t lexer.Token) Node {
 }
 
 func (p *parser) parseBinaryRight(left Node, t lexer.Token) Node {
-	right := p.expression(p.table.lbp[t.Typeof] - 1)
+	right := p.expression(p.lbp[t.Typeof] - 1)
 	return &Binary{
 		Op: t.Typeof,
 		X:  left,
