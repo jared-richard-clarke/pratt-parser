@@ -13,9 +13,8 @@ type led func(Node, lexer.Token) Node // Left denotation
 type table struct {
 	nuds map[lexer.LexType]nud // lexeme -> Nud
 	leds map[lexer.LexType]led // lexeme -> Led
-
-	rbp map[lexer.LexType]int // lexeme -> right (prefix) binding power
-	lbp map[lexer.LexType]int // lexeme -> left (infix) binding power
+	rbp  map[lexer.LexType]int // lexeme -> right (prefix) binding power
+	lbp  map[lexer.LexType]int // lexeme -> left (infix) binding power
 }
 
 type parser struct {
