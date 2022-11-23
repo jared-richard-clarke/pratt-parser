@@ -1,3 +1,11 @@
+package parser
+
+import (
+	"fmt"
+	"github/jared-richard-clarke/pratt/lexer"
+	"strconv"
+)
+
 // === Under Heavy Construction ===
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
