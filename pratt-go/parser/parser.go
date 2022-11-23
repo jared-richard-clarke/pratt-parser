@@ -124,7 +124,7 @@ func (p *parser) parseBinaryRight(left Node, t lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parseParenPrefix(t lexer.Token) (Node, error) {
+func (p *parser) parseParenUnary(t lexer.Token) (Node, error) {
 	x, err := p.parseExpr(0)
 	if err != nil {
 		return nil, err
@@ -173,7 +173,7 @@ func init() {
 		}
 	}
 	// Initialize lookup tables.
-	addNud(0, lexer.OpenParen, pratt.parseParenPrefix)
+	addNud(0, lexer.OpenParen, pratt.parseParenUnary)
 	addNud(0, lexer.Ident, pratt.parseIdent)
 	addNud(0, lexer.Number, pratt.parseNumber)
 	binary(50, lexer.Add, lexer.Sub)
