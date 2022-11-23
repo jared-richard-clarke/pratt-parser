@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"github/jared-richard-clarke/pratt/lexer"
 	"strconv"
 )
@@ -36,16 +35,7 @@ func (p *parser) next() lexer.Token {
 	return t
 }
 
-func (p *parser) match(e lexer.LexType) bool {
-	g := p.src[p.index].Typeof
-	if g != e {
-		return false
-	}
-	p.next()
-	return true
-}
-
-func (p *parser) parseExpr(rbp int) (Node, error) {
+func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud := p.nuds[token.Typeof]
 	left, err := nud(token)
@@ -63,7 +53,7 @@ func (p *parser) parseExpr(rbp int) (Node, error) {
 	return left, nil
 }
 
-func (p *parser) parseNumber(t lexer.Token) (Node, error) {
+func (p *parser) number(t lexer.Token) (Node, error) {
 	num, err := strconv.ParseFloat(t.Value, 64)
 	if err != nil {
 		return nil, err
@@ -75,7 +65,7 @@ func (p *parser) parseNumber(t lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parseIdent(t lexer.Token) (Node, error) {
+func (p *parser) ident(t lexer.Token) (Node, error) {
 	return &Ident{
 		Value:  t.Value,
 		Line:   t.Line,
@@ -83,8 +73,8 @@ func (p *parser) parseIdent(t lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parseUnary(t lexer.Token) (Node, error) {
-	x, err := p.parseExpr(p.rbp[t.Typeof])
+func (p *parser) unary(t lexer.Token) (Node, error) {
+	x, err := p.expression(p.rbp[t.Typeof])
 	if err != nil {
 		return nil, err
 	}
@@ -96,43 +86,32 @@ func (p *parser) parseUnary(t lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parseBinary(left Node, t lexer.Token) (Node, error) {
-	right, err := p.parseExpr(p.lbp[t.Typeof])
+func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
+	right, err := p.expression(p.lbp[token.Typeof])
 	if err != nil {
 		return nil, err
 	}
 	return &Binary{
-		Op:     t.Value,
+		Op:     token.Value,
 		X:      left,
 		Y:      right,
-		Line:   t.Line,
-		Column: t.Column,
+		Line:   token.Line,
+		Column: token.Column,
 	}, nil
 }
 
-func (p *parser) parseBinaryRight(left Node, t lexer.Token) (Node, error) {
-	right, err := p.parseExpr(p.lbp[t.Typeof] - 1)
+func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
+	right, err := p.expression(p.lbp[token.Typeof] - 1)
 	if err != nil {
 		return nil, err
 	}
 	return &Binary{
-		Op:     t.Value,
+		Op:     token.Value,
 		X:      left,
 		Y:      right,
-		Line:   t.Line,
-		Column: t.Column,
+		Line:   token.Line,
+		Column: token.Column,
 	}, nil
-}
-
-func (p *parser) parseParenUnary(t lexer.Token) (Node, error) {
-	x, err := p.parseExpr(0)
-	if err != nil {
-		return nil, err
-	}
-	if !p.match(lexer.CloseParen) {
-		return nil, fmt.Errorf("expected ')', got '%s'", t.Value)
-	}
-	return x, nil
 }
 
 // Carries parser's internal state. Should persist throughout package lifetime.
@@ -149,9 +128,6 @@ func init() {
 		},
 	}
 	// Helper functions build lookup tables.
-	addLit := func(t lexer.LexType, n nud) {
-		pratt.nuds[t] = n
-	}
 	addNud := func(bp int, t lexer.LexType, n nud) {
 		pratt.nuds[t] = n
 		pratt.rbp[t] = bp
@@ -160,29 +136,31 @@ func init() {
 		pratt.leds[t] = l
 		pratt.lbp[t] = bp
 	}
-	unary := func(bp int, ts ...lexer.LexType) {
+	symbol := func(t lexer.LexType, n nud) {
+		addNud(0, t, n)
+	}
+	prefix := func(bp int, ts ...lexer.LexType) {
 		for _, t := range ts {
-			addNud(bp, t, pratt.parseUnary)
+			addNud(bp, t, pratt.unary)
 		}
 	}
-	binary := func(bp int, ts ...lexer.LexType) {
+	infix := func(bp int, ts ...lexer.LexType) {
 		for _, t := range ts {
-			addLed(t, bp, pratt.parseBinary)
+			addLed(t, bp, pratt.binary)
 		}
 	}
-	binaryRight := func(bp int, ts ...lexer.LexType) {
+	infixr := func(bp int, ts ...lexer.LexType) {
 		for _, t := range ts {
-			addLed(t, bp, pratt.parseBinaryRight)
+			addLed(t, bp, pratt.binaryr)
 		}
 	}
 	// Initialize lookup tables.
-	addLit(lexer.Ident, pratt.parseIdent)
-	addLit(lexer.Number, pratt.parseNumber)
-	addLit(lexer.OpenParen, pratt.parseParenUnary)
-	binary(50, lexer.Add, lexer.Sub)
-	binary(60, lexer.Mul, lexer.Div)
-	binaryRight(70, lexer.Pow)
-	unary(80, lexer.Add, lexer.Sub)
+	symbol(lexer.Number, pratt.number)
+	symbol(lexer.Ident, pratt.ident)
+	infix(50, lexer.Add, lexer.Sub)
+	infix(60, lexer.Mul, lexer.Div)
+	infixr(70, lexer.Pow)
+	prefix(80, lexer.Add, lexer.Sub)
 }
 
 // Parser API: inputs tokens, outputs either AST or Error
