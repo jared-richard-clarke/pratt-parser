@@ -1,11 +1,3 @@
-package parser
-
-import (
-	"fmt"
-	"github/jared-richard-clarke/pratt/lexer"
-	"strconv"
-)
-
 // === Under Heavy Construction ===
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
@@ -87,24 +79,13 @@ func (p *parser) parseIdent(t lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parseParens(t lexer.Token) (Node, error) {
-	x, err := p.parseExpr(0)
-	if err != nil {
-		return nil, err
-	}
-	if !p.match(lexer.CloseParen) {
-		return nil, fmt.Errorf("expected ')', got '%s'", t.Value)
-	}
-	return x, nil
-}
-
 func (p *parser) parseUnary(t lexer.Token) (Node, error) {
 	x, err := p.parseExpr(p.rbp[t.Typeof])
 	if err != nil {
 		return nil, err
 	}
 	return &Unary{
-		Op:     t.Typeof,
+		Op:     t.Value,
 		X:      x,
 		Line:   t.Line,
 		Column: t.Column,
@@ -117,7 +98,7 @@ func (p *parser) parseBinary(left Node, t lexer.Token) (Node, error) {
 		return nil, err
 	}
 	return &Binary{
-		Op:     t.Typeof,
+		Op:     t.Value,
 		X:      left,
 		Y:      right,
 		Line:   t.Line,
@@ -125,16 +106,27 @@ func (p *parser) parseBinary(left Node, t lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parseBinaryRight(left Node, t lexer.Token) (Node, error) {
+func (p *parser) parseBinaryR(left Node, t lexer.Token) (Node, error) {
 	right, err := p.parseExpr(p.lbp[t.Typeof] - 1)
 	if err != nil {
 		return nil, err
 	}
 	return &Binary{
-		Op:     t.Typeof,
+		Op:     t.Value,
 		X:      left,
 		Y:      right,
 		Line:   t.Line,
 		Column: t.Column,
 	}, nil
+}
+
+func (p *parser) parseParenExpr(t lexer.Token) (Node, error) {
+	x, err := p.parseExpr(0)
+	if err != nil {
+		return nil, err
+	}
+	if !p.match(lexer.CloseParen) {
+		return nil, fmt.Errorf("expected ')', got '%s'", t.Value)
+	}
+	return x, nil
 }
