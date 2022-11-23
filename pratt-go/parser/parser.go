@@ -149,6 +149,9 @@ func init() {
 		},
 	}
 	// Helper functions build lookup tables.
+	addLit := func(t lexer.LexType, n nud) {
+		pratt.nuds[t] = n
+	}
 	addNud := func(bp int, t lexer.LexType, n nud) {
 		pratt.nuds[t] = n
 		pratt.rbp[t] = bp
@@ -173,9 +176,9 @@ func init() {
 		}
 	}
 	// Initialize lookup tables.
-	addNud(0, lexer.OpenParen, pratt.parseParenUnary)
-	addNud(0, lexer.Ident, pratt.parseIdent)
-	addNud(0, lexer.Number, pratt.parseNumber)
+	addLit(lexer.Ident, pratt.parseIdent)
+	addLit(lexer.Number, pratt.parseNumber)
+	addLit(lexer.OpenParen, pratt.parseParenUnary)
 	binary(50, lexer.Add, lexer.Sub)
 	binary(60, lexer.Mul, lexer.Div)
 	binaryRight(70, lexer.Pow)
