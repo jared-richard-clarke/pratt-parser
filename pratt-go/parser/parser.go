@@ -35,14 +35,6 @@ func (p *parser) next() lexer.Token {
 	return t
 }
 
-func (p *parser) bp(t lexer.LexType) int {
-	b, ok := p.binds[t]
-	if !ok {
-		return 0
-	}
-	return b
-}
-
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud := p.nuds[token.Typeof]
@@ -50,7 +42,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	for rbp < p.bp(token.Typeof) {
+	for rbp < p.binds[token.Typeof] {
 		token := p.next()
 		led := p.leds[token.Typeof]
 		left, err = led(left, token)
