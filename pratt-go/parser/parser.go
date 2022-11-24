@@ -11,10 +11,10 @@ type nud func(lexer.Token) (Node, error)       // Null denotation
 type led func(Node, lexer.Token) (Node, error) // Left denotation
 
 type table struct {
-	nuds map[lexer.LexType]nud // lexeme -> Nud
-	leds map[lexer.LexType]led // lexeme -> Led
-	rbp  map[lexer.LexType]int // lexeme -> right binding power
-	lbp  map[lexer.LexType]int // lexeme -> left binding power
+	nuds     map[lexer.LexType]nud // lexeme -> Nud
+	leds     map[lexer.LexType]led // lexeme -> Led
+	prebinds map[lexer.LexType]int // lexeme -> prefix binding power
+	binds    map[lexer.LexType]int // lexeme -> binding power
 }
 
 type parser struct {
@@ -35,6 +35,14 @@ func (p *parser) next() lexer.Token {
 	return t
 }
 
+func (p *parser) bp(t lexer.LexType) int {
+	b, ok := p.binds[t]
+	if !ok {
+		return 0
+	}
+	return b
+}
+
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud := p.nuds[token.Typeof]
@@ -42,7 +50,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	for rbp < p.lbp[token.Typeof] {
+	for rbp < p.bp(token.Typeof) {
 		token := p.next()
 		led := p.leds[token.Typeof]
 		left, err = led(left, token)
@@ -70,7 +78,7 @@ func (p *parser) literal(t lexer.Token) (Node, error) {
 }
 
 func (p *parser) unary(t lexer.Token) (Node, error) {
-	x, err := p.expression(p.rbp[t.Typeof])
+	x, err := p.expression(p.prebinds[t.Typeof])
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +91,7 @@ func (p *parser) unary(t lexer.Token) (Node, error) {
 }
 
 func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
-	right, err := p.expression(p.lbp[token.Typeof])
+	right, err := p.expression(p.binds[token.Typeof])
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +105,7 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 }
 
 func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
-	right, err := p.expression(p.lbp[token.Typeof] - 1)
+	right, err := p.expression(p.binds[token.Typeof] - 1)
 	if err != nil {
 		return nil, err
 	}
@@ -117,37 +125,32 @@ func init() {
 	// Build lookup table at package initialization.
 	pratt = parser{
 		table: &table{
-			nuds: make(map[lexer.LexType]nud),
-			leds: make(map[lexer.LexType]led),
-			rbp:  make(map[lexer.LexType]int),
-			lbp:  make(map[lexer.LexType]int),
+			nuds:     make(map[lexer.LexType]nud),
+			leds:     make(map[lexer.LexType]led),
+			prebinds: make(map[lexer.LexType]int),
+			binds:    make(map[lexer.LexType]int),
 		},
 	}
 	// Helper functions build lookup tables.
-	addNud := func(bp int, t lexer.LexType, n nud) {
-		pratt.nuds[t] = n
-		pratt.rbp[t] = bp
-	}
-	addLed := func(t lexer.LexType, bp int, l led) {
-		pratt.leds[t] = l
-		pratt.lbp[t] = bp
-	}
 	symbol := func(t lexer.LexType, n nud) {
-		addNud(0, t, n)
+		pratt.nuds[t] = n
 	}
 	prefix := func(bp int, ts ...lexer.LexType) {
 		for _, t := range ts {
-			addNud(bp, t, pratt.unary)
+			pratt.nuds[t] = pratt.unary
+			pratt.prebinds[t] = bp
 		}
 	}
 	infix := func(bp int, ts ...lexer.LexType) {
 		for _, t := range ts {
-			addLed(t, bp, pratt.binary)
+			pratt.leds[t] = pratt.binary
+			pratt.binds[t] = bp
 		}
 	}
 	infixr := func(bp int, ts ...lexer.LexType) {
 		for _, t := range ts {
-			addLed(t, bp, pratt.binaryr)
+			pratt.leds[t] = pratt.binaryr
+			pratt.binds[t] = bp
 		}
 	}
 	// Initialize lookup tables.
@@ -172,4 +175,3 @@ func Parse(ts []lexer.Token) (Node, error) {
 	}
 	return nil, nil
 }
-
