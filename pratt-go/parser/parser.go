@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"fmt"
 	"github/jared-richard-clarke/pratt/lexer"
-	"strconv"
 )
 
 // === Under Heavy Construction ===
@@ -53,20 +53,16 @@ func (p *parser) expression(rbp int) (Node, error) {
 	return left, nil
 }
 
-func (p *parser) number(t lexer.Token) (Node, error) {
-	num, err := strconv.ParseFloat(t.Value, 64)
-	if err != nil {
-		return nil, err
-	}
-	return &Number{
-		Value:  num,
-		Line:   t.Line,
-		Column: t.Column,
-	}, nil
+// Always returns error. Has Node return type to satisfy "nud".
+func (p *parser) error(t lexer.Token) (Node, error) {
+	err := fmt.Errorf("unexpected lexeme %s :%d:%d", t.Value, t.Line, t.Column)
+	return nil, err
 }
 
-func (p *parser) ident(t lexer.Token) (Node, error) {
-	return &Ident{
+// Always returns Node. Has error return type to satisfy "nud".
+func (p *parser) literal(t lexer.Token) (Node, error) {
+	return &Literal{
+		Typeof: t.Typeof,
 		Value:  t.Value,
 		Line:   t.Line,
 		Column: t.Column,
@@ -155,8 +151,9 @@ func init() {
 		}
 	}
 	// Initialize lookup tables.
-	symbol(lexer.Number, pratt.number)
-	symbol(lexer.Ident, pratt.ident)
+	symbol(lexer.Error, pratt.error)
+	symbol(lexer.Number, pratt.literal)
+	symbol(lexer.Ident, pratt.literal)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
 	infixr(70, lexer.Pow)
@@ -175,3 +172,4 @@ func Parse(ts []lexer.Token) (Node, error) {
 	}
 	return nil, nil
 }
+
