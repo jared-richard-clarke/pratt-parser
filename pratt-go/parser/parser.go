@@ -53,13 +53,13 @@ func (p *parser) expression(rbp int) (Node, error) {
 	return left, nil
 }
 
-// Always returns error. Has Node return type to satisfy "nud".
+// Always returns error. Has Node type to satisfy "nud".
 func (p *parser) error(t lexer.Token) (Node, error) {
 	err := fmt.Errorf("unexpected lexeme %s :%d:%d", t.Value, t.Line, t.Column)
 	return nil, err
 }
 
-// Always returns Node. Has error return type to satisfy "nud".
+// Always returns Node. Has error type to satisfy "nud".
 func (p *parser) literal(t lexer.Token) (Node, error) {
 	return &Literal{
 		Typeof: t.Typeof,
