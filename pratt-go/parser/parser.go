@@ -124,7 +124,7 @@ func init() {
 		},
 	}
 	// Helper functions build lookup tables.
-	symbol := func(t lexer.LexType, n nud) {
+	register := func(t lexer.LexType, n nud) {
 		pratt.nuds[t] = n
 	}
 	prefix := func(bp int, ts ...lexer.LexType) {
@@ -146,9 +146,9 @@ func init() {
 		}
 	}
 	// Initialize lookup tables.
-	symbol(lexer.Error, pratt.error)
-	symbol(lexer.Number, pratt.literal)
-	symbol(lexer.Ident, pratt.literal)
+	register(lexer.Error, pratt.error)
+	register(lexer.Number, pratt.literal)
+	register(lexer.Ident, pratt.literal)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
 	infixr(70, lexer.Pow)
