@@ -163,7 +163,7 @@ func Parse(ts []lexer.Token) (Node, error) {
 		length: len(ts),
 		index:  0,
 		end:    len(ts) - 1,
-		table:  pratt.table, // Persist lookup table from package initialization.
+		table:  pratt.table, // Reuse lookup table from package initialization.
 	}
 	return nil, nil
 }
