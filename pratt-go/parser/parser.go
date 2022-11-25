@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github/jared-richard-clarke/pratt/lexer"
 )
+
 // === Under Heavy Construction ===
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
@@ -33,15 +34,8 @@ func (p *parser) next() lexer.Token {
 	return t
 }
 
-func (p *parser) peek() lexer.LexType {
-	if p.index+1 >= p.end {
-		return lexer.EOF
-	}
-	return p.src[p.index+1].Typeof
-}
-
 func (p *parser) match(expect lexer.LexType) bool {
-	got := p.peek()
+	got := p.src[p.index].Typeof
 	if got != expect {
 		return false
 	}
