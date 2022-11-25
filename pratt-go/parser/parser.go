@@ -165,5 +165,9 @@ func Parse(ts []lexer.Token) (Node, error) {
 		end:    len(ts) - 1,
 		table:  pratt.table, // Reuse lookup table from package initialization.
 	}
-	return nil, nil
+	node, err := pratt.expression(0)
+	if err != nil {
+		return nil, err
+	}
+	return node, nil
 }
