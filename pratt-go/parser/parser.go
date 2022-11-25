@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github/jared-richard-clarke/pratt/lexer"
 )
-
 // === Under Heavy Construction ===
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
@@ -19,7 +18,6 @@ type table struct {
 
 type parser struct {
 	src    []lexer.Token // token source
-	length int           // len(src)
 	index  int           // src[index]
 	end    int           // src[len(src) - 1]
 	*table               // parser and binding lookup
@@ -27,12 +25,28 @@ type parser struct {
 
 func (p *parser) next() lexer.Token {
 	// From final index onwards, returns final token — usually EOF.
-	if p.index >= p.length {
+	if p.index >= p.end {
 		return p.src[p.end]
 	}
 	t := p.src[p.index]
 	p.index += 1
 	return t
+}
+
+func (p *parser) peek() lexer.LexType {
+	if p.index+1 >= p.end {
+		return lexer.EOF
+	}
+	return p.src[p.index+1].Typeof
+}
+
+func (p *parser) match(expect lexer.LexType) bool {
+	got := p.peek()
+	if got != expect {
+		return false
+	}
+	p.next() // Consume matching token.
+	return true
 }
 
 func (p *parser) expression(rbp int) (Node, error) {
@@ -110,6 +124,18 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 	}, nil
 }
 
+func (p *parser) paren(token lexer.Token) (Node, error) {
+	pos := fmt.Sprintf("'(' :%d:%d", token.Line, token.Column)
+	x, err := p.expression(0)
+	if err != nil {
+		return nil, err
+	}
+	if !p.match(lexer.CloseParen) {
+		return nil, fmt.Errorf("for %s, missing matching ')'", pos)
+	}
+	return x, nil
+}
+
 // Carries parser's internal state. Should persist throughout package lifetime.
 var pratt parser
 
@@ -149,6 +175,7 @@ func init() {
 	register(lexer.Error, pratt.error)
 	register(lexer.Number, pratt.literal)
 	register(lexer.Ident, pratt.literal)
+	register(lexer.OpenParen, pratt.paren)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
 	infixr(70, lexer.Pow)
@@ -159,11 +186,10 @@ func init() {
 func Parse(ts []lexer.Token) (Node, error) {
 	// Set parser state.
 	pratt = parser{
-		src:    ts,
-		length: len(ts),
-		index:  0,
-		end:    len(ts) - 1,
-		table:  pratt.table, // Reuse lookup table from package initialization.
+		src:   ts,
+		index: 0,
+		end:   len(ts) - 1,
+		table: pratt.table, // Reuse lookup table from package initialization.
 	}
 	node, err := pratt.expression(0)
 	if err != nil {
