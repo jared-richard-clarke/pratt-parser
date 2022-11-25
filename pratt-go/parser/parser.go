@@ -119,13 +119,13 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 }
 
 func (p *parser) paren(token lexer.Token) (Node, error) {
-	pos := fmt.Sprintf("'(' :%d:%d", token.Line, token.Column)
+	position := fmt.Sprintf("'(' :%d:%d", token.Line, token.Column)
 	x, err := p.expression(0)
 	if err != nil {
 		return nil, err
 	}
 	if !p.match(lexer.CloseParen) {
-		return nil, fmt.Errorf("for %s, missing matching ')'", pos)
+		return nil, fmt.Errorf("for %s, missing matching ')'", position)
 	}
 	return x, nil
 }
