@@ -10,7 +10,6 @@
 *.test
 
 # === MacOS Preferences ===
-# General
 .DS_Store
 
 # === VS Code Preferences ===
