@@ -62,31 +62,31 @@ func (p *parser) expression(rbp int) (Node, error) {
 }
 
 // Always returns error. Has Node type to satisfy "nud".
-func (p *parser) error(t lexer.Token) (Node, error) {
-	err := fmt.Errorf("unexpected lexeme %s :%d:%d", t.Value, t.Line, t.Column)
+func (p *parser) error(token lexer.Token) (Node, error) {
+	err := fmt.Errorf("unexpected lexeme %s :%d:%d", token.Value, token.Line, token.Column)
 	return nil, err
 }
 
 // Always returns Node. Has error type to satisfy "nud".
-func (p *parser) literal(t lexer.Token) (Node, error) {
+func (p *parser) literal(token lexer.Token) (Node, error) {
 	return &Literal{
-		Typeof: t.Typeof,
-		Value:  t.Value,
-		Line:   t.Line,
-		Column: t.Column,
+		Typeof: token.Typeof,
+		Value:  token.Value,
+		Line:   token.Line,
+		Column: token.Column,
 	}, nil
 }
 
-func (p *parser) unary(t lexer.Token) (Node, error) {
-	x, err := p.expression(p.prebinds[t.Typeof])
+func (p *parser) unary(token lexer.Token) (Node, error) {
+	node, err := p.expression(p.prebinds[token.Typeof])
 	if err != nil {
 		return nil, err
 	}
 	return &Unary{
-		Op:     t.Value,
-		X:      x,
-		Line:   t.Line,
-		Column: t.Column,
+		Op:     token.Value,
+		X:      node,
+		Line:   token.Line,
+		Column: token.Column,
 	}, nil
 }
 
@@ -119,13 +119,13 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 }
 
 func (p *parser) paren(token lexer.Token) (Node, error) {
-	position := fmt.Sprintf("'(' :%d:%d", token.Line, token.Column)
+	position := fmt.Sprintf(":%d:%d", token.Line, token.Column)
 	x, err := p.expression(0)
 	if err != nil {
 		return nil, err
 	}
 	if !p.match(lexer.CloseParen) {
-		return nil, fmt.Errorf("for %s, missing matching ')'", position)
+		return nil, fmt.Errorf("for '(' %s, missing matching ')'", position)
 	}
 	return x, nil
 }
