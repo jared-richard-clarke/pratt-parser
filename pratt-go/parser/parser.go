@@ -45,14 +45,20 @@ func (p *parser) match(expect lexer.LexType) bool {
 
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
-	nud := p.nuds[token.Typeof]
+	nud, ok := p.nuds[token.Typeof]
+	if !ok {
+		return nil, fmt.Errorf("undefined NUD for %s :%d:%d", token.Value, token.Line, token.Column)
+	}
 	left, err := nud(token)
 	if err != nil {
 		return nil, err
 	}
 	for rbp < p.binds[token.Typeof] {
 		token := p.next()
-		led := p.leds[token.Typeof]
+		led, ok := p.leds[token.Typeof]
+		if !ok {
+			return nil, fmt.Errorf("undefined LED for %s :%d:%d", token.Value, token.Line, token.Column)
+		}
 		left, err = led(left, token)
 		if err != nil {
 			return nil, err
@@ -176,7 +182,7 @@ func init() {
 	prefix(80, lexer.Add, lexer.Sub)
 }
 
-// Parser API: inputs string, outputs AST or Error
+// Parser API: inputs string, outputs either AST or Error
 func Parse(s string) (Node, error) {
 	// Transform string into tokens
 	ts := lexer.Scan(s)
