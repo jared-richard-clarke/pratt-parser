@@ -176,8 +176,10 @@ func init() {
 	prefix(80, lexer.Add, lexer.Sub)
 }
 
-// Parser API: inputs tokens, outputs either AST or Error
-func Parse(ts []lexer.Token) (Node, error) {
+// Parser API: inputs string, outputs AST or Error
+func Parse(s string) (Node, error) {
+	// Transform string into tokens
+	ts := lexer.Scan(s)
 	// Set parser state.
 	pratt = parser{
 		src:   ts,
@@ -185,6 +187,7 @@ func Parse(ts []lexer.Token) (Node, error) {
 		end:   len(ts) - 1,
 		table: pratt.table, // Reuse lookup table from package initialization.
 	}
+	// Weave tokens into abstract syntax tree.
 	node, err := pratt.expression(0)
 	if err != nil {
 		return nil, err
