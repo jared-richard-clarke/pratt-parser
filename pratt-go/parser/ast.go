@@ -1,6 +1,6 @@
 package parser
 
-import "github/jared-richard-clarke/pratt/lexer"
+import "github/jared-richard-clarke/pratt/internal/lexer"
 
 type Node interface {
 	ast()
