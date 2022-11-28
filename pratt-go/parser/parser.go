@@ -34,6 +34,10 @@ func (p *parser) next() lexer.Token {
 	return t
 }
 
+func (p *parser) peek() lexer.LexType {
+	return p.src[p.index].Typeof
+}
+
 func (p *parser) match(expect lexer.LexType) bool {
 	got := p.src[p.index].Typeof
 	if got != expect {
@@ -53,7 +57,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	for rbp < p.binds[token.Typeof] {
+	for rbp < p.binds[p.peek()] {
 		token := p.next()
 		led, ok := p.leds[token.Typeof]
 		if !ok {
