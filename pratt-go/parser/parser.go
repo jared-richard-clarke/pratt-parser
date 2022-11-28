@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"github/jared-richard-clarke/pratt/lexer"
+	"github/jared-richard-clarke/pratt/internal/lexer"
 )
 
 // === Under Heavy Construction ===
