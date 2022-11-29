@@ -5,8 +5,6 @@ import (
 	"github/jared-richard-clarke/pratt/internal/lexer"
 )
 
-// === Under Heavy Construction ===
-
 type nud func(lexer.Token) (Node, error)       // Null denotation
 type led func(Node, lexer.Token) (Node, error) // Left denotation
 
@@ -39,12 +37,7 @@ func (p *parser) peek() lexer.LexType {
 }
 
 func (p *parser) match(expect lexer.LexType) bool {
-	got := p.src[p.index].Typeof
-	if got != expect {
-		return false
-	}
-	p.next() // Consume matching token.
-	return true
+	return p.peek() == expect
 }
 
 func (p *parser) expression(rbp int) (Node, error) {
@@ -137,6 +130,7 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 	if !p.match(lexer.CloseParen) {
 		return nil, fmt.Errorf("for '(' %s, missing matching ')'", position)
 	}
+	p.next()
 	return x, nil
 }
 
