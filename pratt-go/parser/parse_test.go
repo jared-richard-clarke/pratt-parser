@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := &Binary{
