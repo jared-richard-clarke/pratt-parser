@@ -25,8 +25,10 @@ func TestBase(t *testing.T) {
 		Line:   1,
 		Column: 3,
 	}
-	result, _ := Parse(text)
-	if !reflect.DeepEqual(expect, result) {
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestBase failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
 		t.Errorf("TestBase failed. Expected: %s, Got: %s", expect, result)
 	}
 }
@@ -68,3 +70,4 @@ func TestBase(t *testing.T) {
 // 		return false
 // 	}
 // }
+
