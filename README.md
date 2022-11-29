@@ -22,3 +22,5 @@ Many thanks to these excellent resources.
 ## Bugs
 
 - `parser.Parse("7.0.1")` returns a Literal node of `7.0`. It should return an `error` instead.
+- `parser.Parse("-7-")` returns an `undefined NUD for EOF :1:4` error. Although true, this error 
+   makes little sense from a user's perspective.
