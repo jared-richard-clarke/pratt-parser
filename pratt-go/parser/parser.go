@@ -121,7 +121,7 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) paren(token lexer.Token) (Node, error) {
+func (p *parser) parenExpr(token lexer.Token) (Node, error) {
 	position := fmt.Sprintf(":%d:%d", token.Line, token.Column)
 	x, err := p.expression(0)
 	if err != nil {
@@ -173,7 +173,7 @@ func init() {
 	register(lexer.Error, pratt.error)
 	register(lexer.Number, pratt.literal)
 	register(lexer.Ident, pratt.literal)
-	register(lexer.OpenParen, pratt.paren)
+	register(lexer.OpenParen, pratt.parenExpr)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
 	infixr(70, lexer.Pow)
