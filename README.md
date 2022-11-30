@@ -1,9 +1,9 @@
 # Pratt Parser
 
 I'm building a Pratt Parser for arithmetic and symbolic expressions.
-The parser will input a string and output an abstract syntax tree.
+This parser inputs a string and outputs an abstract syntax tree.
 Robust error handling is a priority, so extra-textual information 
-is provided, both in the abstract syntax tree and error messages.
+is provided, both in the abstract syntax tree and error messaging.
 
 This implementation is currently written in Go, although I will probably
 expand into other languages.
