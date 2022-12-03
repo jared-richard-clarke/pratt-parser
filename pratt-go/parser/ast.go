@@ -2,20 +2,18 @@ package parser
 
 import (
 	"fmt"
-	"github/jared-richard-clarke/pratt/internal/lexer"
 )
 
 type Node interface {
 	ast()
 }
 
-type Literal struct {
-	Typeof       lexer.LexType
+type Number struct {
 	Value        string
 	Line, Column int
 }
 
-func (l *Literal) String() string {
+func (l *Number) String() string {
 	return l.Value
 }
 
@@ -50,8 +48,7 @@ func (b *Binary) String() string {
 	return fmt.Sprintf(s, b.Op, b.X, b.Y)
 }
 
-func (l *Literal) ast() {}
-func (i *Ident) ast()   {}
-func (u *Unary) ast()   {}
-func (b *Binary) ast()  {}
-
+func (l *Number) ast() {}
+func (i *Ident) ast()  {}
+func (u *Unary) ast()  {}
+func (b *Binary) ast() {}
