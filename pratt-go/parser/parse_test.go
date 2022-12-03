@@ -11,19 +11,19 @@ func TestBasic(t *testing.T) {
 	expect := &Binary{
 		Op: "+",
 		X: &Number{
-			Value:  "1",
+			Value:  1.0,
 			Line:   1,
 			Column: 1,
 		},
 		Y: &Binary{
 			Op: "*",
 			X: &Number{
-				Value:  "2",
+				Value:  2.0,
 				Line:   1,
 				Column: 5,
 			},
 			Y: &Number{
-				Value:  "3",
+				Value:  3.0,
 				Line:   1,
 				Column: 9,
 			},
@@ -46,12 +46,12 @@ func TestParens(t *testing.T) {
 	expect := &Binary{
 		Op: "+",
 		X: &Number{
-			Value:  "1",
+			Value:  1.0,
 			Line:   1,
 			Column: 3,
 		},
 		Y: &Number{
-			Value:  "2",
+			Value:  2.0,
 			Line:   1,
 			Column: 8,
 		},
@@ -73,7 +73,7 @@ func TestUnary(t *testing.T) {
 		X: &Unary{
 			Op: "-",
 			X: &Number{
-				Value:  "7",
+				Value:  7.0,
 				Line:   1,
 				Column: 3,
 			},
@@ -96,14 +96,14 @@ func TestMinus(t *testing.T) {
 	expect := &Binary{
 		Op: "-",
 		X: &Number{
-			Value:  "7",
+			Value:  7.0,
 			Line:   1,
 			Column: 1,
 		},
 		Y: &Unary{
 			Op: "-",
 			X: &Number{
-				Value:  "7",
+				Value:  7.0,
 				Line:   1,
 				Column: 4,
 			},
@@ -126,19 +126,19 @@ func TestExponent(t *testing.T) {
 	expect := &Binary{
 		Op: "^",
 		X: &Number{
-			Value:  "1",
+			Value:  1.0,
 			Line:   1,
 			Column: 1,
 		},
 		Y: &Binary{
 			Op: "^",
 			X: &Number{
-				Value:  "2",
+				Value:  2.0,
 				Line:   1,
 				Column: 5,
 			},
 			Y: &Number{
-				Value:  "3",
+				Value:  3.0,
 				Line:   1,
 				Column: 9,
 			},
