@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github/jared-richard-clarke/pratt/internal/lexer"
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -10,22 +10,19 @@ func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := &Binary{
 		Op: "+",
-		X: &Literal{
-			Typeof: lexer.Number,
+		X: &Number{
 			Value:  "1",
 			Line:   1,
 			Column: 1,
 		},
 		Y: &Binary{
 			Op: "*",
-			X: &Literal{
-				Typeof: lexer.Number,
+			X: &Number{
 				Value:  "2",
 				Line:   1,
 				Column: 5,
 			},
-			Y: &Literal{
-				Typeof: lexer.Number,
+			Y: &Number{
 				Value:  "3",
 				Line:   1,
 				Column: 9,
@@ -48,14 +45,12 @@ func TestParens(t *testing.T) {
 	text := "((1 + (2)))"
 	expect := &Binary{
 		Op: "+",
-		X: &Literal{
-			Typeof: lexer.Number,
+		X: &Number{
 			Value:  "1",
 			Line:   1,
 			Column: 3,
 		},
-		Y: &Literal{
-			Typeof: lexer.Number,
+		Y: &Number{
 			Value:  "2",
 			Line:   1,
 			Column: 8,
@@ -77,8 +72,7 @@ func TestUnary(t *testing.T) {
 		Op: "-",
 		X: &Unary{
 			Op: "-",
-			X: &Literal{
-				Typeof: lexer.Number,
+			X: &Number{
 				Value:  "7",
 				Line:   1,
 				Column: 3,
@@ -101,16 +95,14 @@ func TestMinus(t *testing.T) {
 	text := "7--7"
 	expect := &Binary{
 		Op: "-",
-		X: &Literal{
-			Typeof: lexer.Number,
+		X: &Number{
 			Value:  "7",
 			Line:   1,
 			Column: 1,
 		},
 		Y: &Unary{
 			Op: "-",
-			X: &Literal{
-				Typeof: lexer.Number,
+			X: &Number{
 				Value:  "7",
 				Line:   1,
 				Column: 4,
@@ -133,22 +125,19 @@ func TestExponent(t *testing.T) {
 	text := "1 ^ 2 ^ 3"
 	expect := &Binary{
 		Op: "^",
-		X: &Literal{
-			Typeof: lexer.Number,
+		X: &Number{
 			Value:  "1",
 			Line:   1,
 			Column: 1,
 		},
 		Y: &Binary{
 			Op: "^",
-			X: &Literal{
-				Typeof: lexer.Number,
+			X: &Number{
 				Value:  "2",
 				Line:   1,
 				Column: 5,
 			},
-			Y: &Literal{
-				Typeof: lexer.Number,
+			Y: &Number{
 				Value:  "3",
 				Line:   1,
 				Column: 9,
