@@ -9,12 +9,12 @@ type Node interface {
 }
 
 type Number struct {
-	Value        string
+	Value        float64
 	Line, Column int
 }
 
-func (l *Number) String() string {
-	return l.Value
+func (n *Number) String() string {
+	return fmt.Sprintf("%f", n.Value)
 }
 
 type Ident struct {
