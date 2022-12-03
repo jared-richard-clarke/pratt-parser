@@ -1,6 +1,9 @@
 package parser
 
-import "github/jared-richard-clarke/pratt/internal/lexer"
+import (
+	"fmt"
+	"github/jared-richard-clarke/pratt/internal/lexer"
+)
 
 type Node interface {
 	ast()
@@ -14,6 +17,15 @@ type Literal struct {
 
 func (l *Literal) String() string {
 	return l.Value
+}
+
+type Ident struct {
+	Value        string
+	Line, Column int
+}
+
+func (i *Ident) String() string {
+	return i.Value
 }
 
 type Unary struct {
@@ -39,5 +51,7 @@ func (b *Binary) String() string {
 }
 
 func (l *Literal) ast() {}
+func (i *Ident) ast()   {}
 func (u *Unary) ast()   {}
 func (b *Binary) ast()  {}
+
