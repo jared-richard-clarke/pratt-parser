@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"github/jared-richard-clarke/pratt/internal/lexer"
+	"strconv"
 )
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
@@ -70,15 +71,19 @@ func (p *parser) error(token lexer.Token) (Node, error) {
 	return nil, err
 }
 
-// Always returns Node. Has error type to satisfy "nud".
 func (p *parser) number(token lexer.Token) (Node, error) {
+	num, err := strconv.ParseFloat(token.Value, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid number: %s :%d:%d", token.Value, token.Line, token.Column)
+	}
 	return &Number{
-		Value:  token.Value,
+		Value:  num,
 		Line:   token.Line,
 		Column: token.Column,
 	}, nil
 }
 
+// Always returns Node. Has error type to satisfy "nud".
 func (p *parser) ident(token lexer.Token) (Node, error) {
 	return &Ident{
 		Value:  token.Value,
