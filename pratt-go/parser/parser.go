@@ -80,6 +80,14 @@ func (p *parser) literal(token lexer.Token) (Node, error) {
 	}, nil
 }
 
+func (p *parser) ident(token lexer.Token) (Node, error) {
+	return &Ident{
+		Value:  token.Value,
+		Line:   token.Line,
+		Column: token.Column,
+	}, nil
+}
+
 func (p *parser) unary(token lexer.Token) (Node, error) {
 	node, err := p.expression(p.prebinds[token.Typeof])
 	if err != nil {
@@ -172,7 +180,7 @@ func init() {
 	// Initialize lookup tables.
 	set(lexer.Error, pratt.error)
 	set(lexer.Number, pratt.literal)
-	set(lexer.Ident, pratt.literal)
+	set(lexer.Ident, pratt.ident)
 	set(lexer.OpenParen, pratt.parenExpr)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
