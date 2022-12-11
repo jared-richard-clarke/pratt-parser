@@ -71,10 +71,18 @@ func (p *parser) error(token lexer.Token) (Node, error) {
 	return nil, err
 }
 
+// Always returns error. Has Node type to satisfy "nud".
+func (p *parser) eof(token lexer.Token) (Node, error) {
+	msg := "incomplete expression, unexpected <EOF> :%d:%d"
+	err := fmt.Errorf(msg, token.Line, token.Column)
+	return nil, err
+}
+
 func (p *parser) number(token lexer.Token) (Node, error) {
 	num, err := strconv.ParseFloat(token.Value, 64)
 	if err != nil {
-		return nil, fmt.Errorf("invalid number: %s :%d:%d", token.Value, token.Line, token.Column)
+		msg := "invalid number: %s :%d:%d"
+		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 	}
 	return &Number{
 		Value:  num,
@@ -140,7 +148,8 @@ func (p *parser) parenExpr(token lexer.Token) (Node, error) {
 		return nil, err
 	}
 	if !p.match(lexer.CloseParen) {
-		return nil, fmt.Errorf("for '(' %s, missing matching ')'", position)
+		msg := "for '(' %s, missing matching ')'"
+		return nil, fmt.Errorf(msg, position)
 	}
 	p.next()
 	return x, nil
@@ -183,6 +192,7 @@ func init() {
 	}
 	// Initialize lookup tables.
 	set(lexer.Error, pratt.error)
+	set(lexer.EOF, pratt.eof)
 	set(lexer.Number, pratt.number)
 	set(lexer.Ident, pratt.ident)
 	set(lexer.OpenParen, pratt.parenExpr)
