@@ -45,14 +45,14 @@ func TestScan(t *testing.T) {
 		},
 		mkEof(1, 10),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestScan")
 }
 
 func TestEmpty(t *testing.T) {
 	text := " \n\t"
 	expect := []Token{mkEof(2, 2)}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestEmpty")
 }
 
@@ -110,7 +110,7 @@ func TestParens(t *testing.T) {
 		},
 		mkEof(1, 12),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestParens")
 }
 
@@ -154,7 +154,7 @@ func TestNewlines(t *testing.T) {
 		},
 		mkEof(2, 5),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestNewlines (Test 1)")
 
 	text = `1 +
@@ -198,7 +198,7 @@ func TestNewlines(t *testing.T) {
 		},
 		mkEof(3, 11),
 	}
-	result = Scan(text)
+	result, _ = Scan(text)
 	compare(expect, result, t, "TestNewlines (Test 2)")
 }
 
@@ -242,7 +242,7 @@ func TestIdent(t *testing.T) {
 		},
 		mkEof(1, 15),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestIdent (Test 1)")
 
 	text = "x + wyvern/hamster"
@@ -284,7 +284,7 @@ func TestIdent(t *testing.T) {
 		},
 		mkEof(1, 19),
 	}
-	result = Scan(text)
+	result, _ = Scan(text)
 	compare(expect, result, t, "TestIdent (Test 2)")
 }
 
@@ -314,36 +314,8 @@ func TestNumbers(t *testing.T) {
 		},
 		mkEof(1, 6),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestNumbers (Test 1)")
-
-	text = "7.5.0"
-	expect = []Token{
-		{
-			Typeof: Number,
-			Value:  "7.5",
-			Line:   1,
-			Column: 1,
-			Length: 3,
-		},
-		{
-			Typeof: Error,
-			Value:  ".",
-			Line:   1,
-			Column: 4,
-			Length: 1,
-		},
-		{
-			Typeof: Number,
-			Value:  "0",
-			Line:   1,
-			Column: 5,
-			Length: 1,
-		},
-		mkEof(1, 6),
-	}
-	result = Scan(text)
-	compare(expect, result, t, "TestNumbers (Test 2)")
 }
 
 func TestSub(t *testing.T) {
@@ -379,7 +351,7 @@ func TestSub(t *testing.T) {
 		},
 		mkEof(1, 7),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestSub")
 }
 
@@ -409,7 +381,7 @@ func TestPow(t *testing.T) {
 		},
 		mkEof(1, 4),
 	}
-	result := Scan(text)
+	result, _ := Scan(text)
 	compare(expect, result, t, "TestPow")
 }
 
