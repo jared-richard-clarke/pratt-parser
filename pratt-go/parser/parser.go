@@ -66,12 +66,6 @@ func (p *parser) expression(rbp int) (Node, error) {
 }
 
 // Always returns error. Has Node type to satisfy "nud".
-func (p *parser) error(token lexer.Token) (Node, error) {
-	err := fmt.Errorf("unexpected lexeme %s :%d:%d", token.Value, token.Line, token.Column)
-	return nil, err
-}
-
-// Always returns error. Has Node type to satisfy "nud".
 func (p *parser) eof(token lexer.Token) (Node, error) {
 	msg := "incomplete expression, unexpected <EOF> :%d:%d"
 	err := fmt.Errorf(msg, token.Line, token.Column)
@@ -191,7 +185,6 @@ func init() {
 		}
 	}
 	// Initialize lookup tables.
-	set(lexer.Error, pratt.error)
 	set(lexer.EOF, pratt.eof)
 	set(lexer.Number, pratt.number)
 	set(lexer.Ident, pratt.ident)
@@ -205,7 +198,10 @@ func init() {
 // Parser API: inputs string, outputs either AST or Error
 func Parse(s string) (Node, error) {
 	// Transform string into tokens
-	ts := lexer.Scan(s)
+	ts, err := lexer.Scan(s)
+	if err != nil {
+		return nil, err
+	}
 	// Set parser state.
 	pratt = parser{
 		src:   ts,
