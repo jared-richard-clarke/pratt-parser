@@ -1,7 +1,9 @@
 package lexer
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -42,15 +44,15 @@ type Token struct {
 func (t Token) String() string {
 	switch {
 	case t.Typeof < Number:
-		return fmt.Sprintf("Punct: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("punct: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	case t.Typeof == Number:
-		return fmt.Sprintf("Float: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("float: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	case t.Typeof == Ident:
-		return fmt.Sprintf("Ident: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("ident: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	case t.Typeof == EOF:
-		return fmt.Sprintf("EOF :%d:%d:%d", t.Line, t.Column, t.Length)
+		return fmt.Sprintf("<eof> :%d:%d:%d", t.Line, t.Column, t.Length)
 	default:
-		return fmt.Sprintf("Error: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("error: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
 	}
 }
 
@@ -71,6 +73,7 @@ type scanner struct {
 	source string  // Scanner input. Currently a string.
 	tokens []Token // Array slice of accumulating tokens.
 	length int     // Number of bytes in the source string.
+	flag   bool    // Flags scanner that contains error tokens.
 
 	offset int // Total string offset. Counts bytes.
 	start  int // Start of a lexeme within source string. Counts bytes.
@@ -185,16 +188,18 @@ func (sc *scanner) scanToken() {
 	// undefined
 	default:
 		sc.addToken(Error, string(r))
+		sc.flag = true
 		return
 	}
 }
 
 // The Lexer API: drives the scanner.
-func Scan(t string) []Token {
+func Scan(t string) ([]Token, error) {
 	sc := scanner{
 		source: t,
 		tokens: make([]Token, 0),
 		length: len(t),
+		flag:   false,
 		offset: 0,
 		start:  0,
 		line:   1,
@@ -210,5 +215,17 @@ func Scan(t string) []Token {
 		Column: sc.column + 1,
 		Length: 1,
 	})
-	return sc.tokens
+	// If flag is set, build and return error message to caller.
+	if sc.flag {
+		var b strings.Builder
+		msg := "unexpected lexeme: %q lin:%d col:%d len:%d\n"
+		for _, v := range sc.tokens {
+			if v.Typeof == Error {
+				s := fmt.Sprintf(msg, v.Value, v.Line, v.Column, v.Length)
+				b.WriteString(s)
+			}
+		}
+		return nil, errors.New(b.String())
+	}
+	return sc.tokens, nil
 }
