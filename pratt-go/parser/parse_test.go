@@ -6,15 +6,6 @@ import (
 	"testing"
 )
 
-func Test(t *testing.T) {
-	node, err := Parse("7.0.1")
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(node)
-	}
-}
-
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := &Binary{
