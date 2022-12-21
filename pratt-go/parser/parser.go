@@ -45,7 +45,8 @@ func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
 	if !ok {
-		return nil, fmt.Errorf("undefined NUD for %s :%d:%d", token.Value, token.Line, token.Column)
+		msg := "undefined NUD for %s line:%d column:%d"
+		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 	}
 	left, err := nud(token)
 	if err != nil {
@@ -55,7 +56,8 @@ func (p *parser) expression(rbp int) (Node, error) {
 		token := p.next()
 		led, ok := p.leds[token.Typeof]
 		if !ok {
-			return nil, fmt.Errorf("undefined LED for %s :%d:%d", token.Value, token.Line, token.Column)
+			msg := "undefined LED for %s line:%d column:%d"
+			return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 		}
 		left, err = led(left, token)
 		if err != nil {
@@ -67,7 +69,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 
 // Always returns error. Has Node type to satisfy "nud".
 func (p *parser) eof(token lexer.Token) (Node, error) {
-	msg := "incomplete expression, unexpected <EOF> :%d:%d"
+	msg := "incomplete expression, unexpected <EOF> line:%d column:%d"
 	err := fmt.Errorf(msg, token.Line, token.Column)
 	return nil, err
 }
@@ -75,7 +77,7 @@ func (p *parser) eof(token lexer.Token) (Node, error) {
 func (p *parser) number(token lexer.Token) (Node, error) {
 	num, err := strconv.ParseFloat(token.Value, 64)
 	if err != nil {
-		msg := "invalid number: %s :%d:%d"
+		msg := "invalid number: %s line:%d column:%d"
 		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 	}
 	return &Number{
@@ -136,7 +138,7 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 }
 
 func (p *parser) parenExpr(token lexer.Token) (Node, error) {
-	position := fmt.Sprintf(":%d:%d", token.Line, token.Column)
+	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
 	x, err := p.expression(0)
 	if err != nil {
 		return nil, err
