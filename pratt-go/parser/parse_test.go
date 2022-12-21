@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+func Test(t *testing.T) {
+	node, err := Parse("7.0.1")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(node)
+	}
+}
+
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := &Binary{
@@ -38,6 +47,31 @@ func TestBasic(t *testing.T) {
 		t.Errorf("TestBasic failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
 		t.Errorf("TestBasic failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestIdent(t *testing.T) {
+	text := "wyvern ^ 11"
+	expect := &Binary{
+		Op: "^",
+		X: &Ident{
+			Value:  "wyvern",
+			Line:   1,
+			Column: 1,
+		},
+		Y: &Number{
+			Value:  11.0,
+			Line:   1,
+			Column: 10,
+		},
+		Line:   1,
+		Column: 8,
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestIdent failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestIdent failed. Expected: %s, Got: %s", expect, result)
 	}
 }
 
@@ -190,4 +224,3 @@ func TestExponent(t *testing.T) {
 		t.Errorf("TestExponent failed. Expected: %s, Got: %s", expect, result)
 	}
 }
-
