@@ -218,7 +218,7 @@ func Scan(t string) ([]Token, error) {
 	// If flag is set, build and return error message to caller.
 	if sc.flag {
 		var b strings.Builder
-		msg := "unexpected lexeme: %q lin:%d col:%d len:%d\n"
+		msg := "unexpected lexeme: %q line:%d column:%d length:%d\n"
 		for _, v := range sc.tokens {
 			if v.Typeof == Error {
 				s := fmt.Sprintf(msg, v.Value, v.Line, v.Column, v.Length)
