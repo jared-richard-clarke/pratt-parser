@@ -41,6 +41,41 @@ func TestBasic(t *testing.T) {
 	}
 }
 
+func TestLeftAssociative(t *testing.T) {
+	text := "1 + 2 + 3"
+	expect := &Binary{
+		Op: "+",
+		X: &Binary{
+			Op: "+",
+			X: &Number{
+				Value:  1.0,
+				Line:   1,
+				Column: 1,
+			},
+			Y: &Number{
+				Value:  2.0,
+				Line:   1,
+				Column: 5,
+			},
+			Line:   1,
+			Column: 3,
+		},
+		Y: &Number{
+			Value:  3.0,
+			Line:   1,
+			Column: 9,
+		},
+		Line:   1,
+		Column: 7,
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestLeftAssociative failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestLeftAssociative failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
 func TestParens(t *testing.T) {
 	text := "((1 + (2)))"
 	expect := &Binary{
@@ -155,3 +190,4 @@ func TestExponent(t *testing.T) {
 		t.Errorf("TestExponent failed. Expected: %s, Got: %s", expect, result)
 	}
 }
+
