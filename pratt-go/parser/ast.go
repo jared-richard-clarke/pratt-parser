@@ -48,7 +48,19 @@ func (b *Binary) String() string {
 	return fmt.Sprintf(s, b.Op, b.X, b.Y)
 }
 
-func (l *Number) ast() {}
-func (i *Ident) ast()  {}
-func (u *Unary) ast()  {}
-func (b *Binary) ast() {}
+type Function struct {
+	Id           Ident  // Function IDs limited to identifiers.
+	Args         []Node // All Nodes are expressions.
+	Line, Column int
+}
+
+func (f *Function) String() string {
+	s := "( Id: %v, Args: %v )"
+	return fmt.Sprintf(s, f.Id, f.Args)
+}
+
+func (l *Number) ast()   {}
+func (i *Ident) ast()    {}
+func (u *Unary) ast()    {}
+func (b *Binary) ast()   {}
+func (f *Function) ast() {}
