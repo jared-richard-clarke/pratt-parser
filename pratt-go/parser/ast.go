@@ -8,6 +8,12 @@ type Node interface {
 	ast()
 }
 
+type Empty struct{}
+
+func (e *Empty) String() string {
+	return "( empty expression )"
+}
+
 type Number struct {
 	Value        float64
 	Line, Column int
@@ -59,6 +65,7 @@ func (f *Function) String() string {
 	return fmt.Sprintf(s, f.Name, f.Args)
 }
 
+func (e *Empty) ast()    {}
 func (l *Number) ast()   {}
 func (i *Ident) ast()    {}
 func (u *Unary) ast()    {}
