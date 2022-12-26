@@ -49,14 +49,14 @@ func (b *Binary) String() string {
 }
 
 type Function struct {
-	Id           Ident  // Function IDs limited to identifiers.
+	Name         Ident  // Function names limited to identifiers.
 	Args         []Node // All Nodes are expressions.
 	Line, Column int
 }
 
 func (f *Function) String() string {
-	s := "( Id: %v, Args: %v )"
-	return fmt.Sprintf(s, f.Id, f.Args)
+	s := "( Name: %v, Args: %v )"
+	return fmt.Sprintf(s, f.Name, f.Args)
 }
 
 func (l *Number) ast()   {}
