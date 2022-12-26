@@ -25,6 +25,7 @@ const (
 	Add
 	Sub
 	Mul
+	ImpMul // implicit multiplier
 	Div
 	Pow
 	Number
@@ -42,6 +43,8 @@ type Token struct {
 
 func (t Token) String() string {
 	switch {
+	case t.Typeof == ImpMul:
+		return "punct: imp-*"
 	case t.Typeof < Number:
 		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Number:
@@ -80,7 +83,7 @@ type scanner struct {
 	column int // Tracks the start of a lexeme within a newline. Counts runes.
 }
 
-func (sc *scanner) isAtEnd() bool {
+func (sc *scanner) end() bool {
 	return sc.offset >= sc.length
 }
 
@@ -91,8 +94,24 @@ func (sc *scanner) next() rune {
 	return r
 }
 
+// Skips whitespace: '\t', '\n', '\v', '\f', '\r', ' ', U+0085 (NEL), U+00A0 (NBSP).
+func (sc *scanner) skip() {
+	for {
+		r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
+		if !unicode.IsSpace(r) {
+			break
+		}
+		sc.column += 1
+		sc.offset += w
+		if r == newline {
+			sc.line += 1
+			sc.column = 0
+		}
+	}
+}
+
 func (sc *scanner) peek() rune {
-	if sc.isAtEnd() {
+	if sc.end() {
 		return eof
 	}
 	r, _ := utf8.DecodeRuneInString(sc.source[sc.offset:])
@@ -110,6 +129,14 @@ func (sc *scanner) peekNext() rune {
 }
 
 func (sc *scanner) addToken(t LexType, v string) {
+	// Implied multipliers have no meaningful position.
+	if t == ImpMul {
+		sc.tokens = append(sc.tokens, Token{
+			Typeof: t,
+			Value:  v,
+		})
+		return
+	}
 	runeCount := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
 	lexOffset := 0
 	// Center column on character representation of rune.
@@ -145,6 +172,13 @@ func (sc *scanner) scanToken() {
 		return
 	case r == ')':
 		sc.addToken(CloseParen, ")")
+		// Check for implied multiplication: (7+11) x, (7+11) (11+7), or (7+11) 7
+		//                                         ^         ^                 ^
+		sc.skip()
+		c := sc.peek()
+		if unicode.IsLetter(c) || unicode.IsDigit(c) || c == '(' {
+			sc.addToken(ImpMul, "*")
+		}
 		return
 	case r == '-':
 		sc.addToken(Sub, "-")
@@ -174,6 +208,13 @@ func (sc *scanner) scanToken() {
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(Number, text)
+		// Check for implied multiplication: 7 (7+11) or 7 x
+		//                                    ^           ^
+		sc.skip()
+		c := sc.peek()
+		if unicode.IsLetter(c) || c == '(' {
+			sc.addToken(ImpMul, "*")
+		}
 		return
 	// identifiers
 	case unicode.IsLetter(r):
@@ -182,6 +223,11 @@ func (sc *scanner) scanToken() {
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(Ident, text)
+		// Check for implied multiplication: x <whitespace> y
+		sc.skip()
+		if unicode.IsLetter(sc.peek()) {
+			sc.addToken(ImpMul, "*")
+		}
 		return
 	// undefined
 	default:
@@ -203,7 +249,7 @@ func Scan(t string) ([]Token, error) {
 		line:   1,
 		column: 0,
 	}
-	for !sc.isAtEnd() {
+	for !sc.end() {
 		sc.start = sc.offset
 		sc.scanToken()
 	}
