@@ -11,7 +11,7 @@ type Node interface {
 type Empty struct{}
 
 func (e *Empty) String() string {
-	return "( empty expression )"
+	return "Empty{}"
 }
 
 type Number struct {
@@ -20,7 +20,8 @@ type Number struct {
 }
 
 func (n *Number) String() string {
-	return fmt.Sprintf("%f", n.Value)
+	msg := "Number{ Value: %f }"
+	return fmt.Sprintf(msg, n.Value)
 }
 
 type Ident struct {
@@ -29,7 +30,8 @@ type Ident struct {
 }
 
 func (i *Ident) String() string {
-	return i.Value
+	msg := "Ident{ Value: %s }"
+	return fmt.Sprintf(msg, i.Value)
 }
 
 type Unary struct {
@@ -39,8 +41,8 @@ type Unary struct {
 }
 
 func (u *Unary) String() string {
-	s := "( Op: %s, X: %s )"
-	return fmt.Sprintf(s, u.Op, u.X)
+	msg := "Unary{ Op: %s, X: %s }"
+	return fmt.Sprintf(msg, u.Op, u.X)
 }
 
 type Binary struct {
@@ -50,8 +52,8 @@ type Binary struct {
 }
 
 func (b *Binary) String() string {
-	s := "( Op: %s, X: %s, Y: %s )"
-	return fmt.Sprintf(s, b.Op, b.X, b.Y)
+	msg := "Binary{ Op: %s, X: %s, Y: %s }"
+	return fmt.Sprintf(msg, b.Op, b.X, b.Y)
 }
 
 type Function struct {
@@ -61,8 +63,8 @@ type Function struct {
 }
 
 func (f *Function) String() string {
-	s := "( Name: %v, Args: %v )"
-	return fmt.Sprintf(s, f.Name, f.Args)
+	msg := "Function{ Name: %v, Args: %v }"
+	return fmt.Sprintf(msg, f.Name, f.Args)
 }
 
 func (e *Empty) ast()    {}
