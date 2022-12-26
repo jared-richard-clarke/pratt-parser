@@ -67,8 +67,10 @@ func (p *parser) expression(rbp int) (Node, error) {
 	return left, nil
 }
 
-// Always returns error. Has Node type to satisfy "nud".
 func (p *parser) eof(token lexer.Token) (Node, error) {
+	if len(p.src) == 1 {
+		return &Empty{}, nil
+	}
 	msg := "incomplete expression, unexpected <EOF> line:%d column:%d"
 	err := fmt.Errorf(msg, token.Line, token.Column)
 	return nil, err
