@@ -38,21 +38,20 @@ type Token struct {
 	Value  string  // Lexeme string value.
 	Line   int     // Lexeme line number. Counts newlines ('\n').
 	Column int     // Lexeme starting column within newline. Counts runes.
-	Length int     // Lexeme length. Counts runes.
 }
 
 func (t Token) String() string {
 	switch {
 	case t.Typeof < Number:
-		return fmt.Sprintf("punct: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Number:
-		return fmt.Sprintf("float: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("float: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Ident:
-		return fmt.Sprintf("ident: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("ident: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == EOF:
-		return fmt.Sprintf("<eof> :%d:%d:%d", t.Line, t.Column, t.Length)
+		return fmt.Sprintf("<eof> :%d:%d", t.Line, t.Column)
 	default:
-		return fmt.Sprintf("error: %q :%d:%d:%d", t.Value, t.Line, t.Column, t.Length)
+		return fmt.Sprintf("error: %q :%d:%d", t.Value, t.Line, t.Column)
 	}
 }
 
@@ -127,7 +126,6 @@ func (sc *scanner) addToken(t LexType, v string) {
 		Value:  v,
 		Line:   sc.line,
 		Column: column,
-		Length: runeCount,
 	})
 }
 
@@ -213,15 +211,14 @@ func Scan(t string) ([]Token, error) {
 		Typeof: EOF,
 		Line:   sc.line,
 		Column: sc.column + 1,
-		Length: 1,
 	})
 	// If flag is set, build and return error message to caller.
 	if sc.flag {
 		var b strings.Builder
-		msg := "unexpected lexeme: %q line:%d column:%d length:%d\n"
+		msg := "unexpected lexeme: %q line:%d column:%d\n"
 		for _, v := range sc.tokens {
 			if v.Typeof == Error {
-				s := fmt.Sprintf(msg, v.Value, v.Line, v.Column, v.Length)
+				s := fmt.Sprintf(msg, v.Value, v.Line, v.Column)
 				b.WriteString(s)
 			}
 		}
