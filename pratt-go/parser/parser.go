@@ -45,7 +45,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
 	if !ok {
-		msg := "undefined NUD for %s line:%d column:%d"
+		msg := "undefined prefix operation for %s line:%d column:%d"
 		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 	}
 	left, err := nud(token)
@@ -56,7 +56,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 		token := p.next()
 		led, ok := p.leds[token.Typeof]
 		if !ok {
-			msg := "undefined LED for %s line:%d column:%d"
+			msg := "undefined infix operation for %s line:%d column:%d"
 			return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 		}
 		left, err = led(left, token)
