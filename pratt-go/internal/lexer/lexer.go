@@ -22,6 +22,7 @@ type LexType int
 const (
 	OpenParen LexType = iota
 	CloseParen
+	Comma
 	Add
 	Sub
 	Mul
@@ -180,6 +181,8 @@ func (sc *scanner) scanToken() {
 			sc.addToken(ImpMul, "*")
 		}
 		return
+	case r == ',':
+		sc.addToken(Comma, ",")
 	case r == '-':
 		sc.addToken(Sub, "-")
 		return
