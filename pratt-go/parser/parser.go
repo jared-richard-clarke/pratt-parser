@@ -116,6 +116,13 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	if token.Typeof == lexer.ImpMul {
+		return &ImpBinary{
+			Op: token.Value,
+			X:  left,
+			Y:  right,
+		}, nil
+	}
 	return &Binary{
 		Op:     token.Value,
 		X:      left,
@@ -196,8 +203,9 @@ func init() {
 	symbol(lexer.OpenParen, pratt.parenExpr)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
-	infixr(70, lexer.Pow)
-	prefix(80, lexer.Add, lexer.Sub)
+	infix(70, lexer.ImpMul)
+	infixr(80, lexer.Pow)
+	prefix(90, lexer.Add, lexer.Sub)
 }
 
 // Parser API: inputs string, outputs either AST or Error
