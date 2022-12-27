@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"testing"
 )
-
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := &Binary{
@@ -213,5 +212,46 @@ func TestExponent(t *testing.T) {
 		t.Errorf("TestExponent failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
 		t.Errorf("TestExponent failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestImpBinary(t *testing.T) {
+	text := "(2a) (1 + 2)"
+	expect := &ImpBinary{
+		Op: "*",
+		X: &ImpBinary{
+			Op: "*",
+			X: &Number{
+				Value:  2.0,
+				Line:   1,
+				Column: 2,
+			},
+			Y: &Ident{
+				Value:  "a",
+				Line:   1,
+				Column: 3,
+			},
+		},
+		Y: &Binary{
+			Op: "+",
+			X: &Number{
+				Value:  1.0,
+				Line:   1,
+				Column: 7,
+			},
+			Y: &Number{
+				Value:  2.0,
+				Line:   1,
+				Column: 11,
+			},
+			Line:   1,
+			Column: 9,
+		},
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestImpBinary failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestImpBinary failed. Expected: %s, Got: %s", expect, result)
 	}
 }
