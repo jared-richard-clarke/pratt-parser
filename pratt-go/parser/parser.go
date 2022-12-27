@@ -203,8 +203,8 @@ func init() {
 	symbol(lexer.OpenParen, pratt.parenExpr)
 	infix(50, lexer.Add, lexer.Sub)
 	infix(60, lexer.Mul, lexer.Div)
-	infix(70, lexer.ImpMul)
-	infixr(80, lexer.Pow)
+	infix(80, lexer.ImpMul)
+	infixr(70, lexer.Pow)
 	prefix(90, lexer.Add, lexer.Sub)
 }
 
