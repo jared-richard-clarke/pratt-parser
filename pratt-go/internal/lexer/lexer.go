@@ -95,22 +95,6 @@ func (sc *scanner) next() rune {
 	return r
 }
 
-// Skips whitespace: '\t', '\n', '\v', '\f', '\r', ' ', U+0085 (NEL), U+00A0 (NBSP).
-func (sc *scanner) skip() {
-	for {
-		r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
-		if !unicode.IsSpace(r) {
-			break
-		}
-		sc.column += 1
-		sc.offset += w
-		if r == newline {
-			sc.line += 1
-			sc.column = 0
-		}
-	}
-}
-
 func (sc *scanner) peek() rune {
 	if sc.end() {
 		return eof
@@ -173,9 +157,7 @@ func (sc *scanner) scanToken() {
 		return
 	case r == ')':
 		sc.addToken(CloseParen, ")")
-		// Check for implied multiplication: (7+11) x, (7+11) (11+7), or (7+11) 7
-		//                                         ^         ^                 ^
-		sc.skip()
+		// Check for implied multiplication: (7+11)x, (7+11)(11+7), or (7+11)7
 		c := sc.peek()
 		if unicode.IsLetter(c) || unicode.IsDigit(c) || c == '(' {
 			sc.addToken(ImpMul, "*")
@@ -211,9 +193,7 @@ func (sc *scanner) scanToken() {
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(Number, text)
-		// Check for implied multiplication: 7 (7+11) or 7 x
-		//                                    ^           ^
-		sc.skip()
+		// Check for implied multiplication: 7(7+11) or 7x
 		c := sc.peek()
 		if unicode.IsLetter(c) || c == '(' {
 			sc.addToken(ImpMul, "*")
