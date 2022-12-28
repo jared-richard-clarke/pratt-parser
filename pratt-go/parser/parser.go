@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 )
+
 type nud func(lexer.Token) (Node, error)       // Null denotation
 type led func(Node, lexer.Token) (Node, error) // Left denotation
 
@@ -116,6 +117,13 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	if token.Typeof == lexer.ImpMul {
+		return &ImpliedBinary{
+			Op: token.Value,
+			X:  left,
+			Y:  right,
+		}, nil
+	}
 	return &Binary{
 		Op:     token.Value,
 		X:      left,
@@ -197,7 +205,7 @@ func init() {
 			binds:    make(map[lexer.LexType]int),
 		},
 	}
-	// Helper functions build lookup tables.
+	// Helper functions build lookup table.
 	set := func(t lexer.LexType, n nud) {
 		pratt.nuds[t] = n
 		pratt.binds[t] = 0
@@ -229,8 +237,9 @@ func init() {
 	infix(10, pratt.binary, lexer.Add, lexer.Sub)
 	infix(20, pratt.binary, lexer.Mul, lexer.Div)
 	infixr(30, pratt.binaryr, lexer.Pow)
-	prefix(40, pratt.unary, lexer.Add, lexer.Sub)
-	infix(50, pratt.call, lexer.OpenParen)
+	infix(40, pratt.binary, lexer.ImpMul)
+	prefix(50, pratt.unary, lexer.Add, lexer.Sub)
+	infix(60, pratt.call, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
