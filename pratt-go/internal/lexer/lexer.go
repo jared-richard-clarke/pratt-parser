@@ -26,7 +26,6 @@ const (
 	Add
 	Sub
 	Mul
-	ImpMul // implicit multiplier
 	Div
 	Pow
 	Number
@@ -44,8 +43,6 @@ type Token struct {
 
 func (t Token) String() string {
 	switch {
-	case t.Typeof == ImpMul:
-		return "punct: imp-*"
 	case t.Typeof < Number:
 		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Number:
@@ -114,14 +111,6 @@ func (sc *scanner) peekNext() rune {
 }
 
 func (sc *scanner) addToken(t LexType, v string) {
-	// Implied multipliers have no meaningful position.
-	if t == ImpMul {
-		sc.tokens = append(sc.tokens, Token{
-			Typeof: t,
-			Value:  v,
-		})
-		return
-	}
 	runeCount := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
 	lexOffset := 0
 	// Center column on character representation of rune.
@@ -157,11 +146,6 @@ func (sc *scanner) scanToken() {
 		return
 	case r == ')':
 		sc.addToken(CloseParen, ")")
-		// Check for implied multiplication: (7+11)x, (7+11)(11+7), or (7+11)7
-		c := sc.peek()
-		if unicode.IsLetter(c) || unicode.IsDigit(c) || c == '(' {
-			sc.addToken(ImpMul, "*")
-		}
 		return
 	case r == ',':
 		sc.addToken(Comma, ",")
@@ -193,11 +177,6 @@ func (sc *scanner) scanToken() {
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(Number, text)
-		// Check for implied multiplication: 7(7+11) or 7x
-		c := sc.peek()
-		if unicode.IsLetter(c) || c == '(' {
-			sc.addToken(ImpMul, "*")
-		}
 		return
 	// symbols
 	case unicode.IsLetter(r):
