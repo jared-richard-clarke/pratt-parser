@@ -226,11 +226,6 @@ func (sc *scanner) scanToken() {
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(Ident, text)
-		// Check for implied multiplication: x <whitespace> y
-		sc.skip()
-		if unicode.IsLetter(sc.peek()) {
-			sc.addToken(ImpMul, "*")
-		}
 		return
 	// undefined
 	default:
