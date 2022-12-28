@@ -146,18 +146,49 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 	}, nil
 }
 
-func (p *parser) parenExpr(token lexer.Token) (Node, error) {
+func (p *parser) paren(token lexer.Token) (Node, error) {
 	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
-	x, err := p.expression(0)
+	node, err := p.expression(0)
 	if err != nil {
 		return nil, err
 	}
 	if !p.match(lexer.CloseParen) {
-		msg := "for '(' %s, missing matching ')'"
+		msg := "for '(' at %s, missing matching ')'"
 		return nil, fmt.Errorf(msg, position)
 	}
 	p.next()
-	return x, nil
+	return node, nil
+}
+
+func (p *parser) call(left Node, token lexer.Token) (Node, error) {
+	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
+	if p.match(lexer.CloseParen) {
+		p.next()
+		return &Call{Fun: left}, nil
+	}
+	var args []Node
+	for {
+		node, err := p.expression(0)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, node)
+		if !p.match(lexer.Comma) {
+			break
+		}
+		p.next()
+	}
+	if !p.match(lexer.CloseParen) {
+		msg := "for function call at %s, missing matching ')'"
+		return nil, fmt.Errorf(msg, position)
+	}
+	p.next()
+	return &Call{
+		Fun:    left,
+		Args:   args,
+		Line:   token.Line,
+		Column: token.Column,
+	}, nil
 }
 
 // Carries parser's internal state. Should persist throughout package lifetime.
@@ -178,34 +209,36 @@ func init() {
 		pratt.nuds[t] = n
 		pratt.binds[t] = 0
 	}
-	prefix := func(bp int, ts ...lexer.LexType) {
+	prefix := func(bp int, n nud, ts ...lexer.LexType) {
 		for _, t := range ts {
 			pratt.nuds[t] = pratt.unary
 			pratt.prebinds[t] = bp
 		}
 	}
-	infix := func(bp int, ts ...lexer.LexType) {
+	infix := func(bp int, l led, ts ...lexer.LexType) {
 		for _, t := range ts {
-			pratt.leds[t] = pratt.binary
+			pratt.leds[t] = l
 			pratt.binds[t] = bp
 		}
 	}
-	infixr := func(bp int, ts ...lexer.LexType) {
+	infixr := func(bp int, l led, ts ...lexer.LexType) {
 		for _, t := range ts {
-			pratt.leds[t] = pratt.binaryr
+			pratt.leds[t] = l
 			pratt.binds[t] = bp
 		}
 	}
+
 	// Initialize lookup tables.
 	symbol(lexer.EOF, pratt.eof)
 	symbol(lexer.Number, pratt.number)
 	symbol(lexer.Ident, pratt.ident)
-	symbol(lexer.OpenParen, pratt.parenExpr)
-	infix(50, lexer.Add, lexer.Sub)
-	infix(60, lexer.Mul, lexer.Div)
-	infix(80, lexer.ImpMul)
-	infixr(70, lexer.Pow)
-	prefix(90, lexer.Add, lexer.Sub)
+	symbol(lexer.OpenParen, pratt.paren)
+	infix(10, pratt.binary, lexer.Add, lexer.Sub)
+	infix(20, pratt.binary, lexer.Mul, lexer.Div)
+	infixr(30, pratt.binaryr, lexer.Pow)
+	infix(40, pratt.binary, lexer.ImpMul)
+	prefix(50, pratt.unary, lexer.Add, lexer.Sub)
+	infix(60, pratt.call, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
