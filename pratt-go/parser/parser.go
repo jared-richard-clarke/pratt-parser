@@ -205,7 +205,7 @@ func init() {
 		},
 	}
 	// Helper functions build lookup tables.
-	symbol := func(t lexer.LexType, n nud) {
+	set := func(t lexer.LexType, n nud) {
 		pratt.nuds[t] = n
 		pratt.binds[t] = 0
 	}
@@ -229,10 +229,10 @@ func init() {
 	}
 
 	// Initialize lookup tables.
-	symbol(lexer.EOF, pratt.eof)
-	symbol(lexer.Number, pratt.number)
-	symbol(lexer.Ident, pratt.ident)
-	symbol(lexer.OpenParen, pratt.paren)
+	set(lexer.EOF, pratt.eof)
+	set(lexer.Number, pratt.number)
+	set(lexer.Ident, pratt.ident)
+	set(lexer.OpenParen, pratt.paren)
 	infix(10, pratt.binary, lexer.Add, lexer.Sub)
 	infix(20, pratt.binary, lexer.Mul, lexer.Div)
 	infixr(30, pratt.binaryr, lexer.Pow)
