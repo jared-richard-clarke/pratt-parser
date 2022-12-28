@@ -90,8 +90,8 @@ func (p *parser) number(token lexer.Token) (Node, error) {
 }
 
 // Always returns Node. Has error type to satisfy "nud".
-func (p *parser) ident(token lexer.Token) (Node, error) {
-	return &Ident{
+func (p *parser) symbol(token lexer.Token) (Node, error) {
+	return &Symbol{
 		Value:  token.Value,
 		Line:   token.Line,
 		Column: token.Column,
@@ -231,7 +231,7 @@ func init() {
 	// Initialize lookup tables.
 	set(lexer.EOF, pratt.eof)
 	set(lexer.Number, pratt.number)
-	set(lexer.Ident, pratt.ident)
+	set(lexer.Symbol, pratt.symbol)
 	set(lexer.OpenParen, pratt.paren)
 	infix(10, pratt.binary, lexer.Add, lexer.Sub)
 	infix(20, pratt.binary, lexer.Mul, lexer.Div)
