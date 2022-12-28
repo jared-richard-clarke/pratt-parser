@@ -56,7 +56,7 @@ func (b *Binary) String() string {
 	return fmt.Sprintf(msg, b.Op, b.X, b.Y)
 }
 
-// Implied multiplication. Like Binary but without positional information.
+// Like Binary but without positional information.
 type ImpBinary struct {
 	Op   string
 	X, Y Node
@@ -67,15 +67,15 @@ func (i *ImpBinary) String() string {
 	return fmt.Sprintf(msg, i.Op, i.X, i.Y)
 }
 
-type Function struct {
-	Name         Ident  // Function names limited to identifiers.
-	Args         []Node // All Nodes are expressions.
+type Call struct {
+	Fun          Node
+	Args         []Node
 	Line, Column int
 }
 
-func (f *Function) String() string {
-	msg := "Function{ Name: %v, Args: %v }"
-	return fmt.Sprintf(msg, f.Name, f.Args)
+func (c *Call) String() string {
+	msg := "Call{ Fun: %v, Args: %v }"
+	return fmt.Sprintf(msg, c.Fun, c.Args)
 }
 
 func (e *Empty) ast()     {}
@@ -84,4 +84,4 @@ func (i *Ident) ast()     {}
 func (u *Unary) ast()     {}
 func (b *Binary) ast()    {}
 func (i *ImpBinary) ast() {}
-func (f *Function) ast()  {}
+func (f *Call) ast()      {}
