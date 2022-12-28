@@ -58,11 +58,11 @@ func TestEmpty(t *testing.T) {
 	}
 }
 
-func TestIdent(t *testing.T) {
+func TestSymbol(t *testing.T) {
 	text := "wyvern ^ 11"
 	expect := &Binary{
 		Op: "^",
-		X: &Ident{
+		X: &Symbol{
 			Value:  "wyvern",
 			Line:   1,
 			Column: 1,
@@ -77,9 +77,9 @@ func TestIdent(t *testing.T) {
 	}
 	result, err := Parse(text)
 	if err != nil {
-		t.Errorf("TestIdent failed. Expected: %s, Got: %s", expect, err)
+		t.Errorf("TestSymbol failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
-		t.Errorf("TestIdent failed. Expected: %s, Got: %s", expect, result)
+		t.Errorf("TestSymbol failed. Expected: %s, Got: %s", expect, result)
 	}
 }
 
@@ -244,7 +244,7 @@ func TestImpBinary(t *testing.T) {
 				Line:   1,
 				Column: 2,
 			},
-			Y: &Ident{
+			Y: &Symbol{
 				Value:  "a",
 				Line:   1,
 				Column: 3,
