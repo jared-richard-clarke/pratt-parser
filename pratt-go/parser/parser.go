@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github/jared-richard-clarke/pratt/internal/lexer"
 	"strconv"
+	"strings"
 )
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
@@ -259,6 +260,17 @@ func Parse(s string) (Node, error) {
 	node, err := pratt.expression(0)
 	if err != nil {
 		return nil, err
+	}
+	// If extra tokens at end of expression, return error.
+	if pratt.index < pratt.end {
+		var b strings.Builder
+		b.WriteString("[ ")
+		for i := pratt.index; i < pratt.end; i += 1 {
+			b.WriteString("\"" + pratt.src[i].Value + "\"" + " ")
+		}
+		b.WriteString("]")
+		msg := "extra token(s) %s at end of expression"
+		return nil, fmt.Errorf(msg, b.String())
 	}
 	return node, nil
 }
