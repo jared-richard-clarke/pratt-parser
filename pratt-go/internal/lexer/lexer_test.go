@@ -180,11 +180,11 @@ func TestNewlines(t *testing.T) {
 	compare(expect, result, t, "TestNewlines (Test 2)")
 }
 
-func TestIdent(t *testing.T) {
+func TestSymbol(t *testing.T) {
 	text := "x + wyvern * 3"
 	expect := []Token{
 		{
-			Typeof: Ident,
+			Typeof: Symbol,
 			Value:  "x",
 			Line:   1,
 			Column: 1,
@@ -196,7 +196,7 @@ func TestIdent(t *testing.T) {
 			Column: 3,
 		},
 		{
-			Typeof: Ident,
+			Typeof: Symbol,
 			Value:  "wyvern",
 			Line:   1,
 			Column: 5,
@@ -216,12 +216,12 @@ func TestIdent(t *testing.T) {
 		mkEof(1, 15),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestIdent (Test 1)")
+	compare(expect, result, t, "TestSymbol (Test 1)")
 
 	text = "x + wyvern/hamster"
 	expect = []Token{
 		{
-			Typeof: Ident,
+			Typeof: Symbol,
 			Value:  "x",
 			Line:   1,
 			Column: 1,
@@ -233,7 +233,7 @@ func TestIdent(t *testing.T) {
 			Column: 3,
 		},
 		{
-			Typeof: Ident,
+			Typeof: Symbol,
 			Value:  "wyvern",
 			Line:   1,
 			Column: 5,
@@ -245,7 +245,7 @@ func TestIdent(t *testing.T) {
 			Column: 11,
 		},
 		{
-			Typeof: Ident,
+			Typeof: Symbol,
 			Value:  "hamster",
 			Line:   1,
 			Column: 12,
@@ -253,7 +253,7 @@ func TestIdent(t *testing.T) {
 		mkEof(1, 19),
 	}
 	result, _ = Scan(text)
-	compare(expect, result, t, "TestIdent (Test 2)")
+	compare(expect, result, t, "TestSymbol (Test 2)")
 }
 
 func TestNumbers(t *testing.T) {
