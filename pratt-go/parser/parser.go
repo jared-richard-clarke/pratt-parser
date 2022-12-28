@@ -211,7 +211,7 @@ func init() {
 	}
 	prefix := func(bp int, n nud, ts ...lexer.LexType) {
 		for _, t := range ts {
-			pratt.nuds[t] = pratt.unary
+			pratt.nuds[t] = n
 			pratt.prebinds[t] = bp
 		}
 	}
