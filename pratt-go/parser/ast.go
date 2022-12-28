@@ -24,13 +24,13 @@ func (n *Number) String() string {
 	return fmt.Sprintf(msg, n.Value)
 }
 
-type Ident struct {
+type Symbol struct {
 	Value        string
 	Line, Column int
 }
 
-func (i *Ident) String() string {
-	msg := "Ident{ Value: %s }"
+func (i *Symbol) String() string {
+	msg := "Symbol{ Value: %s }"
 	return fmt.Sprintf(msg, i.Value)
 }
 
@@ -79,8 +79,8 @@ func (c *Call) String() string {
 }
 
 func (e *Empty) ast()     {}
-func (l *Number) ast()    {}
-func (i *Ident) ast()     {}
+func (n *Number) ast()    {}
+func (s *Symbol) ast()     {}
 func (u *Unary) ast()     {}
 func (b *Binary) ast()    {}
 func (i *ImpBinary) ast() {}
