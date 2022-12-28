@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 )
-
 type nud func(lexer.Token) (Node, error)       // Null denotation
 type led func(Node, lexer.Token) (Node, error) // Left denotation
 
@@ -258,7 +257,7 @@ func Parse(s string) (Node, error) {
 		var b strings.Builder
 		b.WriteString("[ ")
 		for i := pratt.index; i < pratt.end; i += 1 {
-			b.WriteString("\"" + pratt.src[i].Value + "\"" + " ")
+			b.WriteString(pratt.src[i].Value + " ")
 		}
 		b.WriteString("]")
 		msg := "extra token(s) %s at end of expression"
