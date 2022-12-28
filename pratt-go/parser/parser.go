@@ -117,13 +117,6 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if token.Typeof == lexer.ImpMul {
-		return &ImpBinary{
-			Op: token.Value,
-			X:  left,
-			Y:  right,
-		}, nil
-	}
 	return &Binary{
 		Op:     token.Value,
 		X:      left,
@@ -165,7 +158,7 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
 	if p.match(lexer.CloseParen) {
 		p.next()
-		return &Call{Fun: left}, nil
+		return &Call{Callee: left}, nil
 	}
 	var args []Node
 	for {
@@ -185,7 +178,7 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 	}
 	p.next()
 	return &Call{
-		Fun:    left,
+		Callee: left,
 		Args:   args,
 		Line:   token.Line,
 		Column: token.Column,
@@ -237,9 +230,8 @@ func init() {
 	infix(10, pratt.binary, lexer.Add, lexer.Sub)
 	infix(20, pratt.binary, lexer.Mul, lexer.Div)
 	infixr(30, pratt.binaryr, lexer.Pow)
-	infix(40, pratt.binary, lexer.ImpMul)
-	prefix(50, pratt.unary, lexer.Add, lexer.Sub)
-	infix(60, pratt.call, lexer.OpenParen)
+	prefix(40, pratt.unary, lexer.Add, lexer.Sub)
+	infix(50, pratt.call, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
