@@ -30,7 +30,7 @@ const (
 	Div
 	Pow
 	Number
-	Ident
+	Symbol
 	Error
 	EOF
 )
@@ -50,8 +50,8 @@ func (t Token) String() string {
 		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Number:
 		return fmt.Sprintf("float: %q :%d:%d", t.Value, t.Line, t.Column)
-	case t.Typeof == Ident:
-		return fmt.Sprintf("ident: %q :%d:%d", t.Value, t.Line, t.Column)
+	case t.Typeof == Symbol:
+		return fmt.Sprintf("symbol: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == EOF:
 		return fmt.Sprintf("<eof> :%d:%d", t.Line, t.Column)
 	default:
@@ -219,13 +219,13 @@ func (sc *scanner) scanToken() {
 			sc.addToken(ImpMul, "*")
 		}
 		return
-	// identifiers
+	// symbols
 	case unicode.IsLetter(r):
 		for isAlphaNumeric(sc.peek()) {
 			sc.next()
 		}
 		text := sc.source[sc.start:sc.offset]
-		sc.addToken(Ident, text)
+		sc.addToken(Symbol, text)
 		return
 	// undefined
 	default:
