@@ -165,7 +165,11 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
 	if p.match(lexer.CloseParen) {
 		p.next()
-		return &Call{Callee: left}, nil
+		return &Call{
+			Callee: left,
+			Line:   token.Line,
+			Column: token.Column,
+		}, nil
 	}
 	var args []Node
 	for {
