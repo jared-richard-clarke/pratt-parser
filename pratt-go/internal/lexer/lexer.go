@@ -180,10 +180,10 @@ func (sc *scanner) scanToken() {
 	case r == '+':
 		sc.addToken(Add, "+")
 		return
-	case r == '*':
+	case r == '*' || r == '×':
 		sc.addToken(Mul, "*")
 		return
-	case r == '/':
+	case r == '/' || r == '÷':
 		sc.addToken(Div, "/")
 		return
 	case r == '^':
