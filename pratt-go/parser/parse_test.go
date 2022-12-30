@@ -234,8 +234,11 @@ func TestExponent(t *testing.T) {
 }
 
 func TestCall(t *testing.T) {
-	text := "square(5) + 2"
-	expect := &Binary{
+	var text string
+	var expect Node
+
+	text = "square(5) + 2"
+	expect = &Binary{
 		Op: "+",
 		X: &Call{
 			Callee: &Symbol{
@@ -263,9 +266,27 @@ func TestCall(t *testing.T) {
 	}
 	result, err := Parse(text)
 	if err != nil {
-		t.Errorf("TestCall failed. Expected: %s, Got: %s", expect, err)
+		t.Errorf("TestCall (1) failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
-		t.Errorf("TestCall failed. Expected: %s, Got: %s", expect, result)
+		t.Errorf("TestCall (1) failed. Expected: %s, Got: %s", expect, result)
+	}
+
+	text = "random()"
+	expect = &Call{
+		Callee: &Symbol{
+			Value:  "random",
+			Line:   1,
+			Column: 1,
+		},
+		Args:   nil,
+		Line:   1,
+		Column: 7,
+	}
+	result, err = Parse(text)
+	if err != nil {
+		t.Errorf("TestCall (2) failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestCall (2) failed. Expected: %s, Got: %s", expect, result)
 	}
 }
 
