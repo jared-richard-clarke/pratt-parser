@@ -275,7 +275,7 @@ func Parse(s string) (Node, error) {
 		}
 		b.WriteString("]")
 		// Compose error message.
-		msg := "unused token(s) %s at end of expression"
+		msg := "unused tokens %s at end of expression"
 		return nil, fmt.Errorf(msg, b.String())
 	}
 	return node, nil
