@@ -265,14 +265,14 @@ func Parse(s string) (Node, error) {
 	if pratt.index < pratt.end {
 		// Build string from expression.
 		var a strings.Builder
-		a.WriteString("\"")
+		a.WriteString("\"" + " ")
 		for i := 0; i < pratt.index; i += 1 {
-			a.WriteString(pratt.src[i].Value)
+			a.WriteString(pratt.src[i].Value + " ")
 		}
 		a.WriteString("\"")
 		// Build string from list of unused tokens.
 		var b strings.Builder
-		b.WriteString("[ ")
+		b.WriteString("[" + " ")
 		for i := pratt.index; i < pratt.end; i += 1 {
 			b.WriteString(pratt.src[i].Value + " ")
 		}
