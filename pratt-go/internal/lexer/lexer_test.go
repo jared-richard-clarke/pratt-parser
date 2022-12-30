@@ -5,6 +5,34 @@ import (
 	"testing"
 )
 
+func (t Token) String() string {
+	switch {
+	case t.Typeof == ImpMul:
+		return "punct: imp-*"
+	case t.Typeof < Number:
+		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
+	case t.Typeof == Number:
+		return fmt.Sprintf("float: %q :%d:%d", t.Value, t.Line, t.Column)
+	case t.Typeof == Symbol:
+		return fmt.Sprintf("symbol: %q :%d:%d", t.Value, t.Line, t.Column)
+	case t.Typeof == EOF:
+		return fmt.Sprintf("<eof> :%d:%d", t.Line, t.Column)
+	default:
+		return fmt.Sprintf("error: %q :%d:%d", t.Value, t.Line, t.Column)
+	}
+}
+
+func TestPrint(t *testing.T) {
+	result, err := Scan("(2b)a")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range result {
+		fmt.Println(v)
+	}
+}
+
 func TestScan(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := []Token{
