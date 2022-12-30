@@ -232,3 +232,97 @@ func TestExponent(t *testing.T) {
 		t.Errorf("TestExponent failed. Expected: %s, Got: %s", expect, result)
 	}
 }
+
+func TestCall(t *testing.T) {
+	text := "square(5) + 2"
+	expect := &Binary{
+		Op: "+",
+		X: &Call{
+			Callee: &Symbol{
+				Value:  "square",
+				Line:   1,
+				Column: 1,
+			},
+			Args: []Node{
+				&Number{
+					Value:  5.0,
+					Line:   1,
+					Column: 8,
+				},
+			},
+			Line:   1,
+			Column: 7,
+		},
+		Y: &Number{
+			Value:  2.0,
+			Line:   1,
+			Column: 13,
+		},
+		Line:   1,
+		Column: 11,
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestCall failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestCall failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestImpliedBinary(t *testing.T) {
+	text := "7x"
+	expect := &ImpliedBinary{
+		Op: "*",
+		X: &Number{
+			Value:  7.0,
+			Line:   1,
+			Column: 1,
+		},
+		Y: &Symbol{
+			Value:  "x",
+			Line:   1,
+			Column: 2,
+		},
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestImpliedBinary failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestImpliedBinary failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestAltOperators(t *testing.T) {
+	text := "1 × 2 ÷ 3"
+	expect := &Binary{
+		Op: "/",
+		X: &Binary{
+			Op: "*",
+			X: &Number{
+				Value:  1.0,
+				Line:   1,
+				Column: 1,
+			},
+			Y: &Number{
+				Value:  2.0,
+				Line:   1,
+				Column: 5,
+			},
+			Line:   1,
+			Column: 3,
+		},
+		Y: &Number{
+			Value:  3.0,
+			Line:   1,
+			Column: 9,
+		},
+		Line:   1,
+		Column: 7,
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestAltOperators failed. Expected: %s, Got: %s", expect, err)
+	} else if !reflect.DeepEqual(expect, result) {
+		t.Errorf("TestAltOperators failed. Expected: %s, Got: %s", expect, result)
+	}
+}
