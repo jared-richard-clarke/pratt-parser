@@ -205,7 +205,7 @@ func init() {
 			binds:    make(map[lexer.LexType]int),
 		},
 	}
-	// Helper functions build lookup table.
+	// Helper functions build lookup tables.
 	set := func(t lexer.LexType, n nud) {
 		pratt.nuds[t] = n
 		pratt.binds[t] = 0
@@ -277,7 +277,7 @@ func Parse(s string) (Node, error) {
 			b.WriteString(pratt.src[i].Value + " ")
 		}
 		b.WriteString("]")
-		// Compose error message. 		
+		// Compose error message.
 		msg := "unused token(s) %s at end of expression %s"
 		return nil, fmt.Errorf(msg, b.String(), a.String())
 	}
