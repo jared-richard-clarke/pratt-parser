@@ -20,8 +20,8 @@ type Number struct {
 }
 
 func (n *Number) String() string {
-	msg := "Number{ Value: %f }"
-	return fmt.Sprintf(msg, n.Value)
+	msg := "Number{ Value: %f, Line: %d, Column: %d }"
+	return fmt.Sprintf(msg, n.Value, n.Line, n.Column)
 }
 
 type Symbol struct {
@@ -29,9 +29,9 @@ type Symbol struct {
 	Line, Column int
 }
 
-func (i *Symbol) String() string {
-	msg := "Symbol{ Value: %s }"
-	return fmt.Sprintf(msg, i.Value)
+func (s *Symbol) String() string {
+	msg := "Symbol{ Value: %s, Line: %d, Column: %d }"
+	return fmt.Sprintf(msg, s.Value, s.Line, s.Column)
 }
 
 type Unary struct {
@@ -41,8 +41,8 @@ type Unary struct {
 }
 
 func (u *Unary) String() string {
-	msg := "Unary{ Op: %s, X: %s }"
-	return fmt.Sprintf(msg, u.Op, u.X)
+	msg := "Unary{ Op: %s, X: %s, Line: %d, Column: %d }"
+	return fmt.Sprintf(msg, u.Op, u.X, u.Line, u.Column)
 }
 
 type Binary struct {
@@ -52,8 +52,8 @@ type Binary struct {
 }
 
 func (b *Binary) String() string {
-	msg := "Binary{ Op: %s, X: %s, Y: %s }"
-	return fmt.Sprintf(msg, b.Op, b.X, b.Y)
+	msg := "Binary{ Op: %s, X: %s, Y: %s, Line: %d, Column: %d }"
+	return fmt.Sprintf(msg, b.Op, b.X, b.Y, b.Line, b.Column)
 }
 
 // Like Binary but without positional information.
@@ -74,8 +74,8 @@ type Call struct {
 }
 
 func (c *Call) String() string {
-	msg := "Call{ Callee: %v, Args: %v }"
-	return fmt.Sprintf(msg, c.Callee, c.Args)
+	msg := "Call{ Callee: %v, Args: %v, Line: %d, Column: %d }"
+	return fmt.Sprintf(msg, c.Callee, c.Args, c.Line, c.Column)
 }
 
 func (e *Empty) ast()         {}
@@ -84,4 +84,4 @@ func (s *Symbol) ast()        {}
 func (u *Unary) ast()         {}
 func (b *Binary) ast()        {}
 func (i *ImpliedBinary) ast() {}
-func (f *Call) ast()          {}
+func (c *Call) ast()          {}
