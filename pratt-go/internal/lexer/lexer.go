@@ -42,23 +42,6 @@ type Token struct {
 	Column int     // Lexeme starting column within newline. Counts runes.
 }
 
-func (t Token) String() string {
-	switch {
-	case t.Typeof == ImpMul:
-		return "punct: imp-*"
-	case t.Typeof < Number:
-		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
-	case t.Typeof == Number:
-		return fmt.Sprintf("float: %q :%d:%d", t.Value, t.Line, t.Column)
-	case t.Typeof == Symbol:
-		return fmt.Sprintf("symbol: %q :%d:%d", t.Value, t.Line, t.Column)
-	case t.Typeof == EOF:
-		return fmt.Sprintf("<eof> :%d:%d", t.Line, t.Column)
-	default:
-		return fmt.Sprintf("error: %q :%d:%d", t.Value, t.Line, t.Column)
-	}
-}
-
 // Helper functions and constants
 
 // Whereas lexer uses "EOF" to mark the end of an array of tokens,
