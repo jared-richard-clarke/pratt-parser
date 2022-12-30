@@ -267,13 +267,6 @@ func Parse(s string) (Node, error) {
 	}
 	// If unused tokens at end of expression, return error.
 	if pratt.index < pratt.end {
-		// Build string from expression.
-		var a strings.Builder
-		a.WriteString("\"" + " ")
-		for i := 0; i < pratt.index; i += 1 {
-			a.WriteString(pratt.src[i].Value + " ")
-		}
-		a.WriteString("\"")
 		// Build string from list of unused tokens.
 		var b strings.Builder
 		b.WriteString("[" + " ")
@@ -282,8 +275,8 @@ func Parse(s string) (Node, error) {
 		}
 		b.WriteString("]")
 		// Compose error message.
-		msg := "unused token(s) %s at end of expression %s"
-		return nil, fmt.Errorf(msg, b.String(), a.String())
+		msg := "unused token(s) %s at end of expression"
+		return nil, fmt.Errorf(msg, b.String())
 	}
 	return node, nil
 }
