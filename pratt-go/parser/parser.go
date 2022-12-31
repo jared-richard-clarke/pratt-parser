@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github/jared-richard-clarke/pratt/internal/lexer"
 	"strconv"
-	"strings"
 )
 
 type nud func(lexer.Token) (Node, error)       // Null denotation
@@ -46,7 +45,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
 	if !ok {
-		msg := "undefined prefix operation for %q line:%d column:%d"
+		msg := "undefined prefix operation %q line:%d column:%d"
 		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 	}
 	left, err := nud(token)
@@ -57,7 +56,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 		token := p.next()
 		led, ok := p.leds[token.Typeof]
 		if !ok {
-			msg := "undefined infix operation for %q line:%d column:%d"
+			msg := "undefined infix operation %q line:%d column:%d"
 			return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 		}
 		left, err = led(left, token)
@@ -154,7 +153,7 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 		return nil, err
 	}
 	if !p.match(lexer.CloseParen) {
-		msg := "for '(' at %s, missing matching ')'"
+		msg := "for '(' %s, missing matching ')'"
 		return nil, fmt.Errorf(msg, position)
 	}
 	p.next()
@@ -184,7 +183,7 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 		p.next()
 	}
 	if !p.match(lexer.CloseParen) {
-		msg := "for function call at %s, missing matching ')'"
+		msg := "for function call %s, missing matching ')'"
 		return nil, fmt.Errorf(msg, position)
 	}
 	p.next()
@@ -265,18 +264,12 @@ func Parse(s string) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	// If unused tokens at end of expression, return error.
+	// If unused tokens following expression, return error.
 	if pratt.index < pratt.end {
-		// Build string from list of unused tokens.
-		var b strings.Builder
-		b.WriteString("[" + " ")
-		for i := pratt.index; i < pratt.end; i += 1 {
-			b.WriteString(pratt.src[i].Value + " ")
-		}
-		b.WriteString("]")
-		// Compose error message.
-		msg := "unused tokens %s at end of expression"
-		return nil, fmt.Errorf(msg, b.String())
+		token := pratt.src[pratt.index]
+		position := fmt.Sprintf("line:%d, column:%d", token.Line, token.Column)
+		msg := "starting %s, unused tokens following expression"
+		return nil, fmt.Errorf(msg, position)
 	}
 	return node, nil
 }
