@@ -267,9 +267,9 @@ func Parse(s string) (Node, error) {
 	// If unused tokens following expression, return error.
 	if pratt.index < pratt.end {
 		token := pratt.src[pratt.index]
-		position := fmt.Sprintf("line:%d, column:%d", token.Line, token.Column)
-		msg := "starting %s, unused tokens following expression"
-		return nil, fmt.Errorf(msg, position)
+		msg := "starting line:%d, column:%d, unused tokens following expression"
+		return nil, fmt.Errorf(msg, token.Line, token.Column)
 	}
 	return node, nil
 }
+
