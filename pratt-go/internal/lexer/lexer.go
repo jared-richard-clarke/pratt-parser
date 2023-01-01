@@ -1,9 +1,7 @@
 package lexer
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -31,7 +29,6 @@ const (
 	Pow
 	Number
 	Symbol
-	Error
 	EOF
 )
 
@@ -59,7 +56,6 @@ type scanner struct {
 	source string  // Scanner input. Currently a string.
 	tokens []Token // Array slice of accumulating tokens.
 	length int     // Number of bytes in the source string.
-	flag   bool    // Flags scanner that contains error tokens.
 
 	offset int // Total string offset. Counts bytes.
 	start  int // Start of a lexeme within source string. Counts bytes.
@@ -132,20 +128,20 @@ func (sc *scanner) addToken(t LexType, v string) {
 	})
 }
 
-func (sc *scanner) scanToken() {
+func (sc *scanner) scanToken() error {
 	r := sc.next()
 	switch {
 	// whitespace
 	case r == whiteSpace, r == carriageReturn, r == tab:
-		return
+		return nil
 	case r == newline:
 		sc.column = 0
 		sc.line += 1
-		return
+		return nil
 	// punctuators
 	case r == '(':
 		sc.addToken(OpenParen, "(")
-		return
+		return nil
 	case r == ')':
 		sc.addToken(CloseParen, ")")
 		// Check for implied multiplication: (7+11)x, (7+11)(11+7), or (7+11)7
@@ -154,24 +150,25 @@ func (sc *scanner) scanToken() {
 		if unicode.IsLetter(c) || unicode.IsDigit(c) || c == '(' {
 			sc.addToken(ImpMul, "*")
 		}
-		return
+		return nil
 	case r == ',':
 		sc.addToken(Comma, ",")
+		return nil
 	case r == '-':
 		sc.addToken(Sub, "-")
-		return
+		return nil
 	case r == '+':
 		sc.addToken(Add, "+")
-		return
+		return nil
 	case r == '*' || r == '×':
 		sc.addToken(Mul, "*")
-		return
+		return nil
 	case r == '/' || r == '÷':
 		sc.addToken(Div, "/")
-		return
+		return nil
 	case r == '^':
 		sc.addToken(Pow, "^")
-		return
+		return nil
 	// numbers
 	case unicode.IsDigit(r):
 		for unicode.IsDigit(sc.peek()) {
@@ -191,7 +188,7 @@ func (sc *scanner) scanToken() {
 		if unicode.IsLetter(c) || c == '(' {
 			sc.addToken(ImpMul, "*")
 		}
-		return
+		return nil
 	// symbols
 	case unicode.IsLetter(r):
 		for isAlphaNumeric(sc.peek()) {
@@ -199,12 +196,11 @@ func (sc *scanner) scanToken() {
 		}
 		text := sc.source[sc.start:sc.offset]
 		sc.addToken(Symbol, text)
-		return
+		return nil
 	// undefined
 	default:
-		sc.addToken(Error, string(r))
-		sc.flag = true
-		return
+		msg := "unexpected character: %q line:%d, column:%d"
+		return fmt.Errorf(msg, r, sc.line, sc.column)
 	}
 }
 
@@ -214,7 +210,6 @@ func Scan(t string) ([]Token, error) {
 		source: t,
 		tokens: make([]Token, 0),
 		length: len(t),
-		flag:   false,
 		offset: 0,
 		start:  0,
 		line:   1,
@@ -222,24 +217,14 @@ func Scan(t string) ([]Token, error) {
 	}
 	for !sc.end() {
 		sc.start = sc.offset
-		sc.scanToken()
+		if err := sc.scanToken(); err != nil {
+			return nil, err
+		}
 	}
 	sc.tokens = append(sc.tokens, Token{
 		Typeof: EOF,
 		Line:   sc.line,
 		Column: sc.column + 1,
 	})
-	// If flag is set, build and return error message to caller.
-	if sc.flag {
-		var b strings.Builder
-		msg := "unexpected lexeme: %q line:%d column:%d\n"
-		for _, v := range sc.tokens {
-			if v.Typeof == Error {
-				s := fmt.Sprintf(msg, v.Value, v.Line, v.Column)
-				b.WriteString(s)
-			}
-		}
-		return nil, errors.New(b.String())
-	}
 	return sc.tokens, nil
 }
