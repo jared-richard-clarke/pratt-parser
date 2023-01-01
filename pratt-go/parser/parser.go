@@ -161,7 +161,12 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 }
 
 func (p *parser) call(left Node, token lexer.Token) (Node, error) {
-	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
+	// For now, the only callable functions are symbols.
+	s, ok := left.(*Symbol)
+	if !ok {
+		msg := "%s is not a callable function"
+		return nil, fmt.Errorf(msg, left)
+	}
 	if p.match(lexer.CloseParen) {
 		p.next()
 		return &Call{
@@ -183,8 +188,8 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 		p.next()
 	}
 	if !p.match(lexer.CloseParen) {
-		msg := "for function call %s, missing matching ')'"
-		return nil, fmt.Errorf(msg, position)
+		msg := "for function call %q, missing closing ')'"
+		return nil, fmt.Errorf(msg, s.Value)
 	}
 	p.next()
 	return &Call{
