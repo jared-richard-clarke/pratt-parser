@@ -8,22 +8,20 @@ import (
 func (t Token) String() string {
 	switch {
 	case t.Typeof == ImpMul:
-		return "punct: imp-*"
+		return "punct: 'imp-*'"
 	case t.Typeof < Number:
 		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Number:
-		return fmt.Sprintf("float: %q :%d:%d", t.Value, t.Line, t.Column)
+		return fmt.Sprintf("number: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Symbol:
 		return fmt.Sprintf("symbol: %q :%d:%d", t.Value, t.Line, t.Column)
-	case t.Typeof == EOF:
-		return fmt.Sprintf("<eof> :%d:%d", t.Line, t.Column)
 	default:
-		return fmt.Sprintf("error: %q :%d:%d", t.Value, t.Line, t.Column)
+		return fmt.Sprintf("<eof> :%d:%d", t.Line, t.Column)
 	}
 }
 
 func TestPrint(t *testing.T) {
-	result, err := Scan("(2b)a")
+	result, err := Scan("1.0 + 3.1")
 	if err != nil {
 		fmt.Println(err)
 		return
