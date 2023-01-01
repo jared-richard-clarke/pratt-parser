@@ -225,12 +225,6 @@ func init() {
 			pratt.binds[t] = bp
 		}
 	}
-	infixr := func(bp int, l led, ts ...lexer.LexType) {
-		for _, t := range ts {
-			pratt.leds[t] = l
-			pratt.binds[t] = bp
-		}
-	}
 
 	// Initialize lookup tables.
 	set(lexer.EOF, pratt.eof)
@@ -239,7 +233,7 @@ func init() {
 	set(lexer.OpenParen, pratt.paren)
 	infix(10, pratt.binary, lexer.Add, lexer.Sub)
 	infix(20, pratt.binary, lexer.Mul, lexer.Div)
-	infixr(30, pratt.binaryr, lexer.Pow)
+	infix(30, pratt.binaryr, lexer.Pow)
 	infix(40, pratt.binary, lexer.ImpMul)
 	prefix(50, pratt.unary, lexer.Add, lexer.Sub)
 	infix(60, pratt.call, lexer.OpenParen)
@@ -272,4 +266,3 @@ func Parse(s string) (Node, error) {
 	}
 	return node, nil
 }
-
