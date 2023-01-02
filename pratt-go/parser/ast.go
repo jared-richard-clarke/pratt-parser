@@ -20,7 +20,7 @@ type Number struct {
 }
 
 func (n *Number) String() string {
-	msg := "Number{ Value: %f }"
+	msg := "Number{ Value: %g }"
 	return fmt.Sprintf(msg, n.Value)
 }
 
@@ -30,7 +30,7 @@ type Symbol struct {
 }
 
 func (s *Symbol) String() string {
-	msg := "Symbol{ Value: %s }"
+	msg := "Symbol{ Value: %q }"
 	return fmt.Sprintf(msg, s.Value)
 }
 
@@ -41,7 +41,7 @@ type Unary struct {
 }
 
 func (u *Unary) String() string {
-	msg := "Unary{ Op: %s, X: %s }"
+	msg := "Unary{ Op: %q, X: %s }"
 	return fmt.Sprintf(msg, u.Op, u.X)
 }
 
@@ -52,7 +52,7 @@ type Binary struct {
 }
 
 func (b *Binary) String() string {
-	msg := "Binary{ Op: %s, X: %s, Y: %s }"
+	msg := "Binary{ Op: %q, X: %s, Y: %s }"
 	return fmt.Sprintf(msg, b.Op, b.X, b.Y)
 }
 
@@ -63,7 +63,7 @@ type ImpliedBinary struct {
 }
 
 func (i *ImpliedBinary) String() string {
-	msg := "ImpliedBinary{ Op: %s, X: %s, Y: %s }"
+	msg := "ImpliedBinary{ Op: %q, X: %s, Y: %s }"
 	return fmt.Sprintf(msg, i.Op, i.X, i.Y)
 }
 
