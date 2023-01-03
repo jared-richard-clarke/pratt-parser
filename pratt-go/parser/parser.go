@@ -41,6 +41,14 @@ func (p *parser) match(expect lexer.LexType) bool {
 	return p.peek() == expect
 }
 
+// The foundation and driver of Pratt's technique.
+//
+// Given an operand between two operators, "expression" resolves
+// precedence and associativity by comparing binding powers.
+// For as long as subsequent operators bind more tightly to their left
+// than consequent operators bind to their right, those operators and
+// associated operands are parsed before the previous operator and its
+// operands are resolved.
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
@@ -161,7 +169,7 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 }
 
 func (p *parser) call(left Node, token lexer.Token) (Node, error) {
-	// For now, the only callable functions are symbols.
+	// For now, the only valid function callees are symbols.
 	s, ok := left.(*Symbol)
 	if !ok {
 		msg := "%s is not a callable function"
