@@ -6,10 +6,10 @@ import (
 	"strconv"
 )
 
-// null denotation: parses numbers, symbols, and prefix operators
+// null denotation: parses numbers, symbols, and unary operators
 type nud func(lexer.Token) (Node, error)
 
-// left denotation: parses infix operators
+// left denotation: parses binary operators
 type led func(Node, lexer.Token) (Node, error)
 
 type table struct {
@@ -52,6 +52,10 @@ func (p *parser) match(expect lexer.LexType) bool {
 // than previous operators bind to their right, those operators and
 // associated operands are parsed before the previous operator and
 // its operands are resolved.
+//
+// Parsing is controlled by each token's associated "nud" or "led"
+// parser. Each "nud" parses a number, symbol, or unary operator.
+// Each "led" parses a binary operator.
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
@@ -78,6 +82,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	return left, nil
 }
 
+// Parses either an empty or incomplete expressions.
 func (p *parser) eof(token lexer.Token) (Node, error) {
 	if len(p.src) == 1 {
 		return &Empty{}, nil
@@ -87,6 +92,7 @@ func (p *parser) eof(token lexer.Token) (Node, error) {
 	return nil, err
 }
 
+// Parses numbers as 64-bit floating point.
 func (p *parser) number(token lexer.Token) (Node, error) {
 	num, err := strconv.ParseFloat(token.Value, 64)
 	if err != nil {
@@ -100,6 +106,7 @@ func (p *parser) number(token lexer.Token) (Node, error) {
 	}, nil
 }
 
+// Parses symbols — otherwise known as identifiers.
 // Always returns Node. Has error type to satisfy "nud".
 func (p *parser) symbol(token lexer.Token) (Node, error) {
 	return &Symbol{
@@ -109,6 +116,7 @@ func (p *parser) symbol(token lexer.Token) (Node, error) {
 	}, nil
 }
 
+// Parses unary expressions.
 func (p *parser) unary(token lexer.Token) (Node, error) {
 	node, err := p.expression(p.prebinds[token.Typeof])
 	if err != nil {
@@ -122,6 +130,7 @@ func (p *parser) unary(token lexer.Token) (Node, error) {
 	}, nil
 }
 
+// Parses binary expressions that associate left.
 func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 	right, err := p.expression(p.binds[token.Typeof])
 	if err != nil {
@@ -143,6 +152,7 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 	}, nil
 }
 
+// Parses binary expressions that associate right.
 func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 	right, err := p.expression(p.binds[token.Typeof] - 1)
 	if err != nil {
@@ -157,6 +167,7 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 	}, nil
 }
 
+// Parses parenthetical expressions.
 func (p *parser) paren(token lexer.Token) (Node, error) {
 	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
 	node, err := p.expression(0)
@@ -171,6 +182,7 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 	return node, nil
 }
 
+// Parses function calls.
 func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 	// For now, the only valid function callees are symbols.
 	s, ok := left.(*Symbol)
