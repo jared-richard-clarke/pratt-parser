@@ -82,7 +82,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	return left, nil
 }
 
-// Parses either an empty or incomplete expressions.
+// Parses either empty or incomplete expressions.
 func (p *parser) eof(token lexer.Token) (Node, error) {
 	if len(p.src) == 1 {
 		return &Empty{}, nil
