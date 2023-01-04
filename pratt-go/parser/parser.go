@@ -13,8 +13,8 @@ type nud func(lexer.Token) (Node, error)
 type led func(Node, lexer.Token) (Node, error)
 
 type table struct {
-	nuds     map[lexer.LexType]nud // lexeme -> Nud
-	leds     map[lexer.LexType]led // lexeme -> Led
+	nuds     map[lexer.LexType]nud // lexeme -> nud
+	leds     map[lexer.LexType]led // lexeme -> led
 	prebinds map[lexer.LexType]int // lexeme -> prefix binding power
 	binds    map[lexer.LexType]int // lexeme -> binding power
 }
