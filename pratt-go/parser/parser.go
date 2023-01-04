@@ -47,9 +47,12 @@ func (p *parser) match(expect lexer.LexType) bool {
 // The foundation and driver of Pratt's technique.
 //
 // Taking a right-binding power (rbp), "expression" calls the current
-// token's associated "nud" parser. Then as long as the "rbp"
-// is less than the left-binding power of the next token,
-// the associated "led" parser is invoked.
+// token's associated "nud" parser. Then as long as the "rbp" is less
+// than the left-binding power of the next token, the associated
+// "led" parser is invoked.
+//
+// Both "nud" and "led" are recursive. They can call "expression"
+// with the binding power of their associated tokens.
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
