@@ -6,8 +6,11 @@ import (
 	"strconv"
 )
 
-type nud func(lexer.Token) (Node, error)       // Null denotation
-type led func(Node, lexer.Token) (Node, error) // Left denotation
+// null denotation: parses numbers, symbols, and prefix operators
+type nud func(lexer.Token) (Node, error)
+
+// left denotation: parses infix operators
+type led func(Node, lexer.Token) (Node, error)
 
 type table struct {
 	nuds     map[lexer.LexType]nud // lexeme -> Nud
@@ -42,6 +45,11 @@ func (p *parser) match(expect lexer.LexType) bool {
 }
 
 // The foundation and driver of Pratt's technique.
+//
+// Taking a right-binding power (rbp), "expression" calls the current
+// token's associated "nud" parser. Then as long as the "rbp"
+// is less than the left-binding power of the next token,
+// the associated "led" parser is invoked on that token.
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
