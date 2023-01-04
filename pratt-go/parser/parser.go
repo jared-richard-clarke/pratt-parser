@@ -48,7 +48,7 @@ func (p *parser) match(expect lexer.LexType) bool {
 //
 // Taking a right-binding power (rbp), "expression" calls the current
 // token's associated "nud" parser. Then as long as the "rbp" is less
-// than the left-binding power of the next token, the associated
+// than the left-binding power of the following token, the associated
 // "led" parser is invoked.
 //
 // Both "nud" and "led" are recursive. They can call "expression"
