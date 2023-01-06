@@ -6,10 +6,19 @@ import (
 	"strconv"
 )
 
-// null denotation: parses numbers, symbols, and unary operators
+// Top Down Operator Precedence parsing, as envisioned by Vaughan Pratt, combines lexical
+// semantics with functions. Each token is assigned a function — its semantic code.
+// To parse a string of tokens is to execute the semantic code of each token in turn
+// from left to right.
+//
+// There are two types of semantic code:
+// 1. null denotation ( nud ): a token without a left expression.
+// 2. left denotation ( led ): a token with a left expression.
+
+// Parses numbers, symbols, and unary operators
 type nud func(lexer.Token) (Node, error)
 
-// left denotation: parses binary operators
+// Parses binary operators
 type led func(Node, lexer.Token) (Node, error)
 
 type table struct {
@@ -44,16 +53,10 @@ func (p *parser) match(expect lexer.LexType) bool {
 	return p.peek() == expect
 }
 
-// The foundation and driver of Pratt's technique.
-//
-// Given an operand between two operators, "expression" resolves their
-// precedence by comparing binding powers. For as long as subsequent operators
-// bind more tightly to their left than previous operators bind to their right,
-// those operators and associated operands are parsed before the previous
-// operators and their operands are resolved.
-//
-// Parsing is controlled by each token's associated "nud" or "led" parser.
-// Each "nud" parses a number, symbol, or unary operator. Each "led" parses a binary operator.
+// The engine of Pratt's technique, "expression" drives the parser. 
+// It executes the semantic code of each token in turn from left to right.
+// For every level of precedence — dictated by binding power — there is a call to "expression".
+// The resolution of an "expression" is to return either a branch of an abstract syntax tree or an error.
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
