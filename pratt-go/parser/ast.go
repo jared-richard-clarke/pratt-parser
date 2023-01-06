@@ -4,16 +4,19 @@ import (
 	"fmt"
 )
 
+// The interface that all AST components must satisfy.
 type Node interface {
 	ast()
 }
 
+// An empty string creates an empty Node.
 type Empty struct{}
 
 func (e *Empty) String() string {
 	return "Empty{}"
 }
 
+// All numbers are parsed as 64-bit floating point.
 type Number struct {
 	Value        float64
 	Line, Column int
@@ -24,6 +27,8 @@ func (n *Number) String() string {
 	return fmt.Sprintf(msg, n.Value)
 }
 
+// Any symbolic stand in for a value, function, or expression.
+// Also known as an identifier.
 type Symbol struct {
 	Value        string
 	Line, Column int
@@ -34,6 +39,7 @@ func (s *Symbol) String() string {
 	return fmt.Sprintf(msg, s.Value)
 }
 
+// Operations with one operand.
 type Unary struct {
 	Op           string
 	X            Node
@@ -45,6 +51,7 @@ func (u *Unary) String() string {
 	return fmt.Sprintf(msg, u.Op, u.X)
 }
 
+// Operations with two operands.
 type Binary struct {
 	Op           string
 	X, Y         Node
@@ -67,6 +74,7 @@ func (i *ImpliedBinary) String() string {
 	return fmt.Sprintf(msg, i.Op, i.X, i.Y)
 }
 
+// A function call.
 type Call struct {
 	Callee       Node
 	Args         []Node
