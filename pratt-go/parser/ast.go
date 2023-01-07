@@ -16,7 +16,7 @@ func (e *Empty) String() string {
 	return "Empty{}"
 }
 
-// All numbers are parsed as 64-bit floating point.
+// Numbers parsed as 64-bit floating point.
 type Number struct {
 	Value        float64
 	Line, Column int
