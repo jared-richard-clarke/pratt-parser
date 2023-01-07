@@ -20,17 +20,6 @@ func (t Token) String() string {
 	}
 }
 
-func TestPrint(t *testing.T) {
-	result, err := Scan("1.0 + 3.1")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _, v := range result {
-		fmt.Println(v)
-	}
-}
-
 func TestScan(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := []Token{
