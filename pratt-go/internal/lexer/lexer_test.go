@@ -389,9 +389,9 @@ func TestSub(t *testing.T) {
 	compare(expect, result, t, "Sub")
 }
 
-// A Token of type ImpMul has no meaningful position information.
-// These Tokens carry Line and Column fields only because a unique
-// Token type is not worth the added complexity.
+// A Token of type ImpMul has no meaningful position.
+// These Tokens carry Line and Column fields only because
+// a unique Token type is not worth the added complexity.
 func TestImpMul(t *testing.T) {
 	text := "2x"
 	expect := []Token{
