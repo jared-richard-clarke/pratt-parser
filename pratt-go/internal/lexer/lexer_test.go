@@ -8,7 +8,7 @@ import (
 func (t Token) String() string {
 	switch {
 	case t.Typeof == ImpMul:
-		return "punct: 'imp-*'"
+		return fmt.Sprintf("punct: \"imp-*\" :%d:%d", t.Line, t.Column)
 	case t.Typeof < Number:
 		return fmt.Sprintf("punct: %q :%d:%d", t.Value, t.Line, t.Column)
 	case t.Typeof == Number:
@@ -67,14 +67,14 @@ func TestScan(t *testing.T) {
 		mkEof(1, 10),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestScan")
+	compare(expect, result, t, "Scan")
 }
 
 func TestEmpty(t *testing.T) {
 	text := " \n\t"
 	expect := []Token{mkEof(2, 2)}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestEmpty")
+	compare(expect, result, t, "Empty")
 }
 
 func TestParens(t *testing.T) {
@@ -125,7 +125,52 @@ func TestParens(t *testing.T) {
 		mkEof(1, 12),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestParens")
+	compare(expect, result, t, "Parens")
+}
+
+func TestComma(t *testing.T) {
+	text := "op(2, 5)"
+	expect := []Token{
+		{
+			Typeof: Symbol,
+			Value:  "op",
+			Line:   1,
+			Column: 1,
+		},
+		{
+			Typeof: OpenParen,
+			Value:  "(",
+			Line:   1,
+			Column: 3,
+		},
+		{
+			Typeof: Number,
+			Value:  "2",
+			Line:   1,
+			Column: 4,
+		},
+		{
+			Typeof: Comma,
+			Value:  ",",
+			Line:   1,
+			Column: 5,
+		},
+		{
+			Typeof: Number,
+			Value:  "5",
+			Line:   1,
+			Column: 7,
+		},
+		{
+			Typeof: CloseParen,
+			Value:  ")",
+			Line:   1,
+			Column: 8,
+		},
+		mkEof(1, 9),
+	}
+	result, _ := Scan(text)
+	compare(expect, result, t, "Comma")
 }
 
 func TestNewlines(t *testing.T) {
@@ -164,7 +209,7 @@ func TestNewlines(t *testing.T) {
 		mkEof(2, 5),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestNewlines (Test 1)")
+	compare(expect, result, t, "Newlines (1)")
 
 	text = `1 +
 	        2 *
@@ -203,7 +248,7 @@ func TestNewlines(t *testing.T) {
 		mkEof(3, 11),
 	}
 	result, _ = Scan(text)
-	compare(expect, result, t, "TestNewlines (Test 2)")
+	compare(expect, result, t, "Newlines (2)")
 }
 
 func TestSymbol(t *testing.T) {
@@ -242,7 +287,7 @@ func TestSymbol(t *testing.T) {
 		mkEof(1, 15),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestSymbol (Test 1)")
+	compare(expect, result, t, "Symbol (1)")
 
 	text = "x + wyvern/hamster"
 	expect = []Token{
@@ -279,7 +324,7 @@ func TestSymbol(t *testing.T) {
 		mkEof(1, 19),
 	}
 	result, _ = Scan(text)
-	compare(expect, result, t, "TestSymbol (Test 2)")
+	compare(expect, result, t, "Symbol (2)")
 }
 
 func TestNumbers(t *testing.T) {
@@ -306,7 +351,20 @@ func TestNumbers(t *testing.T) {
 		mkEof(1, 6),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestNumbers (Test 1)")
+	compare(expect, result, t, "Numbers (1)")
+
+	text = "1024"
+	expect = []Token{
+		{
+			Typeof: Number,
+			Value:  "1024",
+			Line:   1,
+			Column: 1,
+		},
+		mkEof(1, 5),
+	}
+	result, _ = Scan(text)
+	compare(expect, result, t, "Numbers (2)")
 }
 
 func TestSub(t *testing.T) {
@@ -339,7 +397,74 @@ func TestSub(t *testing.T) {
 		mkEof(1, 7),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestSub")
+	compare(expect, result, t, "Sub")
+}
+
+// A Token of type ImpMul has no meaningful position information.
+// These Tokens carry Line and Column fields only because a unique
+// Token type is not worth the added complexity.
+func TestImpMul(t *testing.T) {
+	text := "2x"
+	expect := []Token{
+		{
+			Typeof: Number,
+			Value:  "2",
+			Line:   1,
+			Column: 1,
+		},
+		{
+			Typeof: ImpMul,
+			Value:  "*",
+			Line:   1,
+			Column: 1,
+		},
+		{
+			Typeof: Symbol,
+			Value:  "x",
+			Line:   1,
+			Column: 2,
+		},
+		mkEof(1, 3),
+	}
+	result, _ := Scan(text)
+	compare(result, expect, t, "ImpMul (1)")
+
+	text = "(x)y"
+	expect = []Token{
+		{
+			Typeof: OpenParen,
+			Value:  "(",
+			Line:   1,
+			Column: 1,
+		},
+		{
+			Typeof: Symbol,
+			Value:  "x",
+			Line:   1,
+			Column: 2,
+		},
+		{
+			Typeof: CloseParen,
+			Value:  ")",
+			Line:   1,
+			Column: 3,
+		},
+		{
+			Typeof: ImpMul,
+			Value:  "*",
+			Line:   1,
+			Column: 3,
+		},
+		{
+			Typeof: Symbol,
+			Value:  "y",
+			Line:   1,
+			Column: 4,
+		},
+		mkEof(1, 5),
+	}
+	result, _ = Scan(text)
+	compare(result, expect, t, "ImpMul (2)")
 }
 
 func TestPow(t *testing.T) {
@@ -366,7 +491,7 @@ func TestPow(t *testing.T) {
 		mkEof(1, 4),
 	}
 	result, _ := Scan(text)
-	compare(expect, result, t, "TestPow")
+	compare(expect, result, t, "Pow")
 }
 
 // utility functions
