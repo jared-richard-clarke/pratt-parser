@@ -6,10 +6,10 @@ import (
 	"strconv"
 )
 
-// Top down operator precedence parsing, as envisioned by Vaughan Pratt, combines lexical
-// semantics with functions. Each lexeme is assigned a function — its semantic code.
-// To parse a string of lexemes is to execute the semantic code of each lexeme in turn
-// from left to right.
+// Top down operator precedence parsing, as imagined by Vaughan Pratt,
+// combines lexical semantics with functions. Each lexeme is assigned a
+// function — its semantic code. To parse a string of lexemes is to execute
+// the semantic code of each lexeme in turn from left to right.
 //
 // There are two types of semantic code:
 // 1. null denotation ( nud ): a lexeme without a left expression.
@@ -53,10 +53,12 @@ func (p *parser) match(expect lexer.LexType) bool {
 	return p.peek() == expect
 }
 
-// The engine of Pratt's technique, "expression" drives the parser. 
-// It executes the semantic code of each lexeme in turn from left to right.
-// For every level of precedence — dictated by binding power — there is a call to "expression".
-// The resolution of an "expression" is to return either a branch of an abstract syntax tree or an error.
+// The engine of Pratt's technique, "expression" drives the parser,
+// calling the semantic code of each lexeme in turn from left to right.
+// For every level of precedence — dictated by binding power — there is a call
+// to "expression" either through the "nud" or "led" of the associated lexeme.
+// The resolution of an "expression" is to return either a branch of an
+// abstract syntax tree or an error.
 func (p *parser) expression(rbp int) (Node, error) {
 	token := p.next()
 	nud, ok := p.nuds[token.Typeof]
@@ -83,7 +85,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 	return left, nil
 }
 
-// Parses either an empty or incomplete expressions.
+// Parses either empty or incomplete expressions.
 func (p *parser) eof(token lexer.Token) (Node, error) {
 	if len(p.src) == 1 {
 		return &Empty{}, nil
