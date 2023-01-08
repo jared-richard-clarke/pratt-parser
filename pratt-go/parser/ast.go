@@ -16,7 +16,7 @@ func (e *Empty) String() string {
 	return "Empty{}"
 }
 
-// Numbers parsed as 64-bit floating point.
+// Number parsed as 64-bit floating point.
 type Number struct {
 	Value        float64
 	Line, Column int
@@ -39,7 +39,7 @@ func (s *Symbol) String() string {
 	return fmt.Sprintf(msg, s.Value)
 }
 
-// Operations with one operand.
+// Operation with one operand.
 type Unary struct {
 	Op           string
 	X            Node
@@ -51,7 +51,7 @@ func (u *Unary) String() string {
 	return fmt.Sprintf(msg, u.Op, u.X)
 }
 
-// Operations with two operands.
+// Operation with two operands.
 type Binary struct {
 	Op           string
 	X, Y         Node
@@ -74,7 +74,7 @@ func (i *ImpliedBinary) String() string {
 	return fmt.Sprintf(msg, i.Op, i.X, i.Y)
 }
 
-// A function call.
+// Function call.
 type Call struct {
 	Callee       Node
 	Args         []Node
@@ -85,6 +85,9 @@ func (c *Call) String() string {
 	msg := "Call{ Callee: %v, Args: %v }"
 	return fmt.Sprintf(msg, c.Callee, c.Args)
 }
+
+// ast() is an empty method. It exists solely to group
+// selected types under the Node interface.
 
 func (e *Empty) ast()         {}
 func (n *Number) ast()        {}
