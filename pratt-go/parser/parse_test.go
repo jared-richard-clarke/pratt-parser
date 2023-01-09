@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
 	expect := &Binary{
@@ -38,6 +39,15 @@ func TestBasic(t *testing.T) {
 		t.Errorf("TestBasic failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
 		t.Errorf("TestBasic failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestUndefinedPrefixOp(t *testing.T) {
+	text := "1 + * 7"
+	result, err := Parse(text)
+	if err == nil {
+		msg := "TestUndefinedPrefixOp failed. Expected: error, Got: %s"
+		t.Errorf(msg, result)
 	}
 }
 
