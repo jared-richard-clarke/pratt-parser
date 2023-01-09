@@ -41,6 +41,24 @@ func TestBasic(t *testing.T) {
 	}
 }
 
+func TestUnexpectedToken(t *testing.T) {
+	text := "1.0.7 + 2"
+	result, err := Parse(text)
+	if err == nil {
+		msg := "TestUnexpectedToken failed. Expected: error, Got: %s"
+		t.Errorf(msg, result)
+	}
+}
+
+func TestIncompleteExpression(t *testing.T) {
+	text := "1 +"
+	result, err := Parse(text)
+	if err == nil {
+		msg := "TestIncompleteExpression failed. Expected: error, Got: %s"
+		t.Errorf(msg, result)
+	}
+}
+
 func TestEmpty(t *testing.T) {
 	text := ""
 	expect := &Empty{}
@@ -140,6 +158,15 @@ func TestParens(t *testing.T) {
 		t.Errorf("TestParens failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
 		t.Errorf("TestParens failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestMissingParen(t *testing.T) {
+	text := "(1 + 2"
+	result, err := Parse(text)
+	if err == nil {
+		msg := "TestMissingParen failed. Expected: error, Got: %s"
+		t.Errorf(msg, result)
 	}
 }
 
@@ -290,6 +317,15 @@ func TestCall(t *testing.T) {
 	}
 }
 
+func TestUnclosedCall(t *testing.T) {
+	text := "sin(7"
+	result, err := Parse(text)
+	if err == nil {
+		msg := "TestUnclosedCall failed. Expected: error, Got: %s"
+		t.Errorf(msg, result)
+	}
+}
+
 func TestImpliedBinary(t *testing.T) {
 	text := "7x"
 	expect := &ImpliedBinary{
@@ -345,5 +381,14 @@ func TestAltOperators(t *testing.T) {
 		t.Errorf("TestAltOperators failed. Expected: %s, Got: %s", expect, err)
 	} else if !reflect.DeepEqual(expect, result) {
 		t.Errorf("TestAltOperators failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestUnusedTokens(t *testing.T) {
+	text := "1 + 2 3 +"
+	result, err := Parse(text)
+	if err == nil {
+		msg := "TestUnusedTokens failed. Expected: error, Got: %s"
+		t.Errorf(msg, result)
 	}
 }
