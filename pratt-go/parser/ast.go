@@ -12,7 +12,7 @@ type Node interface {
 // An empty string creates an empty Node.
 type Empty struct{}
 
-func (e *Empty) String() string {
+func (e Empty) String() string {
 	return "Empty{}"
 }
 
@@ -22,7 +22,7 @@ type Number struct {
 	Line, Column int
 }
 
-func (n *Number) String() string {
+func (n Number) String() string {
 	msg := "Number{ Value: %g }"
 	return fmt.Sprintf(msg, n.Value)
 }
@@ -34,7 +34,7 @@ type Symbol struct {
 	Line, Column int
 }
 
-func (s *Symbol) String() string {
+func (s Symbol) String() string {
 	msg := "Symbol{ Value: %q }"
 	return fmt.Sprintf(msg, s.Value)
 }
@@ -46,7 +46,7 @@ type Unary struct {
 	Line, Column int
 }
 
-func (u *Unary) String() string {
+func (u Unary) String() string {
 	msg := "Unary{ Op: %q, X: %s }"
 	return fmt.Sprintf(msg, u.Op, u.X)
 }
@@ -58,7 +58,7 @@ type Binary struct {
 	Line, Column int
 }
 
-func (b *Binary) String() string {
+func (b Binary) String() string {
 	msg := "Binary{ Op: %q, X: %s, Y: %s }"
 	return fmt.Sprintf(msg, b.Op, b.X, b.Y)
 }
@@ -69,7 +69,7 @@ type ImpliedBinary struct {
 	X, Y Node
 }
 
-func (i *ImpliedBinary) String() string {
+func (i ImpliedBinary) String() string {
 	msg := "ImpliedBinary{ Op: %q, X: %s, Y: %s }"
 	return fmt.Sprintf(msg, i.Op, i.X, i.Y)
 }
@@ -81,7 +81,7 @@ type Call struct {
 	Line, Column int
 }
 
-func (c *Call) String() string {
+func (c Call) String() string {
 	msg := "Call{ Callee: %v, Args: %v }"
 	return fmt.Sprintf(msg, c.Callee, c.Args)
 }
@@ -89,10 +89,10 @@ func (c *Call) String() string {
 // ast() is an empty method. It exists solely to group
 // selected types under the Node interface.
 
-func (e *Empty) ast()         {}
-func (n *Number) ast()        {}
-func (s *Symbol) ast()        {}
-func (u *Unary) ast()         {}
-func (b *Binary) ast()        {}
-func (i *ImpliedBinary) ast() {}
-func (c *Call) ast()          {}
+func (e Empty) ast()         {}
+func (n Number) ast()        {}
+func (s Symbol) ast()        {}
+func (u Unary) ast()         {}
+func (b Binary) ast()        {}
+func (i ImpliedBinary) ast() {}
+func (c Call) ast()          {}
