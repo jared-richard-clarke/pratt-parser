@@ -88,7 +88,7 @@ func (p *parser) expression(rbp int) (Node, error) {
 // Parses either empty or incomplete expressions.
 func (p *parser) eof(token lexer.Token) (Node, error) {
 	if len(p.src) == 1 {
-		return &Empty{}, nil
+		return Empty{}, nil
 	}
 	msg := "incomplete expression, unexpected <EOF> line:%d column:%d"
 	err := fmt.Errorf(msg, token.Line, token.Column)
@@ -102,7 +102,7 @@ func (p *parser) number(token lexer.Token) (Node, error) {
 		msg := "invalid number: %s line:%d column:%d"
 		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
 	}
-	return &Number{
+	return Number{
 		Value:  num,
 		Line:   token.Line,
 		Column: token.Column,
@@ -112,7 +112,7 @@ func (p *parser) number(token lexer.Token) (Node, error) {
 // Parses symbols — otherwise known as identifiers.
 // Always returns Node. Has error type to satisfy "nud".
 func (p *parser) symbol(token lexer.Token) (Node, error) {
-	return &Symbol{
+	return Symbol{
 		Value:  token.Value,
 		Line:   token.Line,
 		Column: token.Column,
@@ -125,7 +125,7 @@ func (p *parser) unary(token lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Unary{
+	return Unary{
 		Op:     token.Value,
 		X:      node,
 		Line:   token.Line,
@@ -140,13 +140,13 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 		return nil, err
 	}
 	if token.Typeof == lexer.ImpMul {
-		return &ImpliedBinary{
+		return ImpliedBinary{
 			Op: token.Value,
 			X:  left,
 			Y:  right,
 		}, nil
 	}
-	return &Binary{
+	return Binary{
 		Op:     token.Value,
 		X:      left,
 		Y:      right,
@@ -161,7 +161,7 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Binary{
+	return Binary{
 		Op:     token.Value,
 		X:      left,
 		Y:      right,
@@ -188,15 +188,16 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 // Parses function calls.
 func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 	// For now, the only valid function callees are symbols.
-	s, ok := left.(*Symbol)
+	s, ok := left.(Symbol)
 	if !ok {
 		msg := "%s is not a callable function"
 		return nil, fmt.Errorf(msg, left)
 	}
 	if p.match(lexer.CloseParen) {
 		p.next()
-		return &Call{
+		return Call{
 			Callee: left,
+			Args:   make([]Node, 0), // Make an empty slice, not a nil slice. Makes comparisons simpler.
 			Line:   token.Line,
 			Column: token.Column,
 		}, nil
@@ -218,7 +219,7 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 		return nil, fmt.Errorf(msg, s.Value)
 	}
 	p.next()
-	return &Call{
+	return Call{
 		Callee: left,
 		Args:   args,
 		Line:   token.Line,
