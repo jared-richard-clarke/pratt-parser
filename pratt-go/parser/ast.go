@@ -1,13 +1,9 @@
 package parser
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // The interface that all AST components must satisfy.
-type Node interface {
-	ast()
-}
+type Node interface{ ast() }
 
 // An empty string creates an empty Node.
 type Empty struct{}
