@@ -5,25 +5,34 @@ import (
 	"strings"
 )
 
-// Under heavy construction
+// Under heavy construction.
 
 const newline = "\n"
 
 type printer struct {
-	spacer string
-	level  int
-	output strings.Builder
+	spacer  string
+	level   int
+	padding string
+	output  strings.Builder
 }
 
-func (p *printer) write(s string, pad bool) {
-	if pad {
-		p.output.WriteString(strings.Repeat(p.spacer, p.level))
-	}
+func (p *printer) write(s string) {
 	p.output.WriteString(s)
 }
 
-func (p *printer) indent()  { p.level += 1 }
-func (p *printer) outdent() { p.level -= 1 }
+func (p *printer) writepad(s string) {
+	p.output.WriteString(p.padding)
+	p.output.WriteString(s)
+}
+
+func (p *printer) indent() {
+	p.level += 1
+	p.padding = strings.Repeat(p.spacer, p.level)
+}
+func (p *printer) outdent() {
+	p.level -= 1
+	p.padding = strings.Repeat(p.spacer, p.level)
+}
 
 func (p *printer) print() string { return p.output.String() }
 
@@ -39,117 +48,118 @@ func (p *printer) format(n *Node) {
 		line := nl(n.Line)
 		column := nc(n.Column)
 
-		p.write(label, false)
+		p.write(label)
 		p.indent()
-		p.write(value, true)
-		p.write(line, true)
-		p.write(column, true)
+		p.writepad(value)
+		p.writepad(line)
+		p.writepad(column)
 		p.outdent()
-		p.write(close, true)
+		p.writepad(close)
 	case Symbol:
 		label := "Symbol{" + newline
 		value := fmt.Sprintf("Value:  %s%s", n.Value, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
 
-		p.write(label, false)
+		p.write(label)
 		p.indent()
-		p.write(value, true)
-		p.write(line, true)
-		p.write(column, true)
+		p.writepad(value)
+		p.writepad(line)
+		p.writepad(column)
 		p.outdent()
-		p.write(close, true)
+		p.writepad(close)
 	case Unary:
 		label := "Unary{" + newline
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
 
-		p.write(label, false)
+		p.write(label)
 		p.indent()
-		p.write(op, true)
+		p.writepad(op)
 
-		p.write("X: ", true)
+		p.writepad("X: ")
 		p.format(&n.X)
 
-		p.write(line, true)
+		p.writepad(line)
+		p.writepad(column)
 		p.outdent()
-		p.write(column, true)
-		p.write(close, true)
+		p.writepad(close)
 	case Binary:
 		label := "Binary{" + newline
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
 
-		p.write(label, false)
+		p.write(label)
 		p.indent()
-		p.write(op, true)
+		p.writepad(op)
 
-		p.write("X: ", true)
+		p.writepad("X: ")
 		p.format(&n.X)
 
-		p.write("Y: ", true)
+		p.writepad("Y: ")
 		p.format(&n.Y)
 
-		p.write(line, true)
-		p.write(column, true)
+		p.writepad(line)
+		p.writepad(column)
 		p.outdent()
-		p.write(close, true)
+		p.writepad(close)
 	case ImpliedBinary:
 		label := "ImpliedBinary{" + newline
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 
-		p.write(label, false)
+		p.write(label)
 		p.indent()
-		p.write(op, true)
+		p.writepad(op)
 
-		p.write("X: ", true)
+		p.writepad("X: ")
 		p.format(&n.X)
 
-		p.write("Y: ", true)
+		p.writepad("Y: ")
 		p.format(&n.Y)
 
 		p.outdent()
-		p.write(close, true)
+		p.writepad(close)
 	case Call:
 		label := "Call{" + newline
 		line := nl(n.Line)
 		column := nc(n.Column)
 
-		p.write(label, false)
+		p.write(label)
 		p.indent()
 
-		p.write("Callee: ", true)
+		p.writepad("Callee: ")
 		p.format(&n.Callee)
 
-		p.write("Args: ["+newline, true)
+		p.writepad("Args: [" + newline)
 		p.indent()
 		if n.Args == nil {
-			p.write("<nil>"+newline, true)
+			p.writepad("<nil>" + newline)
 		} else {
 			for _, arg := range n.Args {
 				p.format(&arg)
 			}
 		}
 		p.outdent()
-		p.write("]"+newline, true)
+		p.writepad("]" + newline)
 
-		p.write(line, true)
-		p.write(column, true)
+		p.writepad(line)
+		p.writepad(column)
 		p.outdent()
-		p.write(close, true)
+		p.writepad(close)
 	default:
-		p.write("Empty{}", false)
+		p.write("Empty{}")
 	}
 }
 
 func print(n *Node) string {
 	var b strings.Builder
 	p := printer{
-		spacer: "    ",
-		level:  0,
-		output: b,
+		spacer:  strings.Repeat(" ", 4),
+		level:   0,
+		padding: "",
+		output:  b,
 	}
 	p.format(n)
 	return p.print()
