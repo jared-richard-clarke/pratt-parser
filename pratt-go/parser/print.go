@@ -77,10 +77,8 @@ func (p *printer) format(n *Node) {
 		p.write(label)
 		p.indent()
 		p.writepad(op)
-
 		p.writepad("X: ")
 		p.format(&n.X)
-
 		p.writepad(line)
 		p.writepad(column)
 		p.outdent()
@@ -94,13 +92,10 @@ func (p *printer) format(n *Node) {
 		p.write(label)
 		p.indent()
 		p.writepad(op)
-
 		p.writepad("X: ")
 		p.format(&n.X)
-
 		p.writepad("Y: ")
 		p.format(&n.Y)
-
 		p.writepad(line)
 		p.writepad(column)
 		p.outdent()
@@ -112,13 +107,10 @@ func (p *printer) format(n *Node) {
 		p.write(label)
 		p.indent()
 		p.writepad(op)
-
 		p.writepad("X: ")
 		p.format(&n.X)
-
 		p.writepad("Y: ")
 		p.format(&n.Y)
-
 		p.outdent()
 		p.writepad(close)
 	case Call:
@@ -128,10 +120,8 @@ func (p *printer) format(n *Node) {
 
 		p.write(label)
 		p.indent()
-
 		p.writepad("Callee: ")
 		p.format(&n.Callee)
-
 		p.writepad("Args: [" + newline)
 		p.indent()
 		if n.Args == nil {
@@ -144,7 +134,6 @@ func (p *printer) format(n *Node) {
 		}
 		p.outdent()
 		p.writepad("]" + newline)
-
 		p.writepad(line)
 		p.writepad(column)
 		p.outdent()
