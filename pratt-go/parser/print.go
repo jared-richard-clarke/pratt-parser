@@ -37,10 +37,10 @@ func (p *printer) outdent() {
 func (p *printer) print() string { return p.output.String() }
 
 func (p *printer) format(n *Node) {
-	close := "}" + newline
 	nl := func(s string) string { return s + newline }
 	li := func(i int) string { return fmt.Sprintf("Line:   %d%s", i, newline) }
 	co := func(i int) string { return fmt.Sprintf("Column: %d%s", i, newline) }
+	close := nl("}")
 
 	switch n := (*n).(type) {
 	case Number:
