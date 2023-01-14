@@ -138,6 +138,7 @@ func (p *printer) format(n *Node) {
 			p.writepad("<nil>" + newline)
 		} else {
 			for _, arg := range n.Args {
+				p.writepad("") // pad each argument
 				p.format(&arg)
 			}
 		}
@@ -153,7 +154,8 @@ func (p *printer) format(n *Node) {
 	}
 }
 
-func print(n *Node) string {
+// Inputs a pointer to a Node and outputs a formatted string.
+func PrettyPrint(n *Node) string {
 	var b strings.Builder
 	p := printer{
 		spacer:  strings.Repeat(" ", 4),
