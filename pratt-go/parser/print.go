@@ -55,7 +55,7 @@ func (p *printer) format(n *Node) {
 		p.writepad(close)
 	case Symbol:
 		label := "Symbol{" + newline
-		value := fmt.Sprintf("Value:  %s%s", n.Value, newline)
+		value := fmt.Sprintf("Value:  %q%s", n.Value, newline)
 		line := li(n.Line)
 		column := co(n.Column)
 
