@@ -38,12 +38,13 @@ func (p *printer) print() string { return p.output.String() }
 
 func (p *printer) format(n *Node) {
 	close := "}" + newline
+	lb := func(s string) string { return s + newline }
 	nl := func(i int) string { return fmt.Sprintf("Line:   %d%s", i, newline) }
 	nc := func(i int) string { return fmt.Sprintf("Column: %d%s", i, newline) }
 
 	switch n := (*n).(type) {
 	case Number:
-		label := "Number{" + newline
+		label := lb("Number{")
 		value := fmt.Sprintf("Value:  %g%s", n.Value, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
@@ -56,7 +57,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Symbol:
-		label := "Symbol{" + newline
+		label := lb("Symbol{")
 		value := fmt.Sprintf("Value:  %s%s", n.Value, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
@@ -69,7 +70,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Unary:
-		label := "Unary{" + newline
+		label := lb("Unary{")
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
@@ -84,7 +85,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Binary:
-		label := "Binary{" + newline
+		label := lb("Binary{")
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 		line := nl(n.Line)
 		column := nc(n.Column)
@@ -101,7 +102,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case ImpliedBinary:
-		label := "ImpliedBinary{" + newline
+		label := lb("ImpliedBinary{")
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 
 		p.write(label)
@@ -114,7 +115,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Call:
-		label := "Call{" + newline
+		label := lb("Call{")
 		line := nl(n.Line)
 		column := nc(n.Column)
 
@@ -143,7 +144,7 @@ func (p *printer) format(n *Node) {
 	}
 }
 
-// Inputs a pointer to a Node and outputs a formatted string.
+// Inputs a pointer to a Node and outputs a formatted string of that Node.
 func PrettyPrint(n *Node) string {
 	var b strings.Builder
 	p := printer{
