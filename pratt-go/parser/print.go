@@ -119,8 +119,8 @@ func (p *printer) format(n *Node) {
 		p.format(&n.Callee)
 		p.writepad(nl("Args: ["))
 		p.indent()
-		if n.Args == nil {
-			p.writepad(nl("<nil>"))
+		if len(n.Args) == 0 {
+			p.writepad(nl("[]"))
 		} else {
 			for _, arg := range n.Args {
 				p.writepad("") // pad each argument
@@ -149,4 +149,3 @@ func PrettyPrint(n *Node) string {
 	p.format(n)
 	return p.print()
 }
-
