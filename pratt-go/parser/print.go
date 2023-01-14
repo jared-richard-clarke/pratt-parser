@@ -37,14 +37,13 @@ func (p *printer) outdent() {
 func (p *printer) print() string { return p.output.String() }
 
 func (p *printer) format(n *Node) {
-	nl := func(s string) string { return s + newline }
 	li := func(i int) string { return fmt.Sprintf("Line:   %d%s", i, newline) }
 	co := func(i int) string { return fmt.Sprintf("Column: %d%s", i, newline) }
-	close := nl("}")
+	close := "}" + newline
 
 	switch n := (*n).(type) {
 	case Number:
-		label := nl("Number{")
+		label := "Number{" + newline
 		value := fmt.Sprintf("Value:  %g%s", n.Value, newline)
 		line := li(n.Line)
 		column := co(n.Column)
@@ -55,7 +54,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Symbol:
-		label := nl("Symbol{")
+		label := "Symbol{" + newline
 		value := fmt.Sprintf("Value:  %s%s", n.Value, newline)
 		line := li(n.Line)
 		column := co(n.Column)
@@ -66,7 +65,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Unary:
-		label := nl("Unary{")
+		label := "Unary{" + newline
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 		line := li(n.Line)
 		column := co(n.Column)
@@ -80,7 +79,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Binary:
-		label := nl("Binary{")
+		label := "Binary{" + newline
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 		line := li(n.Line)
 		column := co(n.Column)
@@ -96,7 +95,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case ImpliedBinary:
-		label := nl("ImpliedBinary{")
+		label := "ImpliedBinary{" + newline
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 
 		p.write(label)
@@ -109,7 +108,7 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Call:
-		label := nl("Call{")
+		label := "Call{" + newline
 		line := li(n.Line)
 		column := co(n.Column)
 
@@ -117,18 +116,18 @@ func (p *printer) format(n *Node) {
 		p.indent()
 		p.writepad("Callee: ")
 		p.format(&n.Callee)
-		p.writepad(nl("Args: ["))
-		p.indent()
 		if len(n.Args) == 0 {
-			p.writepad(nl("[]"))
+			p.writepad("Args: []" + newline)
 		} else {
+			p.writepad("Args: [" + newline)
+			p.indent()
 			for _, arg := range n.Args {
 				p.writepad("") // pad each argument
 				p.format(&arg)
 			}
+			p.outdent()
+			p.writepad("]" + newline)
 		}
-		p.outdent()
-		p.writepad(nl("]"))
 		p.writepad(line, column)
 		p.outdent()
 		p.writepad(close)
