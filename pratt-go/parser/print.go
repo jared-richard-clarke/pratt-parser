@@ -16,13 +16,13 @@ type printer struct {
 	output  strings.Builder
 }
 
-func (p *printer) write(s string) {
-	p.output.WriteString(s)
-}
+func (p *printer) write(x string) { p.output.WriteString(x) }
 
-func (p *printer) writepad(s string) {
-	p.output.WriteString(p.padding)
-	p.output.WriteString(s)
+func (p *printer) writepad(xs ...string) {
+	for _, x := range xs {
+		p.output.WriteString(p.padding)
+		p.output.WriteString(x)
+	}
 }
 
 func (p *printer) indent() {
@@ -38,57 +38,52 @@ func (p *printer) print() string { return p.output.String() }
 
 func (p *printer) format(n *Node) {
 	close := "}" + newline
-	lb := func(s string) string { return s + newline }
-	nl := func(i int) string { return fmt.Sprintf("Line:   %d%s", i, newline) }
-	nc := func(i int) string { return fmt.Sprintf("Column: %d%s", i, newline) }
+	nl := func(s string) string { return s + newline }
+	li := func(i int) string { return fmt.Sprintf("Line:   %d%s", i, newline) }
+	co := func(i int) string { return fmt.Sprintf("Column: %d%s", i, newline) }
 
 	switch n := (*n).(type) {
 	case Number:
-		label := lb("Number{")
+		label := nl("Number{")
 		value := fmt.Sprintf("Value:  %g%s", n.Value, newline)
-		line := nl(n.Line)
-		column := nc(n.Column)
+		line := li(n.Line)
+		column := co(n.Column)
 
 		p.write(label)
 		p.indent()
-		p.writepad(value)
-		p.writepad(line)
-		p.writepad(column)
+		p.writepad(value, line, column)
 		p.outdent()
 		p.writepad(close)
 	case Symbol:
-		label := lb("Symbol{")
+		label := nl("Symbol{")
 		value := fmt.Sprintf("Value:  %s%s", n.Value, newline)
-		line := nl(n.Line)
-		column := nc(n.Column)
+		line := li(n.Line)
+		column := co(n.Column)
 
 		p.write(label)
 		p.indent()
-		p.writepad(value)
-		p.writepad(line)
-		p.writepad(column)
+		p.writepad(value, line, column)
 		p.outdent()
 		p.writepad(close)
 	case Unary:
-		label := lb("Unary{")
+		label := nl("Unary{")
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
-		line := nl(n.Line)
-		column := nc(n.Column)
+		line := li(n.Line)
+		column := co(n.Column)
 
 		p.write(label)
 		p.indent()
 		p.writepad(op)
 		p.writepad("X: ")
 		p.format(&n.X)
-		p.writepad(line)
-		p.writepad(column)
+		p.writepad(line, column)
 		p.outdent()
 		p.writepad(close)
 	case Binary:
-		label := lb("Binary{")
+		label := nl("Binary{")
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
-		line := nl(n.Line)
-		column := nc(n.Column)
+		line := li(n.Line)
+		column := co(n.Column)
 
 		p.write(label)
 		p.indent()
@@ -97,12 +92,11 @@ func (p *printer) format(n *Node) {
 		p.format(&n.X)
 		p.writepad("Y: ")
 		p.format(&n.Y)
-		p.writepad(line)
-		p.writepad(column)
+		p.writepad(line, column)
 		p.outdent()
 		p.writepad(close)
 	case ImpliedBinary:
-		label := lb("ImpliedBinary{")
+		label := nl("ImpliedBinary{")
 		op := fmt.Sprintf("Op: %q%s", n.Op, newline)
 
 		p.write(label)
@@ -115,18 +109,18 @@ func (p *printer) format(n *Node) {
 		p.outdent()
 		p.writepad(close)
 	case Call:
-		label := lb("Call{")
-		line := nl(n.Line)
-		column := nc(n.Column)
+		label := nl("Call{")
+		line := li(n.Line)
+		column := co(n.Column)
 
 		p.write(label)
 		p.indent()
 		p.writepad("Callee: ")
 		p.format(&n.Callee)
-		p.writepad("Args: [" + newline)
+		p.writepad(nl("Args: ["))
 		p.indent()
 		if n.Args == nil {
-			p.writepad("<nil>" + newline)
+			p.writepad(nl("<nil>"))
 		} else {
 			for _, arg := range n.Args {
 				p.writepad("") // pad each argument
@@ -134,9 +128,8 @@ func (p *printer) format(n *Node) {
 			}
 		}
 		p.outdent()
-		p.writepad("]" + newline)
-		p.writepad(line)
-		p.writepad(column)
+		p.writepad(nl("]"))
+		p.writepad(line, column)
 		p.outdent()
 		p.writepad(close)
 	default:
@@ -156,3 +149,4 @@ func PrettyPrint(n *Node) string {
 	p.format(n)
 	return p.print()
 }
+
