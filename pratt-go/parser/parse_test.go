@@ -70,7 +70,7 @@ func equal(n, m Node) bool {
 
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
-	expect := Node(Binary{
+	expect := Binary{
 		Op: "+",
 		X: Number{
 			Value:  1.0,
@@ -94,7 +94,7 @@ func TestBasic(t *testing.T) {
 		},
 		Line:   1,
 		Column: 3,
-	})
+	}
 	result, err := Parse(text)
 	if err != nil {
 		t.Errorf("TestBasic failed. Expected: %s, Got: %s", expect, err)
