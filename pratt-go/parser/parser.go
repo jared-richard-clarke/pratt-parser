@@ -263,12 +263,13 @@ func init() {
 	set(lexer.Number, pratt.number)
 	set(lexer.Symbol, pratt.symbol)
 	set(lexer.OpenParen, pratt.paren)
-	infix(10, pratt.binary, lexer.Add, lexer.Sub)
-	infix(20, pratt.binary, lexer.Mul, lexer.Div)
-	infix(30, pratt.binaryr, lexer.Pow)
-	infix(40, pratt.binary, lexer.ImpMul)
-	prefix(50, pratt.unary, lexer.Add, lexer.Sub)
-	infix(60, pratt.call, lexer.OpenParen)
+	infix(10, pratt.binary, lexer.Equal, lexer.NotEqual)
+	infix(20, pratt.binary, lexer.Add, lexer.Sub)
+	infix(30, pratt.binary, lexer.Mul, lexer.Div)
+	infix(40, pratt.binaryr, lexer.Pow)
+	infix(50, pratt.binary, lexer.ImpMul)
+	prefix(60, pratt.unary, lexer.Add, lexer.Sub)
+	infix(70, pratt.call, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
