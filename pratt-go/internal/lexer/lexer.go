@@ -21,6 +21,8 @@ const (
 	OpenParen LexType = iota
 	CloseParen
 	Comma
+	Equal
+	NotEqual
 	Add
 	Sub
 	Mul
@@ -168,6 +170,12 @@ func (sc *scanner) scanToken() error {
 		return nil
 	case r == '^':
 		sc.addToken(Pow, "^")
+		return nil
+	case r == '=':
+		sc.addToken(Equal, "=")
+		return nil
+	case r == '≠':
+		sc.addToken(NotEqual, "≠")
 		return nil
 	// numbers
 	case unicode.IsDigit(r):
