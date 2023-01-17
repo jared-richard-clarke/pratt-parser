@@ -70,7 +70,7 @@ func equal(n, m Node) bool {
 
 func TestBasic(t *testing.T) {
 	text := "1 + 2 * 3"
-	expect := Binary{
+	expect := Node(Binary{
 		Op: "+",
 		X: Number{
 			Value:  1.0,
@@ -94,7 +94,7 @@ func TestBasic(t *testing.T) {
 		},
 		Line:   1,
 		Column: 3,
-	}
+	})
 	result, err := Parse(text)
 	if err != nil {
 		t.Errorf("TestBasic failed. Expected: %s, Got: %s", expect, err)
@@ -173,6 +173,42 @@ func TestSymbol(t *testing.T) {
 	}
 	if !equal(expect, result) {
 		t.Errorf("TestSymbol failed. Expected: %s, Got: %s", expect, result)
+	}
+}
+
+func TestEqual(t *testing.T) {
+	text := "7 + 4 = 11"
+	expect := Binary{
+		Op: "=",
+		X: Binary{
+			Op: "+",
+			X: Number{
+				Value:  7.0,
+				Line:   1,
+				Column: 1,
+			},
+			Y: Number{
+				Value:  4.0,
+				Line:   1,
+				Column: 5,
+			},
+			Line:   1,
+			Column: 3,
+		},
+		Y: Number{
+			Value:  11.0,
+			Line:   1,
+			Column: 9,
+		},
+		Line:   1,
+		Column: 7,
+	}
+	result, err := Parse(text)
+	if err != nil {
+		t.Errorf("TestEqual failed. Expected: %s, Got: %s", expect, err)
+	}
+	if !equal(expect, result) {
+		t.Errorf("TestEqual failed. Expected: %s, Got: %s", expect, result)
 	}
 }
 
@@ -267,7 +303,7 @@ func TestUnary(t *testing.T) {
 	result, err := Parse(text)
 	if err != nil {
 		t.Errorf("TestUnary failed. Expected: %s, Got: %s", expect, err)
-	} 
+	}
 	if !equal(expect, result) {
 		t.Errorf("TestUnary failed. Expected: %s, Got: %s", expect, result)
 	}
