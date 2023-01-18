@@ -11,6 +11,9 @@ import (
 // function — its semantic code. To parse a string of lexemes is to execute
 // the semantic code of each lexeme in turn from left to right.
 //
+// Sidenote: semantic code, in this case, is very much like a method
+// in object-oriented programming.
+//
 // There are two types of semantic code:
 // 1. null denotation ( nud ): a lexeme without a left expression.
 // 2. left denotation ( led ): a lexeme with a left expression.
@@ -299,3 +302,4 @@ func Parse(s string) (Node, error) {
 	}
 	return node, nil
 }
+
