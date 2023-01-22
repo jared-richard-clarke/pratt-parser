@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// Under heavy construction.
-
 const newline = "\n"
 
 type printer struct {
