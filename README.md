@@ -1,7 +1,7 @@
 # Pratt Parser
 
-I'm building a Pratt Parser for arithmetic and symbolic expressions.
-This parser inputs a string and outputs an abstract syntax tree.
+I built a Pratt Parser for arithmetic and symbolic expressions.
+The parser inputs a string and outputs an abstract syntax tree.
 Robust error handling is a priority, so extra-textual information 
 is provided, both in the abstract syntax tree and in error messaging.
 
@@ -55,7 +55,7 @@ func main() {
 //             }
 //         }
 //     ]
-//     Line: 1
+//     Line:   1
 //     Column: 4
 // }
 ```
