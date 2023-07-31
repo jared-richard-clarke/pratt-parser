@@ -1,6 +1,6 @@
 import utils from "./utils.js";
 
-function create_token(type, value, offset) {
+function make_token(type, value, offset) {
     return {
         type,
         value,
@@ -38,7 +38,7 @@ function peek_next(sc) {
     return sc.characters[offset];
 }
 
-export function scan(xs) {
+export function make_scanner(xs) {
     const scanner = {
         source: xs,
         characters: [...xs],
