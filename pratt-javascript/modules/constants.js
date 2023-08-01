@@ -1,31 +1,77 @@
-export const WHITE_SPACE = " ";
-export const TAB = "\t";
-export const LINEFEED = "\n";
-export const CARRIAGE_RETURN = "\r";
-export const VERTICAL_TAB = "\v";
-export const FORM_FEED = "\f";
+function fix(x) {
+    return Object.freeze(
+        Object.entries(x).reduce((accum, [key, value]) => {
+            accum[key] = value;
+            return accum;
+        }, Object.create(null)),
+    );
+}
 
-export const DECIMAL_POINT = ".";
-export const OPEN_PAREN = "(";
-export const CLOSE_PAREN = ")";
+const WHITE_SPACE = " ";
+const TAB = "\t";
+const LINEFEED = "\n";
+const CARRIAGE_RETURN = "\r";
+const VERTICAL_TAB = "\v";
+const FORM_FEED = "\f";
 
-export const EOF = "eof";
+const DECIMAL_POINT = ".";
+const OPEN_PAREN = "(";
+const CLOSE_PAREN = ")";
 
-export const ZERO = "0";
-export const ONE = "1";
-export const TWO = "2";
-export const THREE = "3";
-export const FOUR = "4";
-export const FIVE = "5";
-export const SIX = "6";
-export const SEVEN = "7";
-export const EIGHT = "8";
-export const NINE = "9";
+const EOF = "eof";
 
-export const ADD = "+";
-export const SUBTRACT = "-";
-export const MULTIPLY = "×";
-export const MULTIPLY_ALT = "*";
-export const DIVIDE = "÷";
-export const DIVIDE_ALT = "/";
-export const EXPONENT = "^";
+const ZERO = "0";
+const ONE = "1";
+const TWO = "2";
+const THREE = "3";
+const FOUR = "4";
+const FIVE = "5";
+const SIX = "6";
+const SEVEN = "7";
+const EIGHT = "8";
+const NINE = "9";
+
+const ADD = "+";
+const SUBTRACT = "-";
+const MULTIPLY = "×";
+const MULTIPLY_ALT = "*";
+const DIVIDE = "÷";
+const DIVIDE_ALT = "/";
+const EXPONENT = "^";
+
+const PUNCTUATOR = "punctuator";
+const NUMBER = "number";
+const ERROR = "error";
+
+export default fix({
+    WHITE_SPACE,
+    TAB,
+    LINEFEED,
+    CARRIAGE_RETURN,
+    VERTICAL_TAB,
+    FORM_FEED,
+    DECIMAL_POINT,
+    OPEN_PAREN,
+    CLOSE_PAREN,
+    EOF,
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    ADD,
+    SUBTRACT,
+    MULTIPLY,
+    MULTIPLY_ALT,
+    DIVIDE,
+    DIVIDE_ALT,
+    EXPONENT,
+    PUNCTUATOR,
+    NUMBER,
+    ERROR,
+});
