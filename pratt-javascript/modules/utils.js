@@ -1,51 +1,15 @@
-import {
-    ADD,
-    CARRIAGE_RETURN,
-    CLOSE_PAREN,
-    DECIMAL_POINT,
-    DIVIDE,
-    DIVIDE_ALT,
-    EIGHT,
-    EXPONENT,
-    FIVE,
-    FORM_FEED,
-    FOUR,
-    LINEFEED,
-    MULTIPLY,
-    MULTIPLY_ALT,
-    NINE,
-    ONE,
-    OPEN_PAREN,
-    SEVEN,
-    SIX,
-    SUBTRACT,
-    TAB,
-    THREE,
-    TWO,
-    VERTICAL_TAB,
-    WHITE_SPACE,
-    ZERO,
-} from "./constants.js";
+import constants from "./constants.js";
 
 const mod = Object.create(null);
 
-mod.fix_object = function (x) {
-    return Object.freeze(
-        Object.entries(x).reduce((accum, [key, value]) => {
-            accum[key] = value;
-            return accum;
-        }, Object.create(null)),
-    );
-};
-
 mod.is_space = (function () {
     const set = new Set([
-        WHITE_SPACE,
-        TAB,
-        LINEFEED,
-        CARRIAGE_RETURN,
-        VERTICAL_TAB,
-        FORM_FEED,
+        constants.WHITE_SPACE,
+        constants.TAB,
+        constants.LINEFEED,
+        constants.CARRIAGE_RETURN,
+        constants.VERTICAL_TAB,
+        constants.FORM_FEED,
     ]);
     return function (x) {
         return set.has(x);
@@ -53,28 +17,32 @@ mod.is_space = (function () {
 })();
 
 mod.is_decimal = function (x) {
-    return x === DECIMAL_POINT;
+    return x === constants.DECIMAL_POINT;
 };
 
 mod.is_paren = (function () {
-    const set = new Set([OPEN_PAREN, CLOSE_PAREN]);
+    const set = new Set([constants.OPEN_PAREN, constants.CLOSE_PAREN]);
     return function (x) {
         return set.has(x);
     };
 })();
 
+mod.is_zero = function (x) {
+    return x === constants.ZERO;
+};
+
 mod.is_digit = (function () {
     const set = new Set([
-        ZERO,
-        ONE,
-        TWO,
-        THREE,
-        FOUR,
-        FIVE,
-        SIX,
-        SEVEN,
-        EIGHT,
-        NINE,
+        constants.ZERO,
+        constants.ONE,
+        constants.TWO,
+        constants.THREE,
+        constants.FOUR,
+        constants.FIVE,
+        constants.SIX,
+        constants.SEVEN,
+        constants.EIGHT,
+        constants.NINE,
     ]);
     return function (x) {
         return set.has(x);
@@ -83,13 +51,13 @@ mod.is_digit = (function () {
 
 mod.is_operator = (function () {
     const set = new Set([
-        ADD,
-        SUBTRACT,
-        MULTIPLY,
-        MULTIPLY_ALT,
-        DIVIDE,
-        DIVIDE_ALT,
-        EXPONENT,
+        constants.ADD,
+        constants.SUBTRACT,
+        constants.MULTIPLY,
+        constants.MULTIPLY_ALT,
+        constants.DIVIDE,
+        constants.DIVIDE_ALT,
+        constants.EXPONENT,
     ]);
     return function (x) {
         return set.has(x);
