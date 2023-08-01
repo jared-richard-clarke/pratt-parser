@@ -27,3 +27,6 @@ export const SUBTRACT = "-";
 export const MULTIPLY = "×";
 export const DIVIDE = "÷";
 export const EXPONENT = "^";
+
+export const NUMBER = "number";
+export const ERROR = "error";
