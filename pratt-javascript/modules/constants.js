@@ -25,8 +25,7 @@ export const NINE = "9";
 export const ADD = "+";
 export const SUBTRACT = "-";
 export const MULTIPLY = "×";
+export const MULTIPLY_ALT = "*";
 export const DIVIDE = "÷";
+export const DIVIDE_ALT = "/";
 export const EXPONENT = "^";
-
-export const NUMBER = "number";
-export const ERROR = "error";
