@@ -1,50 +1,76 @@
+import { EOF, ERROR, NUMBER } from "./constants.js";
 import utils from "./utils.js";
 
-function make_token(type, value, offset) {
-    return {
-        type,
-        value,
-        offset,
-    };
+function add_token(self, type, value, offset) {
+    self.tokens.push({ type, value, offset });
 }
 
-function end(sc) {
-    return sc.offset >= sc.length;
+function is_end(self) {
+    return self.offset >= self.length;
 }
 
-function skip(sc) {
-    while (utils.is_space(sc.characters[sc.offset])) {
-        sc.offset += 1;
-    }
+function next(self) {
+    self.offset += 1;
+    return self.characters[self.offset];
 }
 
-function next(sc) {
-    scanner.offset += 1;
-    return sc.characters[sc.offset];
-}
-
-function peek(sc) {
-    if (sc.end()) {
+function peek(self) {
+    if (self.end()) {
         return EOF;
     }
-    return sc.characters[sc.offset + 1];
+    return self.characters[self.offset + 1];
 }
 
-function peek_next(sc) {
-    const offset = sc.offset + 2;
-    if (offset >= sc.length) {
+function peek_next(self) {
+    const offset = self.offset + 2;
+    if (offset >= self.length) {
         return EOF;
     }
-    return sc.characters[offset];
+    return self.characters[offset];
 }
 
-export function make_scanner(xs) {
+function scan_token(self) {
+    const char = next(self);
+    if (utils.is_space(char)) {
+        return;
+    } else if (utils.is_operator(char) || utils.is_paren(char)) {
+        add_token(self, char, null, self.offset);
+        return;
+    } else if (utils.is_digit(char)) {
+        while (utils.is_digit(peek(self))) {
+            next(self);
+        }
+        if (utils.is_decimal(peek(self)) && utils.is_digit(peek_next(self))) {
+            next(self);
+            while (utils.is_digit(peek(self))) {
+                next(self);
+            }
+        }
+        const text = self.characters.slice(self.start, self.offset).join("");
+        const value = Number(text);
+        add_token(self, NUMBER, value, self.start);
+        return;
+    } else {
+        add_token(self, ERROR, value, self.offset);
+        return;
+    }
+}
+
+function run(self) {
+    while (!is_end(self)) {
+        self.start = self.offset;
+        scan_token(self);
+    }
+}
+
+export function scan(xs) {
     const scanner = {
-        source: xs,
         characters: [...xs],
+        tokens: [],
         length: characters.length,
         offset: 0,
         start: 0,
     };
-    const m = Object.create(null);
+    run(scanner);
+    return scanner.tokens;
 }
