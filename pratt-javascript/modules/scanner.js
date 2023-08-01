@@ -6,28 +6,28 @@ function add_token(self, type, value, column, length) {
 }
 
 function is_end(self) {
-    return self.offset >= self.length;
+    return self.current >= self.length;
 }
 
 function next(self) {
-    const offset = self.offset;
-    self.offset += 1;
-    return self.characters[offset];
+    const current = self.current;
+    self.current += 1;
+    return self.characters[current];
 }
 
 function peek(self) {
     if (is_end(self)) {
         return constants.EOF;
     }
-    return self.characters[self.offset];
+    return self.characters[self.current];
 }
 
 function peek_next(self) {
-    const offset = self.offset + 1;
-    if (offset >= self.length) {
+    const current = self.current + 1;
+    if (current >= self.length) {
         return constants.EOF;
     }
-    return self.characters[offset];
+    return self.characters[current];
 }
 
 function scan_token(self) {
@@ -51,13 +51,13 @@ function scan_token(self) {
                 next(self);
             }
         }
-        const value = self.characters.slice(self.start, self.offset).join("");
+        const value = self.characters.slice(self.start, self.current).join("");
         add_token(
             self,
             constants.NUMBER,
             value,
             self.start,
-            self.offset - self.start,
+            self.current - self.start
         );
         return;
     } else {
@@ -68,7 +68,7 @@ function scan_token(self) {
 
 function run(self) {
     while (!is_end(self)) {
-        self.start = self.offset;
+        self.start = self.current;
         scan_token(self);
     }
 }
@@ -80,7 +80,7 @@ export function scan(text) {
         tokens: [],
         length: spread.length,
         start: 0,
-        offset: 0,
+        current: 0,
     };
     run(scanner);
     return scanner.tokens;
