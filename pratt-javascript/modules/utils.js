@@ -1,6 +1,7 @@
 import {
     ADD,
     CARRIAGE_RETURN,
+    CLOSE_PAREN,
     DIVIDE,
     EIGHT,
     EXPONENT,
@@ -11,6 +12,7 @@ import {
     MULTIPLY,
     NINE,
     ONE,
+    OPEN_PAREN,
     SEVEN,
     SIX,
     SUBTRACT,
@@ -50,6 +52,13 @@ mod.is_space = (function () {
 mod.is_decimal = function (x) {
     return x === DECIMAL_POINT;
 };
+
+mod.is_paren = (function () {
+    const set = new Set([OPEN_PAREN, CLOSE_PAREN]);
+    return function (x) {
+        return set.has(x);
+    };
+})();
 
 mod.is_digit = (function () {
     const set = new Set([
