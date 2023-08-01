@@ -2,7 +2,9 @@ import {
     ADD,
     CARRIAGE_RETURN,
     CLOSE_PAREN,
+    DECIMAL_POINT,
     DIVIDE,
+    DIVIDE_ALT,
     EIGHT,
     EXPONENT,
     FIVE,
@@ -10,6 +12,7 @@ import {
     FOUR,
     LINEFEED,
     MULTIPLY,
+    MULTIPLY_ALT,
     NINE,
     ONE,
     OPEN_PAREN,
@@ -79,7 +82,15 @@ mod.is_digit = (function () {
 })();
 
 mod.is_operator = (function () {
-    const set = new Set([ADD, SUBTRACT, MULTIPLY, DIVIDE, EXPONENT]);
+    const set = new Set([
+        ADD,
+        SUBTRACT,
+        MULTIPLY,
+        MULTIPLY_ALT,
+        DIVIDE,
+        DIVIDE_ALT,
+        EXPONENT,
+    ]);
     return function (x) {
         return set.has(x);
     };
