@@ -1,8 +1,8 @@
-import { EOF, ERROR, NUMBER } from "./constants.js";
+import { EOF } from "./constants.js";
 import utils from "./utils.js";
 
-function add_token(self, type, value, offset) {
-    self.tokens.push({ type, value, offset });
+function add_token(self, value, position, length) {
+    self.tokens.push({ value, position, length });
 }
 
 function is_end(self) {
@@ -10,19 +10,20 @@ function is_end(self) {
 }
 
 function next(self) {
+    const offset = self.offset;
     self.offset += 1;
-    return self.characters[self.offset];
+    return self.characters[offset];
 }
 
 function peek(self) {
-    if (self.end()) {
+    if (is_end(self)) {
         return EOF;
     }
-    return self.characters[self.offset + 1];
+    return self.characters[self.offset];
 }
 
 function peek_next(self) {
-    const offset = self.offset + 2;
+    const offset = self.offset + 1;
     if (offset >= self.length) {
         return EOF;
     }
@@ -34,7 +35,7 @@ function scan_token(self) {
     if (utils.is_space(char)) {
         return;
     } else if (utils.is_operator(char) || utils.is_paren(char)) {
-        add_token(self, char, null, self.offset);
+        add_token(self, char, self.start, 1);
         return;
     } else if (utils.is_digit(char)) {
         while (utils.is_digit(peek(self))) {
@@ -48,10 +49,10 @@ function scan_token(self) {
         }
         const text = self.characters.slice(self.start, self.offset).join("");
         const value = Number(text);
-        add_token(self, NUMBER, value, self.start);
+        add_token(self, value, self.start, self.offset - self.start);
         return;
     } else {
-        add_token(self, ERROR, value, self.offset);
+        add_token(self, char, self.start, 1);
         return;
     }
 }
@@ -63,11 +64,12 @@ function run(self) {
     }
 }
 
-export function scan(xs) {
+export function scan(text) {
+    const spread = [...text];
     const scanner = {
-        characters: [...xs],
+        characters: spread,
         tokens: [],
-        length: characters.length,
+        length: spread.length,
         offset: 0,
         start: 0,
     };
