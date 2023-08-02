@@ -112,13 +112,13 @@ function run(self) {
 
 export function scan(text) {
     const spread = [...text];
-    const scanner = {
+    const lexer = {
         characters: spread,
         tokens: [],
         length: spread.length,
         start: 0,
         current: 0,
     };
-    run(scanner);
-    return scanner.tokens;
+    run(lexer);
+    return lexer.tokens;
 }
