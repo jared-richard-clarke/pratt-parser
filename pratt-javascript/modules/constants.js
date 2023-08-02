@@ -1,12 +1,3 @@
-function fix(x) {
-    return Object.freeze(
-        Object.entries(x).reduce((accum, [key, value]) => {
-            accum[key] = value;
-            return accum;
-        }, Object.create(null)),
-    );
-}
-
 const WHITE_SPACE = " ";
 const TAB = "\t";
 const LINEFEED = "\n";
@@ -39,11 +30,11 @@ const DIVIDE = "÷";
 const DIVIDE_ALT = "/";
 const EXPONENT = "^";
 
-const PUNCTUATOR = "punctuator";
+const SYMBOL = "symbol";
 const NUMBER = "number";
 const ERROR = "error";
 
-export default fix({
+export default Object.freeze({
     WHITE_SPACE,
     TAB,
     LINEFEED,
@@ -71,7 +62,7 @@ export default fix({
     DIVIDE,
     DIVIDE_ALT,
     EXPONENT,
-    PUNCTUATOR,
+    SYMBOL,
     NUMBER,
     ERROR,
 });
