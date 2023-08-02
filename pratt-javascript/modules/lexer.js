@@ -6,7 +6,7 @@ function add_token(self, type, value, column, length) {
 }
 
 function is_end(self) {
-    return self.current >= self.length;
+    return self.current > self.end;
 }
 
 function next(self) {
@@ -24,7 +24,7 @@ function peek(self) {
 
 function peek_next(self) {
     const current = self.current + 1;
-    if (current >= self.length) {
+    if (current > self.end) {
         return constants.EOF;
     }
     return self.characters[current];
@@ -143,7 +143,7 @@ export function scan(text) {
     const lexer = {
         characters: spread,
         tokens: [],
-        length: spread.length,
+        end: spread.length - 1,
         start: 0,
         current: 0,
     };
