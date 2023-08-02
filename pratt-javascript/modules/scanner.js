@@ -43,23 +43,21 @@ function scan_token(self) {
     } else if (utils.is_operator(char)) {
         add_token(self, constants.SYMBOL, char, self.start, 1);
         return;
-    } else if (utils.is_open_paren(char)){
-        add_token(self, constants.SYMBOL, char, self.start, 1);
-        return;
-    } else if (utils.is_close_paren(char)) {
+    } else if (utils.is_paren(char)) {
         add_token(self, constants.SYMBOL, char, self.start, 1);
         // Check for implied multiplication: (7+11)(11+7), or (7+11)7
-        skip_whitespace(self);
-        const next_char = peek(self);
-        if (utils.is_digit(next_char) || utils.is_open_paren(next_char)) {
-            add_token;
-            add_token(
-                self,
-                constants.SYMBOL,
-                constants.IMPLIED_MULTIPLY,
-                null,
-                0,
-            );
+        if (utils.is_close_paren(char)) {
+            skip_whitespace(self);
+            const next_char = peek(self);
+            if (utils.is_digit(next_char) || utils.is_open_paren(next_char)) {
+                add_token(
+                    self,
+                    constants.SYMBOL,
+                    constants.IMPLIED_MULTIPLY,
+                    null,
+                    0,
+                );
+            }
         }
         return;
     } else if (utils.is_digit(char)) {
