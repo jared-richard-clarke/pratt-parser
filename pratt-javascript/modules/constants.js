@@ -1,5 +1,5 @@
 export default Object.freeze({
-    // space
+    // spaces
     WHITE_SPACE: " ",
     TAB: "\t",
     LINEFEED: "\n",
@@ -36,4 +36,9 @@ export default Object.freeze({
     SYMBOL: "symbol",
     NUMBER: "number",
     ERROR: "error",
+    // errors
+    LEADING_ZERO: "leading zero",
+    UNKOWN: "unknown character",
+    MISPLACED_DECIMAL: "misplaced decimal",
+    NOT_NUMBER: "not a number",
 });
