@@ -18,6 +18,14 @@ function is_decimal(x) {
     return x === constants.DECIMAL_POINT;
 }
 
+function is_open_paren(x) {
+    return x === constants.OPEN_PAREN;
+}
+
+function is_close_paren(x) {
+    return x === constants.CLOSE_PAREN;
+}
+
 const is_paren = (function () {
     const set = new Set([constants.OPEN_PAREN, constants.CLOSE_PAREN]);
     return function (x) {
@@ -65,6 +73,8 @@ const is_operator = (function () {
 export default Object.freeze({
     is_space,
     is_decimal,
+    is_open_paren,
+    is_close_paren,
     is_paren,
     is_zero,
     is_digit,
