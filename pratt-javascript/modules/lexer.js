@@ -41,10 +41,10 @@ function scan_token(self) {
     if (utils.is_space(char)) {
         return;
     } else if (utils.is_operator(char)) {
-        add_token(self, constants.SYMBOL, char, self.start, 1);
+        add_token(self, char, null, self.start, 1);
         return;
     } else if (utils.is_paren(char)) {
-        add_token(self, constants.SYMBOL, char, self.start, 1);
+        add_token(self, char, null, self.start, 1);
         // Check for implied multiplication: (7+11)(11+7), or (7+11)7
         if (utils.is_close_paren(char)) {
             skip_whitespace(self);
@@ -52,8 +52,8 @@ function scan_token(self) {
             if (utils.is_digit(next_char) || utils.is_open_paren(next_char)) {
                 add_token(
                     self,
-                    constants.SYMBOL,
                     constants.IMPLIED_MULTIPLY,
+                    null,
                     null,
                     0,
                 );
@@ -63,7 +63,13 @@ function scan_token(self) {
     } else if (utils.is_digit(char)) {
         // Check for leading zero error: 07 + 11
         if (utils.is_zero(char) && utils.is_digit(peek(self))) {
-            add_token(self, constants.ERROR, char, self.start, 1);
+            add_token(
+                self,
+                constants.ERROR,
+                constants.LEADING_ZERO,
+                self.start,
+                1,
+            );
             return;
         }
         while (utils.is_digit(peek(self))) {
@@ -75,13 +81,24 @@ function scan_token(self) {
                 next(self);
             }
         }
-        const value = parseFloat(
+        const parsed_number = Number.parseFloat(
             self.characters.slice(self.start, self.current).join(""),
         );
+        // Check for invalid number.
+        if (Number.isNaN(parsed_number)) {
+            add_token(
+                self,
+                constants.ERROR,
+                constants.NOT_NUMBER,
+                self.start,
+                self.current - self.start,
+            );
+            return;
+        }
         add_token(
             self,
             constants.NUMBER,
-            value,
+            parsed_number,
             self.start,
             self.current - self.start,
         );
@@ -90,15 +107,26 @@ function scan_token(self) {
         if (utils.is_open_paren(peek(self))) {
             add_token(
                 self,
-                constants.SYMBOL,
                 constants.IMPLIED_MULTIPLY,
+                null,
                 null,
                 0,
             );
         }
         return;
     } else {
-        add_token(self, constants.ERROR, char, self.start, 1);
+        // Check for misplaced decimal point.
+        if (utils.is_decimal(char)) {
+            add_token(
+                self,
+                constants.ERROR,
+                constants.MISPLACED_DECIMAL,
+                self.start,
+                1,
+            );
+            return;
+        }
+        add_token(self, constants.ERROR, constants.UNKOWN, self.start, 1);
         return;
     }
 }
