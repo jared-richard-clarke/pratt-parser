@@ -1,8 +1,6 @@
 import constants from "./constants.js";
 
-const mod = Object.create(null);
-
-mod.is_space = (function () {
+const is_space = (function () {
     const set = new Set([
         constants.WHITE_SPACE,
         constants.TAB,
@@ -16,22 +14,22 @@ mod.is_space = (function () {
     };
 })();
 
-mod.is_decimal = function (x) {
+function is_decimal(x) {
     return x === constants.DECIMAL_POINT;
-};
+}
 
-mod.is_paren = (function () {
+const is_paren = (function () {
     const set = new Set([constants.OPEN_PAREN, constants.CLOSE_PAREN]);
     return function (x) {
         return set.has(x);
     };
 })();
 
-mod.is_zero = function (x) {
+function is_zero(x) {
     return x === constants.ZERO;
-};
+}
 
-mod.is_digit = (function () {
+const is_digit = (function () {
     const set = new Set([
         constants.ZERO,
         constants.ONE,
@@ -49,7 +47,7 @@ mod.is_digit = (function () {
     };
 })();
 
-mod.is_operator = (function () {
+const is_operator = (function () {
     const set = new Set([
         constants.ADD,
         constants.SUBTRACT,
@@ -64,4 +62,11 @@ mod.is_operator = (function () {
     };
 })();
 
-export default Object.freeze(mod);
+export default Object.freeze({
+    is_space,
+    is_decimal,
+    is_paren,
+    is_zero,
+    is_digit,
+    is_operator,
+});
