@@ -35,7 +35,7 @@ function scan_token(self) {
     if (utils.is_space(char)) {
         return;
     } else if (utils.is_operator(char) || utils.is_paren(char)) {
-        add_token(self, constants.PUNCTUATOR, char, self.start, 1);
+        add_token(self, constants.SYMBOL, char, self.start, 1);
         return;
     } else if (utils.is_digit(char)) {
         if (utils.is_zero(char) && utils.is_digit(peek(self))) {
@@ -51,13 +51,15 @@ function scan_token(self) {
                 next(self);
             }
         }
-        const value = self.characters.slice(self.start, self.current).join("");
+        const value = parseFloat(
+            self.characters.slice(self.start, self.current).join(""),
+        );
         add_token(
             self,
             constants.NUMBER,
             value,
             self.start,
-            self.current - self.start
+            self.current - self.start,
         );
         return;
     } else {
