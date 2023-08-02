@@ -30,14 +30,40 @@ function peek_next(self) {
     return self.characters[current];
 }
 
+function skip_whitespace(self) {
+    while (utils.is_space(peek(self))) {
+        self.current += 1;
+    }
+}
+
 function scan_token(self) {
     const char = next(self);
     if (utils.is_space(char)) {
         return;
-    } else if (utils.is_operator(char) || utils.is_paren(char)) {
+    } else if (utils.is_operator(char)) {
         add_token(self, constants.SYMBOL, char, self.start, 1);
         return;
+    } else if (utils.is_open_paren(char)){
+        add_token(self, constants.SYMBOL, char, self.start, 1);
+        return;
+    } else if (utils.is_close_paren(char)) {
+        add_token(self, constants.SYMBOL, char, self.start, 1);
+        // Check for implied multiplication: (7+11)(11+7), or (7+11)7
+        skip_whitespace(self);
+        const next_char = peek(self);
+        if (utils.is_digit(next_char) || utils.is_open_paren(next_char)) {
+            add_token;
+            add_token(
+                self,
+                constants.SYMBOL,
+                constants.IMPLIED_MULTIPLY,
+                null,
+                0,
+            );
+        }
+        return;
     } else if (utils.is_digit(char)) {
+        // Check for leading zero error: 07 + 11
         if (utils.is_zero(char) && utils.is_digit(peek(self))) {
             add_token(self, constants.ERROR, char, self.start, 1);
             return;
@@ -61,6 +87,17 @@ function scan_token(self) {
             self.start,
             self.current - self.start,
         );
+        // Check for implied multiplication: 7(1 + 2)
+        skip_whitespace(self);
+        if (utils.is_open_paren(peek(self))) {
+            add_token(
+                self,
+                constants.SYMBOL,
+                constants.IMPLIED_MULTIPLY,
+                null,
+                0,
+            );
+        }
         return;
     } else {
         add_token(self, constants.ERROR, char, self.start, 1);
