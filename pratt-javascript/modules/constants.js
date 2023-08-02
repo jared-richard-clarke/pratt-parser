@@ -26,6 +26,7 @@ const ADD = "+";
 const SUBTRACT = "-";
 const MULTIPLY = "×";
 const MULTIPLY_ALT = "*";
+const IMPLIED_MULTIPLY = "imp-x";
 const DIVIDE = "÷";
 const DIVIDE_ALT = "/";
 const EXPONENT = "^";
@@ -59,6 +60,7 @@ export default Object.freeze({
     SUBTRACT,
     MULTIPLY,
     MULTIPLY_ALT,
+    IMPLIED_MULTIPLY,
     DIVIDE,
     DIVIDE_ALT,
     EXPONENT,
