@@ -145,6 +145,7 @@ const lexer = (function () {
         }
         return state.tokens;
     };
+    // === read-only ===
     return Object.freeze(m);
 })();
 
