@@ -84,7 +84,7 @@ function scan_token(self) {
         const parsed_number = Number.parseFloat(
             self.characters.slice(self.start, self.current).join(""),
         );
-        // Check for invalid number.
+        // Check for not a number.
         if (Number.isNaN(parsed_number)) {
             add_token(
                 self,
