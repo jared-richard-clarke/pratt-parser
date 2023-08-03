@@ -124,7 +124,7 @@ const lexer = (function () {
     }
     // === public methods ===
     const m = Object.create(null);
-    
+
     m.reset = function (text) {
         const spread = [...text];
         state = {
@@ -147,6 +147,5 @@ const lexer = (function () {
 })();
 
 export function scan(text) {
-    const tokens = lexer.reset(text).scan();
-    return tokens;
+    return lexer.reset(text).scan();
 }
