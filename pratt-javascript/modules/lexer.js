@@ -127,7 +127,7 @@ const lexer = (function () {
     // === public methods ===
     const m = Object.create(null);
 
-    m.reset = function (text) {
+    m.set = function (text) {
         const spread = [...text];
         state = {
             characters: spread,
@@ -138,7 +138,7 @@ const lexer = (function () {
         };
         return m;
     };
-    m.scan = function () {
+    m.run = function () {
         while (!is_end()) {
             state.start = state.current;
             scan_token();
@@ -150,5 +150,5 @@ const lexer = (function () {
 })();
 
 export function scan(text) {
-    return lexer.reset(text).scan();
+    return lexer.set(text).run();
 }
