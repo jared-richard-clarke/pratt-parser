@@ -3,7 +3,13 @@ import utils from "./utils.js";
 
 const lexer = (function () {
     // === internal state ===
-    let state = {};
+    const state = {
+        characters: [],
+        tokens: [],
+        end: 0,
+        start: 0,
+        current: 0,
+    };
     // === private methods ===
     function add_token(type, value, column, length) {
         state.tokens.push({ type, value, column, length });
@@ -129,13 +135,11 @@ const lexer = (function () {
 
     m.set = function (text) {
         const spread = [...text];
-        state = {
-            characters: spread,
-            tokens: [],
-            end: spread.length - 1,
-            start: 0,
-            current: 0,
-        };
+        state.characters = spread;
+        state.tokens = [];
+        state.end = spread.length - 1;
+        state.start = 0;
+        state.current = 0;
         return m;
     };
     m.run = function () {
@@ -145,7 +149,6 @@ const lexer = (function () {
         }
         return state.tokens;
     };
-    // === read-only ===
     return Object.freeze(m);
 })();
 
