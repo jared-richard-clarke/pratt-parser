@@ -38,6 +38,7 @@ export default Object.freeze({
     ERROR: "error",
     // errors
     LEADING_ZERO: "leading zero",
+    DIVIDE_ZERO: "divide by zero",
     UNKOWN: "unknown character",
     MISPLACED_DECIMAL: "misplaced decimal",
     NOT_NUMBER: "not a number",
