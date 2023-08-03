@@ -2,7 +2,9 @@ import constants from "./constants.js";
 import utils from "./utils.js";
 
 const lexer = (function () {
+    // === internal state ===
     let state = {};
+    // === private methods ===
     function add_token(type, value, column, length) {
         state.tokens.push({ type, value, column, length });
     }
