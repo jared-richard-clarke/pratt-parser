@@ -1,152 +1,152 @@
 import constants from "./constants.js";
 import utils from "./utils.js";
 
-function add_token(self, type, value, column, length) {
-    self.tokens.push({ type, value, column, length });
-}
-
-function is_end(self) {
-    return self.current > self.end;
-}
-
-function next(self) {
-    const current = self.current;
-    self.current += 1;
-    return self.characters[current];
-}
-
-function peek(self) {
-    if (is_end(self)) {
-        return constants.EOF;
+const lexer = (function () {
+    let state = {};
+    function add_token(type, value, column, length) {
+        state.tokens.push({ type, value, column, length });
     }
-    return self.characters[self.current];
-}
-
-function peek_next(self) {
-    const current = self.current + 1;
-    if (current > self.end) {
-        return constants.EOF;
+    function is_end() {
+        return state.current > state.end;
     }
-    return self.characters[current];
-}
-
-function skip_whitespace(self) {
-    while (utils.is_space(peek(self))) {
-        self.current += 1;
+    function next() {
+        const current = state.current;
+        state.current += 1;
+        return state.characters[current];
     }
-}
-
-function scan_token(self) {
-    const char = next(self);
-    if (utils.is_space(char)) {
-        return;
-    } else if (utils.is_operator(char)) {
-        add_token(self, char, null, self.start, 1);
-        return;
-    } else if (utils.is_paren(char)) {
-        add_token(self, char, null, self.start, 1);
-        // Check for implied multiplication: (7+11)(11+7), or (7+11)7
-        if (utils.is_close_paren(char)) {
-            skip_whitespace(self);
-            const next_char = peek(self);
-            if (utils.is_digit(next_char) || utils.is_open_paren(next_char)) {
+    function peek() {
+        if (is_end()) {
+            return constants.EOF;
+        }
+        return state.characters[state.current];
+    }
+    function peek_next() {
+        const current = state.current + 1;
+        if (current > state.end) {
+            return constants.EOF;
+        }
+        return state.characters[current];
+    }
+    function skip_whitespace() {
+        while (utils.is_space(peek())) {
+            state.current += 1;
+        }
+    }
+    function scan_token() {
+        const char = next();
+        if (utils.is_space(char)) {
+            return;
+        } else if (utils.is_operator(char)) {
+            add_token(char, null, state.start, 1);
+            return;
+        } else if (utils.is_paren(char)) {
+            add_token(char, null, state.start, 1);
+            // Check for implied multiplication: (7+11)(11+7), or (7+11)7
+            if (utils.is_close_paren(char)) {
+                skip_whitespace();
+                const next_char = peek();
+                if (
+                    utils.is_digit(next_char) || utils.is_open_paren(next_char)
+                ) {
+                    add_token(
+                        constants.IMPLIED_MULTIPLY,
+                        null,
+                        null,
+                        0,
+                    );
+                }
+            }
+            return;
+        } else if (utils.is_digit(char)) {
+            // Check for leading zero error: 07 + 11
+            if (utils.is_zero(char) && utils.is_digit(peek())) {
                 add_token(
-                    self,
+                    constants.ERROR,
+                    constants.LEADING_ZERO,
+                    state.start,
+                    1,
+                );
+                return;
+            }
+            while (utils.is_digit(peek())) {
+                next();
+            }
+            if (utils.is_decimal(peek()) && utils.is_digit(peek_next())) {
+                next();
+                while (utils.is_digit(peek())) {
+                    next();
+                }
+            }
+            const parsed_number = Number.parseFloat(
+                state.characters.slice(state.start, state.current).join(""),
+            );
+            // Check for not a number.
+            if (Number.isNaN(parsed_number)) {
+                add_token(
+                    constants.ERROR,
+                    constants.NOT_NUMBER,
+                    state.start,
+                    state.current - state.start,
+                );
+                return;
+            }
+            add_token(
+                constants.NUMBER,
+                parsed_number,
+                state.start,
+                state.current - state.start,
+            );
+            // Check for implied multiplication: 7(1 + 2)
+            skip_whitespace();
+            if (utils.is_open_paren(peek())) {
+                add_token(
                     constants.IMPLIED_MULTIPLY,
                     null,
                     null,
                     0,
                 );
             }
-        }
-        return;
-    } else if (utils.is_digit(char)) {
-        // Check for leading zero error: 07 + 11
-        if (utils.is_zero(char) && utils.is_digit(peek(self))) {
-            add_token(
-                self,
-                constants.ERROR,
-                constants.LEADING_ZERO,
-                self.start,
-                1,
-            );
             return;
-        }
-        while (utils.is_digit(peek(self))) {
-            next(self);
-        }
-        if (utils.is_decimal(peek(self)) && utils.is_digit(peek_next(self))) {
-            next(self);
-            while (utils.is_digit(peek(self))) {
-                next(self);
+        } else {
+            // Check for misplaced decimal point.
+            if (utils.is_decimal(char)) {
+                add_token(
+                    constants.ERROR,
+                    constants.MISPLACED_DECIMAL,
+                    state.start,
+                    1,
+                );
+                return;
             }
-        }
-        const parsed_number = Number.parseFloat(
-            self.characters.slice(self.start, self.current).join(""),
-        );
-        // Check for not a number.
-        if (Number.isNaN(parsed_number)) {
-            add_token(
-                self,
-                constants.ERROR,
-                constants.NOT_NUMBER,
-                self.start,
-                self.current - self.start,
-            );
+            add_token(constants.ERROR, constants.UNKOWN, state.start, 1);
             return;
         }
-        add_token(
-            self,
-            constants.NUMBER,
-            parsed_number,
-            self.start,
-            self.current - self.start,
-        );
-        // Check for implied multiplication: 7(1 + 2)
-        skip_whitespace(self);
-        if (utils.is_open_paren(peek(self))) {
-            add_token(
-                self,
-                constants.IMPLIED_MULTIPLY,
-                null,
-                null,
-                0,
-            );
-        }
-        return;
-    } else {
-        // Check for misplaced decimal point.
-        if (utils.is_decimal(char)) {
-            add_token(
-                self,
-                constants.ERROR,
-                constants.MISPLACED_DECIMAL,
-                self.start,
-                1,
-            );
-            return;
-        }
-        add_token(self, constants.ERROR, constants.UNKOWN, self.start, 1);
-        return;
     }
-}
-
-function run(self) {
-    while (!is_end(self)) {
-        self.start = self.current;
-        scan_token(self);
-    }
-}
+    // === public methods ===
+    const m = Object.create(null);
+    
+    m.reset = function (text) {
+        const spread = [...text];
+        state = {
+            characters: spread,
+            tokens: [],
+            end: spread.length - 1,
+            start: 0,
+            current: 0,
+        };
+        return m;
+    };
+    m.scan = function () {
+        while (!is_end()) {
+            state.start = state.current;
+            scan_token();
+        }
+        return state.tokens;
+    };
+    return Object.freeze(m);
+})();
 
 export function scan(text) {
-    const spread = [...text];
-    const lexer = {
-        characters: spread,
-        tokens: [],
-        end: spread.length - 1,
-        start: 0,
-        current: 0,
-    };
-    run(lexer);
-    return lexer.tokens;
+    const tokens = lexer.reset(text).scan();
+    return tokens;
 }
