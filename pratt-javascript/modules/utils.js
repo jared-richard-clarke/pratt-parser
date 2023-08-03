@@ -1,5 +1,47 @@
 import constants from "./constants.js";
 
+function identity(x) {
+    return x;
+}
+function neg(x) {
+    return -x;
+}
+function add(x, y) {
+    return x + y;
+}
+function sub(x, y) {
+    return x - y;
+}
+function mul(x, y) {
+    return x * y;
+}
+
+function div(x, y) {
+    if (y === 0) {
+        return constants.DIVIDE_ZERO;
+    }
+    return x / y;
+}
+
+function pow(x, y) {
+    return Math.pow(x, y);
+}
+
+const unary_operation = Object.freeze({
+    [constants.ADD]: identity,
+    [constants.SUBTRACT]: neg,
+});
+
+const binary_operation = Object.freeze({
+    [constants.ADD]: add,
+    [constants.SUBTRACT]: sub,
+    [constants.MULTIPLY]: mul,
+    [constants.MULTIPLY_ALT]: mul,
+    [constants.DIVIDE]: div,
+    [constants.DIVIDE_ALT]: div,
+    [constants.EXPONENT]: pow,
+});
+
 const is_space = (function () {
     const set = new Set([
         constants.WHITE_SPACE,
@@ -71,6 +113,8 @@ const is_operator = (function () {
 })();
 
 export default Object.freeze({
+    unary_operation,
+    binary_operation,
     is_space,
     is_decimal,
     is_open_paren,
