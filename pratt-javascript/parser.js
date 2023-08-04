@@ -34,6 +34,7 @@ const parser = (function () {
             });
         }
         register(constants.EOF, parse_error);
+        register(constants.ERROR, parse_error);
         register(constants.NUMBER, parse_literal);
         register(constants.OPEN_PAREN, parse_grouping);
         register_binary(
