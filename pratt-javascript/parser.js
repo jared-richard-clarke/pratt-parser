@@ -57,35 +57,22 @@ const parser = (function () {
         register_unary(50, [constants.ADD, constants.SUBTRACT], parse_unary);
 
         const m = Object.create(null);
-        m.get_parser = function (fix, type) {
-            const value = registry[fix][type];
-            return value === undefined ? [null, false] : [value, true];
-        };
-        m.get_binding = function (bind, type) {
-            return registry[bind][type];
+        m.get = function (category, type) {
+            return registry[category][type];
         };
         return Object.freeze(m);
     })();
 
     function parse_expression(rbp) {
         const token = next();
-        const [prefix, prefix_ok] = table.get_parser("prefix", token.type);
-        if (!prefix_ok) {
-            token.message = constants.NO_PREFIX;
-            return [null, token];
-        }
+        const prefix = table.get("prefix", token.type);
         let [left, error] = prefix(token);
         if (error !== null) {
             return [null, error];
         }
-        // Cause of bug. Bind needs to be reevaluated on each loop.
-        while (rbp < table.get_binding("bind", peek())) {
+        while (rbp < table.get("bind", peek())) {
             const token = next();
-            const [infix, ok] = table.get_parser("infix", token.type);
-            if (!ok) {
-                token.message = constants.NO_INFIX;
-                return [null, token];
-            }
+            const infix = table.get("infix", token.type);
             [left, error] = infix(left, token);
             if (error !== null) {
                 return [null, error];
@@ -102,7 +89,7 @@ const parser = (function () {
     }
 
     function parse_unary(token) {
-        const bind = table.get_binding("prebind", token.type);
+        const bind = table.get("prebind", token.type);
         const [x, error] = parse_expression(bind);
         if (error !== null) {
             return [null, error];
@@ -113,7 +100,7 @@ const parser = (function () {
 
     function parse_binary(left) {
         return function (x, token) {
-            const bind = table.get_binding("bind", token.type);
+            const bind = table.get("bind", token.type);
             const [y, error] = parse_expression(left ? bind : bind - 1);
             if (error !== null) {
                 return [null, error];
