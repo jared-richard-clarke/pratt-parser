@@ -42,4 +42,7 @@ export default Object.freeze({
     UNKOWN: "unknown character",
     MISPLACED_DECIMAL: "misplaced decimal",
     NOT_NUMBER: "not a number",
+    NO_PREFIX: "undefined prefix operation",
+    NO_INFIX: "undefined infix operation",
+    INCOMPLETE_EXPRESSION: "incomplete expression",
 });
