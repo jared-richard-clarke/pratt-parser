@@ -45,4 +45,5 @@ export default Object.freeze({
     NO_PREFIX: "undefined prefix operation",
     NO_INFIX: "undefined infix operation",
     INCOMPLETE_EXPRESSION: "incomplete expression",
+    MISMATCHED_PAREN: "mismatched parenthesis",
 });
