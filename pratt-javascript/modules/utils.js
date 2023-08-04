@@ -35,6 +35,7 @@ const unary_operation = Object.freeze({
 const binary_operation = Object.freeze({
     [constants.ADD]: add,
     [constants.SUBTRACT]: sub,
+    [constants.IMPLIED_MULTIPLY]: mul,
     [constants.MULTIPLY]: mul,
     [constants.MULTIPLY_ALT]: mul,
     [constants.DIVIDE]: div,
