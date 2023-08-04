@@ -6,6 +6,7 @@ const parser = (function () {
     // parser internal state
     const state = {
         source: [],
+        length: 0,
         index: 0,
         end: 0,
     };
@@ -33,7 +34,7 @@ const parser = (function () {
                 registry.bind[type] = bp;
             });
         }
-        register(constants.EOF, parse_error);
+        register(constants.EOF, parse_eof);
         register(constants.ERROR, parse_error);
         register(constants.NUMBER, parse_literal);
         register(constants.OPEN_PAREN, parse_grouping);
@@ -57,7 +58,11 @@ const parser = (function () {
         register_unary(50, [constants.ADD, constants.SUBTRACT], parse_unary);
 
         const m = Object.create(null);
-        m.get = function (category, type) {
+        m.get_parser = function (category, type) {
+            const parser = registry[category][type];
+            return parser === undefined ? [null, false] : [parser, true];
+        };
+        m.get_binding = function (category, type) {
             return registry[category][type];
         };
         return Object.freeze(m);
@@ -65,22 +70,37 @@ const parser = (function () {
 
     function parse_expression(rbp) {
         const token = next();
-        const prefix = table.get("prefix", token.type);
-        let [left, error] = prefix(token);
+        const [prefix, ok] = table.get_parser("prefix", token.type);
+        if (!ok) {
+            token.message = constants.NO_PREFIX;
+            return [null, token];
+        }
+        let [x, error] = prefix(token);
         if (error !== null) {
             return [null, error];
         }
-        while (rbp < table.get("bind", peek())) {
+        while (rbp < table.get_binding("bind", peek())) {
             const token = next();
-            const infix = table.get("infix", token.type);
-            [left, error] = infix(left, token);
+            const [infix, ok] = table.get_parser("infix", token.type);
+            if (!ok) {
+                token.message = constants.NO_INFIX;
+                return [null, token];
+            }
+            [x, error] = infix(x, token);
             if (error !== null) {
                 return [null, error];
             }
         }
-        return [left, null];
+        return [x, null];
     }
 
+    function parse_eof(token) {
+        if (state.length === 1) {
+            return [0, null];
+        }
+        token.message = constants.INCOMPLETE_EXPRESSION;
+        return [null, token];
+    }
     function parse_error(token) {
         return [null, token];
     }
@@ -89,7 +109,7 @@ const parser = (function () {
     }
 
     function parse_unary(token) {
-        const bind = table.get("prebind", token.type);
+        const bind = table.get_binding("prebind", token.type);
         const [x, error] = parse_expression(bind);
         if (error !== null) {
             return [null, error];
@@ -100,7 +120,7 @@ const parser = (function () {
 
     function parse_binary(left) {
         return function (x, token) {
-            const bind = table.get("bind", token.type);
+            const bind = table.get_binding("bind", token.type);
             const [y, error] = parse_expression(left ? bind : bind - 1);
             if (error !== null) {
                 return [null, error];
@@ -111,14 +131,13 @@ const parser = (function () {
     }
 
     function parse_grouping(token) {
-        const start_token = token;
         const [x, error] = parse_expression(0);
         if (error !== null) {
             return [null, error];
         }
         if (!match(constants.CLOSE_PAREN)) {
-            error.message = start_token;
-            return [null, error];
+            token.message = constants.MISMATCHED_PAREN;
+            return [null, token];
         }
         next();
         return [x, null];
@@ -142,6 +161,7 @@ const parser = (function () {
     m.set = function (text) {
         const tokens = scan(text);
         state.source = tokens;
+        state.length = tokens.length;
         state.index = 0;
         state.end = tokens.length - 1;
         return m;
@@ -149,11 +169,6 @@ const parser = (function () {
     m.run = function () {
         const [x, error] = parse_expression(0);
         if (error !== null) {
-            return [null, error];
-        }
-        if (state.index < state.end) {
-            const error = state.tokens[state.index];
-            error.message = constants.INCOMPLETE_EXPRESSION;
             return [null, error];
         }
         return [x, null];
