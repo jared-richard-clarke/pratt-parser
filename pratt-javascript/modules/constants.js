@@ -44,6 +44,7 @@ export default Object.freeze({
     NOT_NUMBER: "not a number",
     NO_PREFIX: "undefined prefix operation",
     NO_INFIX: "undefined infix operation",
+    EMPTY_EXPRESSION: "empty expression",
     INCOMPLETE_EXPRESSION: "incomplete expression",
     MISMATCHED_PAREN: "mismatched parenthesis",
 });
