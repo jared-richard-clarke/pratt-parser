@@ -18,9 +18,9 @@ const parser = (function () {
             bind: {},
             prebind: {},
         };
-        function register(type, parser) {
+        function register(bind, type, parser) {
             registry.prefix[type] = parser;
-            registry.bind[type] = 0;
+            registry.bind[type] = bind;
         }
         function register_unary(bp, types, parser) {
             types.forEach((type) => {
@@ -34,10 +34,9 @@ const parser = (function () {
                 registry.bind[type] = bp;
             });
         }
-        register(constants.EOF, parse_eof);
-        register(constants.ERROR, parse_error);
-        register(constants.NUMBER, parse_literal);
-        register(constants.OPEN_PAREN, parse_grouping);
+        register(0, constants.EOF, parse_eof);
+        register(0, constants.NUMBER, parse_literal);
+        register(0, constants.OPEN_PAREN, parse_grouping);
         register_binary(
             10,
             [constants.ADD, constants.SUBTRACT],
@@ -56,6 +55,7 @@ const parser = (function () {
         register_binary(30, [constants.EXPONENT], parse_binary(false));
         register_binary(40, [constants.IMPLIED_MULTIPLY], parse_binary(true));
         register_unary(50, [constants.ADD, constants.SUBTRACT], parse_unary);
+        register(60, constants.ERROR, parse_error);
 
         const m = Object.create(null);
         m.get_parser = function (category, type) {
