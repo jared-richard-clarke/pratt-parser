@@ -96,7 +96,8 @@ const parser = (function () {
 
     function parse_eof(token) {
         if (state.length === 1) {
-            return [0, null];
+            token.message = constants.EMPTY_EXPRESSION;
+            return [null, token];
         }
         token.message = constants.INCOMPLETE_EXPRESSION;
         return [null, token];
