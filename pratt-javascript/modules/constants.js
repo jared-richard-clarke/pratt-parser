@@ -32,8 +32,7 @@ export default Object.freeze({
     DIVIDE: "÷",
     DIVIDE_ALT: "/",
     EXPONENT: "^",
-    // token types
-    SYMBOL: "symbol",
+    // token labels
     NUMBER: "number",
     ERROR: "error",
     // errors
