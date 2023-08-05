@@ -127,6 +127,11 @@ const parser = (function () {
                 return [null, error];
             }
             const operation = utils.binary_operation[token.type];
+            const value = operation(x, y);
+            if (value === constants.DIVIDE_ZERO) {
+                token.message = constants.DIVIDE_ZERO;
+                return [null, token];
+            }
             return [operation(x, y), null];
         };
     }
