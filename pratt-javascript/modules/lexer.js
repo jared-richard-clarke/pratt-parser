@@ -126,7 +126,7 @@ const lexer = (function () {
                 );
                 return;
             }
-            add_token(constants.ERROR, constants.UNKOWN, state.start, 1);
+            add_token(constants.ERROR, constants.UNKNOWN, state.start, 1);
             return;
         }
     }
