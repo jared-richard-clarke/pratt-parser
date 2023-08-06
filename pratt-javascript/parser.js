@@ -3,71 +3,6 @@ import scan from "./modules/lexer.js";
 import utils from "./modules/utils.js";
 
 const parser = (function () {
-    // parser internal state
-    const state = {
-        source: [],
-        length: 0,
-        index: 0,
-        end: 0,
-    };
-
-    const table = (function () {
-        const registry = {
-            prefix: {},
-            infix: {},
-            bind: {},
-            prebind: {},
-        };
-        function register(bind, type, parser) {
-            registry.prefix[type] = parser;
-            registry.bind[type] = bind;
-        }
-        function register_unary(bp, types, parser) {
-            types.forEach((type) => {
-                registry.prefix[type] = parser;
-                registry.prebind[type] = bp;
-            });
-        }
-        function register_binary(bp, types, parser) {
-            types.forEach((type) => {
-                registry.infix[type] = parser;
-                registry.bind[type] = bp;
-            });
-        }
-        register(0, constants.EOF, parse_eof);
-        register(0, constants.NUMBER, parse_literal);
-        register(0, constants.OPEN_PAREN, parse_grouping);
-        register_binary(
-            10,
-            [constants.ADD, constants.SUBTRACT],
-            parse_binary(true),
-        );
-        register_binary(
-            20,
-            [
-                constants.MULTIPLY,
-                constants.MULTIPLY_ALT,
-                constants.DIVIDE,
-                constants.DIVIDE_ALT,
-            ],
-            parse_binary(true),
-        );
-        register_binary(30, [constants.EXPONENT], parse_binary(false));
-        register_binary(40, [constants.IMPLIED_MULTIPLY], parse_binary(true));
-        register_unary(50, [constants.ADD, constants.SUBTRACT], parse_unary);
-        register(60, constants.ERROR, parse_error);
-
-        const m = Object.create(null);
-        m.get_parser = function (category, type) {
-            const parser = registry[category][type];
-            return parser === undefined ? [null, false] : [parser, true];
-        };
-        m.get_binding = function (category, type) {
-            return registry[category][type];
-        };
-        return Object.freeze(m);
-    })();
-
     function parse_expression(rbp) {
         const token = next();
         const [prefix, ok] = table.get_parser("prefix", token.type);
@@ -102,9 +37,11 @@ const parser = (function () {
         token.message = constants.INCOMPLETE_EXPRESSION;
         return [null, token];
     }
+
     function parse_error(token) {
         return [null, token];
     }
+
     function parse_literal(token) {
         return [token.value, null];
     }
@@ -135,6 +72,8 @@ const parser = (function () {
             return [operation(x, y), null];
         };
     }
+    const parse_left = parse_binary(true);
+    const parse_right = parse_binary(false);
 
     function parse_grouping(token) {
         const [x, error] = parse_expression(0);
@@ -148,6 +87,7 @@ const parser = (function () {
         next();
         return [x, null];
     }
+
     function next() {
         if (state.index >= state.end) {
             return state.source[state.end];
@@ -156,14 +96,91 @@ const parser = (function () {
         state.index += 1;
         return token;
     }
+
     function peek() {
         return state.source[state.index].type;
     }
+
     function match(expect) {
         return peek() === expect;
     }
+
+    // parser state
+    const state = {
+        source: [],
+        length: 0,
+        index: 0,
+        end: 0,
+    };
+
+    // parser lookup table
+    const table = (function () {
+        function register(bind, type, parser) {
+            registry.prefix[type] = parser;
+            registry.bind[type] = bind;
+        }
+
+        function register_unary(bind, types, parser) {
+            types.forEach((type) => {
+                registry.prefix[type] = parser;
+                registry.prebind[type] = bind;
+            });
+        }
+
+        function register_binary(bind, types, parser) {
+            types.forEach((type) => {
+                registry.infix[type] = parser;
+                registry.bind[type] = bind;
+            });
+        }
+
+        const registry = {
+            prefix: {},
+            infix: {},
+            bind: {},
+            prebind: {},
+        };
+
+        register(0, constants.EOF, parse_eof);
+        register(0, constants.NUMBER, parse_literal);
+        register(0, constants.OPEN_PAREN, parse_grouping);
+        register_binary(
+            10,
+            [constants.ADD, constants.SUBTRACT],
+            parse_left,
+        );
+        register_binary(
+            20,
+            [
+                constants.MULTIPLY,
+                constants.MULTIPLY_ALT,
+                constants.DIVIDE,
+                constants.DIVIDE_ALT,
+            ],
+            parse_left,
+        );
+        register_binary(30, [constants.EXPONENT], parse_right);
+        register_binary(40, [constants.IMPLIED_MULTIPLY], parse_left);
+        register_unary(50, [constants.ADD, constants.SUBTRACT], parse_unary);
+        register(60, constants.ERROR, parse_error);
+
+        const m = Object.create(null);
+
+        m.get_parser = function (category, type) {
+            const parser = registry[category][type];
+            return parser === undefined ? [null, false] : [parser, true];
+        };
+
+        m.get_binding = function (category, type) {
+            return registry[category][type];
+        };
+
+        return Object.freeze(m);
+    })();
+
     // === public methods ===
     const m = Object.create(null);
+
     m.set = function (text) {
         const tokens = scan(text);
         state.source = tokens;
@@ -172,6 +189,7 @@ const parser = (function () {
         state.end = tokens.length - 1;
         return m;
     };
+
     m.run = function () {
         const [x, error] = parse_expression(0);
         if (error !== null) {
@@ -179,6 +197,7 @@ const parser = (function () {
         }
         return [x, null];
     };
+
     return Object.freeze(m);
 })();
 
