@@ -13,7 +13,12 @@ function sub(x, y) {
     return x - y;
 }
 function mul(x, y) {
-    return x * y;
+    const product = x * y;
+    // -0 and 0 are strictly equal in JavaScript.
+    if (product === 0) {
+        return Math.abs(product);
+    }
+    return product;
 }
 
 function div(x, y) {
