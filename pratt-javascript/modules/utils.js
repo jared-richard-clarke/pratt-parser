@@ -4,7 +4,8 @@ function identity(x) {
     return x;
 }
 function neg(x) {
-    return -x;
+    // JavaScript will convert 0 to -0 if we negate 0 using only the "-" operator.
+    return 0 - x;
 }
 function add(x, y) {
     return x + y;
