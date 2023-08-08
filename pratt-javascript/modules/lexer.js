@@ -2,14 +2,6 @@ import constants from "./constants.js";
 import utils from "./utils.js";
 
 const lexer = (function () {
-    // === internal state ===
-    const state = {
-        characters: [],
-        tokens: [],
-        end: 0,
-        start: 0,
-        current: 0,
-    };
     // === private methods ===
     function add_token(type, value, column, length) {
         state.tokens.push({ type, value, column, length });
@@ -130,6 +122,14 @@ const lexer = (function () {
             return;
         }
     }
+    // === internal state ===
+    const state = {
+        characters: [],
+        tokens: [],
+        end: 0,
+        start: 0,
+        current: 0,
+    };
     // === public methods ===
     const m = Object.create(null);
 
