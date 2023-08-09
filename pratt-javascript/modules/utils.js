@@ -83,6 +83,17 @@ const is_paren = (function () {
     };
 })();
 
+function is_exponent(x) {
+    return x === constants.UPPER_E || x === constants.LOWER_E;
+}
+
+const is_plus_minus = (function () {
+    const set = new Set([constants.ADD, constants.SUBTRACT]);
+    return function (x) {
+        return set.has(x);
+    };
+})();
+
 function is_zero(x) {
     return x === constants.ZERO;
 }
@@ -128,6 +139,8 @@ export default Object.freeze({
     is_open_paren,
     is_close_paren,
     is_paren,
+    is_exponent,
+    is_plus_minus,
     is_zero,
     is_digit,
     is_operator,
