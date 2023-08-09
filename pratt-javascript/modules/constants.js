@@ -10,6 +10,8 @@ export default Object.freeze({
     DECIMAL_POINT: ".",
     OPEN_PAREN: "(",
     CLOSE_PAREN: ")",
+    UPPER_E: "E",
+    LOWER_E: "e",
     // end-of-input flag
     EOF: "eof",
     // digits
@@ -45,4 +47,5 @@ export default Object.freeze({
     EMPTY_EXPRESSION: "empty expression",
     INCOMPLETE_EXPRESSION: "incomplete expression",
     MISMATCHED_PAREN: "mismatched parenthesis",
+    EMPTY_PARENS: "empty parentheses",
 });
