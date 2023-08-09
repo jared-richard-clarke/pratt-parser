@@ -14,19 +14,20 @@ const lexer = (function () {
         state.current += 1;
         return state.characters[current];
     }
-    function peek() {
-        if (is_end()) {
-            return constants.EOF;
-        }
-        return state.characters[state.current];
+    function look_ahead(x) {
+        x -= 1;
+        return function () {
+            const index = state.current + x;
+            if (index > state.end) {
+                return constants.EOF;
+            }
+            return state.characters[index];
+        };
     }
-    function peek_next() {
-        const current = state.current + 1;
-        if (current > state.end) {
-            return constants.EOF;
-        }
-        return state.characters[current];
-    }
+    const peek = look_ahead(1);
+    const peek_next = look_ahead(2);
+    const peek_after_next = look_ahead(3);
+
     function skip_whitespace() {
         while (utils.is_space(peek())) {
             state.current += 1;
@@ -56,6 +57,16 @@ const lexer = (function () {
                     );
                 }
             }
+            // Check for empty parentheses: ().
+            skip_whitespace();
+            if (utils.is_close_paren(peek())) {
+                add_token(
+                    constants.ERROR,
+                    constants.EMPTY_PARENS,
+                    state.start,
+                    state.current - state.start,
+                );
+            }
             return;
         } else if (utils.is_digit(char)) {
             // Check for leading zero error: 07 + 11
@@ -77,6 +88,26 @@ const lexer = (function () {
                     next();
                 }
             }
+            // Exponential notation: 7e11.
+            if (utils.is_exponent(peek()) && utils.is_digit(peek_next())) {
+                next();
+                while (utils.is_digit(peek())) {
+                    next();
+                }
+            }
+            // Exponential notation: 7e[+-]11.
+            if (
+                utils.is_exponent(peek()) &&
+                utils.is_plus_minus(peek_next()) &&
+                utils.is_digit(peek_after_next())
+            ) {
+                next();
+                next();
+                while (utils.is_digit(peek())) {
+                    next();
+                }
+            }
+            // todo: move number parse to separate module.
             const parsed_number = Number.parseFloat(
                 state.characters.slice(state.start, state.current).join(""),
             );
