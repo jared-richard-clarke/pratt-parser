@@ -1,47 +1,96 @@
 import constants from "./constants.js";
-import encoders from "./encoders.js";
 
-function neg(x) {
-    return encoders.make_bigfloat(-x.coefficient, x.exponent);
+function make_bigfloat(coefficient, exponent) {
+    if (coefficient === constants.BIGINT_ZERO) {
+        return ZERO;
+    }
+    const x = Object.create(null);
+    x.coefficient = coefficient;
+    x.exponent = exponent;
+    return Object.freeze(x);
 }
-function abs(x) {
-    return x.coefficient < constants.BIGINT_ZERO ? neg(x) : x;
+
+function normalize(x) {
+    let { coefficient, exponent } = x;
+    if (exponent > 0) {
+        coefficient = coefficient *
+            constants.BIGINT_TEN ** BigInt(exponent);
+        exponent = 0;
+        return make_bigfloat(coefficient, exponent);
+    }
+    if (exponent < 0) {
+        let quotient;
+        let remainder;
+        while (exponent <= -7) {
+            quotient = coefficient / constants.BIGINT_TEN_MILLION;
+            remainder = coefficient % constants.BIGINT_TEN_MILLION;
+            if (remainder !== constants.BIGINT_ZERO) {
+                break;
+            }
+            coefficient = quotient;
+            exponent += 7;
+        }
+        while (exponent < 0) {
+            quotient = coefficient / constants.BIGINT_TEN;
+            remainder = coefficient % constants.BIGINT_TEN;
+            if (remainder !== constants.BIGINT_ZERO) {
+                break;
+            }
+            coefficient = quotient;
+            exponent += 1;
+        }
+        return make_bigfloat(coefficient, exponent);
+    }
+    return make_bigfloat(coefficient, exponent);
 }
-function conform_operation(op) {
-    return function (x, y) {
-        const differential = x.exponent - y.exponent;
-        if (differential === 0) {
-            return encoders.make_bigfloat(
-                op(x.coefficient, y.coefficient),
-                x.exponent,
-            );
-        }
-        if (differential > 0) {
-            return encoders.make_bigfloat(
-                op(
-                    x.coefficient *
-                        constants.BIGINT_TEN ** BigInt(differential),
-                    y.coefficient,
-                ),
-                y.exponent,
-            );
-        }
-        return encoders.make_bigfloat(
-            op(
-                x.coefficient,
-                y.coefficient * constants.BIGINT_TEN ** BigInt(-differential),
-            ),
-            x.exponent,
+
+function decode(x, y) {
+    const base = y || 0;
+    const pattern = /^(-?\d+)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/;
+    //                ^-----^^----------^^-----------------^
+    //                | int || fraction ||    exponent     |
+    if (typeof x === "bigint") {
+        return make_bigfloat(x, base);
+    }
+    let [match, integer, fraction, exponent] = x.match(pattern);
+    if (match) {
+        fraction = fraction || "";
+        return decode(
+            BigInt(integer + fraction),
+            (Number(exponent) || base) - fraction.length,
         );
-    };
+    }
+    return constants.ZERO;
 }
 
-const add = conform_operation((x, y) => x + y);
-const sub = conform_operation((x, y) => x - y);
-
-function mul(x, y) {
-    return make_bigfloat(
-        x.coefficient * y.coefficient,
-        x.exponent + y.exponent,
+function encode(x) {
+    if (x.coefficient === constants.BIGINT_ZERO) {
+        return "0";
+    }
+    x = normalize(x);
+    let text = String(
+        x.coefficient < constants.BIGINT_ZERO ? -x.coefficient : x.coefficient,
     );
+    if (x.exponent < 0) {
+        let point = text.length + x.exponent;
+        if (point <= 0) {
+            text = "0".repeat(1 - point) + text;
+            point = 1;
+        }
+        text = text.slice(0, point) + "." + text.slice(point);
+    }
+    if (x.exponent > 0) {
+        text += "0".repeat(x.exponent);
+    }
+    if (x.coefficient < constants.BIGINT_ZERO) {
+        text = "-" + text;
+    }
+    return text;
 }
+
+export default Object.freeze({
+    make_bigfloat,
+    normalize,
+    decode,
+    encode,
+});
