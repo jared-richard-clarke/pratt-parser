@@ -42,8 +42,13 @@ const parser = (function () {
         return [null, token];
     }
 
-    function parse_literal(token) {
-        return [token.value, null];
+    function parse_number(token) {
+        const number = Number.parseFloat(token.value);
+        if (Number.isNaN(number)) {
+            token.message = constants.NOT_NUMBER;
+            return [null, token];
+        }
+        return [number, null];
     }
 
     function parse_unary(token) {
@@ -142,13 +147,9 @@ const parser = (function () {
         };
 
         register(0, constants.EOF, parse_eof);
-        register(0, constants.NUMBER, parse_literal);
+        register(0, constants.NUMBER, parse_number);
         register(0, constants.OPEN_PAREN, parse_grouping);
-        register_binary(
-            10,
-            [constants.ADD, constants.SUBTRACT],
-            parse_left,
-        );
+        register_binary(10, [constants.ADD, constants.SUBTRACT], parse_left);
         register_binary(
             20,
             [
