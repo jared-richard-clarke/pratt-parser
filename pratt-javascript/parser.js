@@ -74,7 +74,7 @@ const parser = (function () {
                 token.message = constants.DIVIDE_ZERO;
                 return [null, token];
             }
-            return [operation(x, y), null];
+            return [value, null];
         };
     }
     const parse_left = parse_binary(true);
