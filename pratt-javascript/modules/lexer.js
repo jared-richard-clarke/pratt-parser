@@ -107,23 +107,14 @@ const lexer = (function () {
                     next();
                 }
             }
-            // todo: move number parse to separate module.
-            const parsed_number = Number.parseFloat(
-                state.characters.slice(state.start, state.current).join(""),
-            );
-            // Check for not a number.
-            if (Number.isNaN(parsed_number)) {
-                add_token(
-                    constants.ERROR,
-                    constants.NOT_NUMBER,
-                    state.start,
-                    state.current - state.start,
-                );
-                return;
-            }
+            const number_text = state.characters.slice(
+                state.start,
+                state.current,
+            )
+                .join("");
             add_token(
                 constants.NUMBER,
-                parsed_number,
+                number_text,
                 state.start,
                 state.current - state.start,
             );
