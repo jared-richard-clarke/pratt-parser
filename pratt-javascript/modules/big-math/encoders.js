@@ -52,9 +52,11 @@ function decode(x, y) {
     if (typeof x === "bigint") {
         return make_bigfloat(x, base);
     }
-    let [match, integer, fraction, exponent] = x.match(pattern);
+    const match = x.match(pattern);
     if (match) {
-        fraction = fraction || "";
+        const integer = match[1];
+        const fraction = match[2] || "";
+        const exponent = match[3];
         return decode(
             BigInt(integer + fraction),
             (Number(exponent) || base) - fraction.length,
