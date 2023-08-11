@@ -40,7 +40,7 @@ const add = conform_operation((x, y) => x + y);
 const sub = conform_operation((x, y) => x - y);
 
 function mul(x, y) {
-    return make_bigfloat(
+    return encoders.make_bigfloat(
         x.coefficient * y.coefficient,
         x.exponent + y.exponent,
     );
