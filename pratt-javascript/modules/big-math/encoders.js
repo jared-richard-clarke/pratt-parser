@@ -2,7 +2,7 @@ import constants from "./constants.js";
 
 function make_bigfloat(coefficient, exponent) {
     if (coefficient === constants.BIGINT_ZERO) {
-        return ZERO;
+        return constants.BIGFLOAT_ZERO;
     }
     const x = Object.create(null);
     x.coefficient = coefficient;
@@ -13,8 +13,7 @@ function make_bigfloat(coefficient, exponent) {
 function normalize(x) {
     let { coefficient, exponent } = x;
     if (exponent > 0) {
-        coefficient = coefficient *
-            constants.BIGINT_TEN ** BigInt(exponent);
+        coefficient = coefficient * constants.BIGINT_TEN ** BigInt(exponent);
         exponent = 0;
         return make_bigfloat(coefficient, exponent);
     }
@@ -62,7 +61,7 @@ function decode(x, y) {
             (Number(exponent) || base) - fraction.length,
         );
     }
-    return constants.ZERO;
+    return constants.BIGFLOAT_ZERO;
 }
 
 function encode(x) {
