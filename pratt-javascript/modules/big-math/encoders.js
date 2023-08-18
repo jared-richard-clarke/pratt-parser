@@ -1,4 +1,5 @@
 import constants from "./constants.js";
+import utils from "./utils.js";
 
 function make_bigfloat(coefficient, exponent) {
     if (coefficient === constants.BIGINT_ZERO) {
@@ -89,9 +90,31 @@ function encode(x) {
     return text;
 }
 
+function encode_scientific(x) {
+    if (utils.is_zero(x)) {
+        return "0";
+    }
+    x = normalize(x);
+    let text = String(
+        utils.is_negative(x) ? -x.coefficient : x.coefficient,
+    );
+    const e = x.exponent + text.length - 1;
+    if (text.length > 1) {
+        text = text.slice(0, 1) + "." + text.slice(1);
+    }
+    if (e !== 0) {
+        text += "e" + e;
+    }
+    if (utils.is_negative(x)) {
+        text = "-" + text;
+    }
+    return text;
+}
+
 export default Object.freeze({
     make_bigfloat,
     normalize,
     decode,
     encode,
+    encode_scientific,
 });
