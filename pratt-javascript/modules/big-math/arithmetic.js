@@ -54,7 +54,8 @@ const add = adjust_terms((x, y) => x + y);
 const sub = adjust_terms((x, y) => x - y);
 
 function gt(x, y) {
-    return utils.is_positive(sub(x, y));
+    const difference = sub(x, y);
+    return difference.coefficient > constants.BIGINT_ZERO;
 }
 
 function mul(x, y) {
@@ -64,6 +65,7 @@ function mul(x, y) {
     );
 }
 
+// - Division by zero is undefined.
 function div(x, y) {
     if (utils.is_zero(x)) {
         return constants.BIGFLOAT_ZERO;
@@ -91,7 +93,7 @@ function div(x, y) {
     return encoders.make_bigfloat(coefficient, exponent);
 }
 
-// Exponentiation by squaring.
+// Exponentiation by squaring. Computes only integer exponents.
 function pow(x, y) {
     if (utils.is_zero(x)) {
         return constants.BIGFLOAT_ZERO;
@@ -100,8 +102,9 @@ function pow(x, y) {
         return constants.BIGFLOAT_ONE;
     }
     if (utils.is_negative(y)) {
-        x = div(constants.BIGFLOAT_ONE, x);
-        y = neg(y);
+        return div(constants.BIGFLOAT_ONE, pow(x, neg(y)));
+        // x = div(constants.BIGFLOAT_ONE, x);
+        // y = neg(y);
     }
     let z = constants.BIGFLOAT_ONE;
     while (gt(y, constants.BIGFLOAT_ONE)) {
