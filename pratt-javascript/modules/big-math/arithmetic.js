@@ -76,7 +76,7 @@ function div(x, y) {
         return constants.BIGFLOAT_ZERO;
     }
     if (utils.is_zero(y)) {
-        return undefined;
+        return constants.DIVIDE_ZERO;
     }
     const precision = constants.PRECISION;
     let { coefficient, exponent } = x;
@@ -102,7 +102,7 @@ function div(x, y) {
 function pow(x, y) {
     // Current implementation does not support non-integer exponents.
     if (encoders.normalize(y).exponent !== 0) {
-        return undefined;
+        return constants.NON_INTEGER_EXPONENT;
     }
     if (utils.is_zero(x)) {
         return constants.BIGFLOAT_ZERO;
@@ -124,3 +124,12 @@ function pow(x, y) {
     }
     return mul(x, z);
 }
+
+export default Object.freeze({
+    neg,
+    add,
+    sub,
+    mul,
+    div,
+    pow,
+});
