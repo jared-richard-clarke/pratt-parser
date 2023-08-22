@@ -12,6 +12,7 @@ export default Object.freeze({
     CLOSE_PAREN: ")",
     UPPER_E: "E",
     LOWER_E: "e",
+    NAN: "NaN",
     // end-of-input flag
     EOF: "eof",
     // digits
