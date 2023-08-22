@@ -1,3 +1,7 @@
+function pad(x) {
+    return x + " ";
+}
+
 export default Object.freeze({
     // spaces
     WHITE_SPACE: " ",
@@ -39,15 +43,16 @@ export default Object.freeze({
     NUMBER: "number",
     ERROR: "error",
     // errors
-    LEADING_ZERO: "leading zero",
-    DIVIDE_ZERO: "divide by zero",
-    NON_INTEGER_EXPONENT: "non-integer exponent",
-    MISPLACED_DECIMAL: "misplaced decimal",
-    NOT_NUMBER: "not a number",
-    NO_PREFIX: "undefined prefix operation",
-    NO_INFIX: "undefined infix operation",
-    EMPTY_EXPRESSION: "empty expression",
-    INCOMPLETE_EXPRESSION: "incomplete expression",
-    MISMATCHED_PAREN: "mismatched parenthesis",
-    EMPTY_PARENS: "empty parentheses",
+    UNKNOWN: pad("Unknown character."),
+    LEADING_ZERO: pad("Leading zero."),
+    DIVIDE_ZERO: pad("Divide by zero."),
+    NON_INTEGER_EXPONENT: pad("Non-integer exponent."),
+    MISPLACED_DECIMAL: pad("Misplaced decimal."),
+    NOT_NUMBER: pad("Not a number."),
+    NO_PREFIX: pad("Undefined prefix operation."),
+    NO_INFIX: pad("Undefined infix operation."),
+    EMPTY_EXPRESSION: pad("Empty expression."),
+    INCOMPLETE_EXPRESSION: pad("Incomplete expression."),
+    MISMATCHED_PAREN: pad("Mismatched parenthesis."),
+    EMPTY_PARENS: pad("Empty parentheses."),
 });
