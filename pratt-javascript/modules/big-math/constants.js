@@ -5,6 +5,10 @@ const BIGINT_TWO = 2n;
 const BIGINT_TEN = 10n;
 const BIGINT_TEN_MILLION = 10000000n;
 
+// errors
+const DIVIDE_ZERO = "Divide by zero. ";
+const NON_INTEGER_EXPONENT = "Non-integer exponent. ";
+
 const BIGFLOAT_ZERO = (function () {
     const x = Object.create(null);
     x.coefficient = BIGINT_ZERO;
@@ -35,6 +39,8 @@ export default Object.freeze({
     BIGINT_TWO,
     BIGINT_TEN,
     BIGINT_TEN_MILLION,
+    DIVIDE_ZERO,
+    NON_INTEGER_EXPONENT,
     BIGFLOAT_ZERO,
     BIGFLOAT_ONE,
     BIGFLOAT_TWO,
