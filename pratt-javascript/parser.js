@@ -1,6 +1,7 @@
 import constants from "./modules/constants.js";
 import scan from "./modules/lexer.js";
 import utils from "./modules/utils.js";
+import encoders from "./modules/big-math/encoders.js";
 
 const parser = (function () {
     function parse_expression(rbp) {
@@ -43,11 +44,7 @@ const parser = (function () {
     }
 
     function parse_number(token) {
-        const number = Number.parseFloat(token.value);
-        if (Number.isNaN(number)) {
-            token.message = constants.NOT_NUMBER;
-            return [null, token];
-        }
+        const number = encoders.decode(token.value);
         return [number, null];
     }
 
@@ -72,6 +69,10 @@ const parser = (function () {
             const value = operation(x, y);
             if (value === constants.DIVIDE_ZERO) {
                 token.message = constants.DIVIDE_ZERO;
+                return [null, token];
+            }
+            if (value === constants.NON_INTEGER_EXPONENT) {
+                token.message = constants.NON_INTEGER_EXPONENT;
                 return [null, token];
             }
             return [value, null];
