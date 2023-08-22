@@ -32,6 +32,9 @@ const parser = (function () {
 
     function parse_eof(token) {
         if (state.length === 1) {
+            // If the expression is empty, then the error spans it.
+            token.length = token.column;
+            token.column = 0;
             token.message = constants.EMPTY_EXPRESSION;
             return [null, token];
         }
