@@ -18,19 +18,11 @@ function mul(x, y) {
 }
 
 function div(x, y) {
-    const result = arithmetic.div(x, y);
-    if (result === undefined) {
-        return constants.DIVIDE_ZERO;
-    }
-    return result;
+    return arithmetic.div(x, y);
 }
 
 function pow(x, y) {
-    const result = arithmetic.pow(x, y);
-    if (result === undefined) {
-        return constants.NON_INTEGER_EXPONENT;
-    }
-    return result;
+    return arithmetic.pow(x, y);
 }
 
 const unary_operation = Object.freeze({
