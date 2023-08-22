@@ -70,12 +70,11 @@ const parser = (function () {
             }
             const operation = utils.binary_operation[token.type];
             const value = operation(x, y);
-            if (value === constants.DIVIDE_ZERO) {
-                token.message = constants.DIVIDE_ZERO;
-                return [null, token];
-            }
-            if (value === constants.NON_INTEGER_EXPONENT) {
-                token.message = constants.NON_INTEGER_EXPONENT;
+            if (
+                (value === constants.DIVIDE_ZERO) ||
+                (value === constants.NON_INTEGER_EXPONENT)
+            ) {
+                token.message = value;
                 return [null, token];
             }
             return [value, null];
