@@ -181,7 +181,12 @@ const lexer = (function () {
             state.start = state.current;
             scan_token();
         }
-        add_token(constants.EOF, null, state.end + 1, 0);
+        add_token(
+            constants.EOF,
+            null,
+            state.end + 1,
+            0,
+        );
         return state.tokens;
     };
     return Object.freeze(m);
