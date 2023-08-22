@@ -129,7 +129,7 @@ const lexer = (function () {
                 );
             }
             return;
-        } else {
+        } else if (utils.is_decimal(char)) {
             // Check for misplaced decimal point.
             if (utils.is_decimal(char)) {
                 add_token(
@@ -140,6 +140,19 @@ const lexer = (function () {
                 );
                 return;
             }
+        } else if (
+            (char === "N") && (peek() === "a") && (peek_next() === "N")
+        ) {
+            next();
+            next();
+            add_token(
+                constants.ERROR,
+                constants.NAN,
+                state.start,
+                state.current - state.start,
+            );
+            return;
+        } else {
             add_token(constants.ERROR, char, state.start, 1);
             return;
         }
