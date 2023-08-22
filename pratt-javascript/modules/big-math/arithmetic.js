@@ -111,9 +111,8 @@ function pow(x, y) {
         return constants.BIGFLOAT_ONE;
     }
     if (utils.is_negative(y)) {
-        return div(constants.BIGFLOAT_ONE, pow(x, neg(y)));
-        // x = div(constants.BIGFLOAT_ONE, x);
-        // y = neg(y);
+        x = div(constants.BIGFLOAT_ONE, x);
+        y = neg(y);
     }
     let z = constants.BIGFLOAT_ONE;
     while (gt(y, constants.BIGFLOAT_ONE)) {
