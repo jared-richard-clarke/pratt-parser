@@ -8,7 +8,7 @@ const parser = (function () {
         const token = next();
         const [prefix, ok] = table.get_parser("prefix", token.type);
         if (!ok) {
-            token.message = constants.NO_PREFIX;
+            token.message += constants.NO_PREFIX;
             return [null, token];
         }
         let [x, error] = prefix(token);
@@ -19,7 +19,7 @@ const parser = (function () {
             const token = next();
             const [infix, ok] = table.get_parser("infix", token.type);
             if (!ok) {
-                token.message = constants.NO_INFIX;
+                token.message += constants.NO_INFIX;
                 return [null, token];
             }
             [x, error] = infix(x, token);
@@ -35,10 +35,10 @@ const parser = (function () {
             // If the expression is empty, then the error spans it.
             token.length = token.column;
             token.column = 0;
-            token.message = constants.EMPTY_EXPRESSION;
+            token.message += constants.EMPTY_EXPRESSION;
             return [null, token];
         }
-        token.message = constants.INCOMPLETE_EXPRESSION;
+        token.message += constants.INCOMPLETE_EXPRESSION;
         return [null, token];
     }
 
@@ -74,7 +74,7 @@ const parser = (function () {
                 (value === constants.DIVIDE_ZERO) ||
                 (value === constants.NON_INTEGER_EXPONENT)
             ) {
-                token.message = value;
+                token.message += value;
                 return [null, token];
             }
             return [value, null];
@@ -89,7 +89,7 @@ const parser = (function () {
             return [null, error];
         }
         if (!match(constants.CLOSE_PAREN)) {
-            token.message = constants.MISMATCHED_PAREN;
+            token.message += constants.MISMATCHED_PAREN;
             return [null, token];
         }
         next();
