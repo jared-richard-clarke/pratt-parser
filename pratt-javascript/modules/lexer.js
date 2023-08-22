@@ -3,8 +3,10 @@ import utils from "./utils.js";
 
 const lexer = (function () {
     // === private methods ===
-    function add_token(type, value, column, length) {
-        state.tokens.push({ type, value, column, length });
+    function add_token(type, value, message, column, length) {
+        state.tokens.push(
+            { type, value, message, column, length },
+        );
     }
     function is_end() {
         return state.current > state.end;
@@ -38,10 +40,22 @@ const lexer = (function () {
         if (utils.is_space(char)) {
             return;
         } else if (utils.is_operator(char)) {
-            add_token(char, null, state.start, 1);
+            add_token(
+                char,
+                null,
+                "",
+                state.start,
+                1,
+            );
             return;
         } else if (utils.is_paren(char)) {
-            add_token(char, null, state.start, 1);
+            add_token(
+                char,
+                null,
+                "",
+                state.start,
+                1,
+            );
             // Check for implied multiplication: (7+11)(11+7), or (7+11)7
             if (utils.is_close_paren(char)) {
                 skip_whitespace();
@@ -52,6 +66,7 @@ const lexer = (function () {
                     add_token(
                         constants.IMPLIED_MULTIPLY,
                         null,
+                        "",
                         null,
                         0,
                     );
@@ -62,6 +77,7 @@ const lexer = (function () {
             if (utils.is_close_paren(peek())) {
                 add_token(
                     constants.ERROR,
+                    null,
                     constants.EMPTY_PARENS,
                     state.start,
                     state.current - state.start,
@@ -73,6 +89,7 @@ const lexer = (function () {
             if (utils.is_zero(char) && utils.is_digit(peek())) {
                 add_token(
                     constants.ERROR,
+                    constants.ZERO,
                     constants.LEADING_ZERO,
                     state.start,
                     1,
@@ -115,6 +132,7 @@ const lexer = (function () {
             add_token(
                 constants.NUMBER,
                 number_text,
+                "",
                 state.start,
                 state.current - state.start,
             );
@@ -124,6 +142,7 @@ const lexer = (function () {
                 add_token(
                     constants.IMPLIED_MULTIPLY,
                     null,
+                    "",
                     null,
                     0,
                 );
@@ -133,6 +152,7 @@ const lexer = (function () {
             // Check for misplaced decimal point.
             add_token(
                 constants.ERROR,
+                constants.DECIMAL_POINT,
                 constants.MISPLACED_DECIMAL,
                 state.start,
                 1,
@@ -147,12 +167,19 @@ const lexer = (function () {
             add_token(
                 constants.ERROR,
                 constants.NAN,
+                constants.NOT_NUMBER,
                 state.start,
                 state.current - state.start,
             );
             return;
         } else {
-            add_token(constants.ERROR, char, state.start, 1);
+            add_token(
+                constants.ERROR,
+                char,
+                constants.UNKNOWN,
+                state.start,
+                1,
+            );
             return;
         }
     }
@@ -184,6 +211,7 @@ const lexer = (function () {
         add_token(
             constants.EOF,
             null,
+            "",
             state.end + 1,
             0,
         );
