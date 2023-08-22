@@ -2,3 +2,4 @@
 .idea
 .vscode/settings.json
 deno.lock
+__snapshots__
