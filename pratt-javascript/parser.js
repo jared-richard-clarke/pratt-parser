@@ -70,10 +70,7 @@ const parser = (function () {
             }
             const operation = utils.binary_operation[token.type];
             const value = operation(x, y);
-            if (
-                (value === constants.DIVIDE_ZERO) ||
-                (value === constants.NON_INTEGER_EXPONENT)
-            ) {
+            if (typeof value === "string") {
                 token.message += value;
                 return [null, token];
             }
