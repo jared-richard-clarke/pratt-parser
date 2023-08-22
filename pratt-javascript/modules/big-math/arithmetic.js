@@ -2,11 +2,6 @@ import constants from "./constants.js";
 import encoders from "./encoders.js";
 import utils from "./utils.js";
 
-function equal(x, y) {
-    x = encoders.normalize(x);
-    y = encoders.normalize(y);
-    return (x.coefficient === y.coefficient) && (x.exponent === y.exponent);
-}
 function neg(x) {
     return encoders.make_bigfloat(-x.coefficient, x.exponent);
 }
@@ -58,6 +53,11 @@ function adjust_terms(op) {
 const add = adjust_terms((x, y) => x + y);
 const sub = adjust_terms((x, y) => x - y);
 
+function equal(x, y) {
+    x = encoders.normalize(x);
+    y = encoders.normalize(y);
+    return (x.coefficient === y.coefficient) && (x.exponent === y.exponent);
+}
 function gt(x, y) {
     const difference = sub(x, y);
     return difference.coefficient > constants.BIGINT_ZERO;
@@ -98,7 +98,7 @@ function div(x, y) {
     return encoders.make_bigfloat(coefficient, exponent);
 }
 
-// Exponentiation by squaring: efficiently computes integer exponents.
+// Exponentiation by squaring.
 function pow(x, y) {
     // Current implementation does not support non-integer exponents.
     if (encoders.normalize(y).exponent !== 0) {
