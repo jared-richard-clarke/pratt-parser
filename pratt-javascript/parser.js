@@ -196,6 +196,12 @@ const parser = (function () {
         if (error !== null) {
             return [null, error];
         }
+        // Check for unused tokens.
+        if (state.index < state.end) {
+            const token = state.source[state.index];
+            token.message += constants.INCOMPLETE_EXPRESSION;
+            return [null, token];
+        }
         return [x, null];
     };
 
