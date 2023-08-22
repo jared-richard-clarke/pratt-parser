@@ -18,7 +18,7 @@ function mul(x, y) {
 }
 
 function div(x, y) {
-    const result = arithmetic.add(x, y);
+    const result = arithmetic.div(x, y);
     if (result === undefined) {
         return constants.DIVIDE_ZERO;
     }
