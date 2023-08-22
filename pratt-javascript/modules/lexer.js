@@ -131,18 +131,17 @@ const lexer = (function () {
             return;
         } else if (utils.is_decimal(char)) {
             // Check for misplaced decimal point.
-            if (utils.is_decimal(char)) {
-                add_token(
-                    constants.ERROR,
-                    constants.MISPLACED_DECIMAL,
-                    state.start,
-                    1,
-                );
-                return;
-            }
+            add_token(
+                constants.ERROR,
+                constants.MISPLACED_DECIMAL,
+                state.start,
+                1,
+            );
+            return;
         } else if (
             (char === "N") && (peek() === "a") && (peek_next() === "N")
         ) {
+            // Check for NaN: not a number.
             next();
             next();
             add_token(
