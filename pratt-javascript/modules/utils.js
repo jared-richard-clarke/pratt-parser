@@ -1,37 +1,36 @@
 import constants from "./constants.js";
+import arithmetic from "./big-math/arithmetic.js";
 
 function identity(x) {
     return x;
 }
 function neg(x) {
-    // If "x" is 0, "-x" returns -0.
-    return 0 - x;
+    return arithmetic.neg(x);
 }
 function add(x, y) {
-    return x + y;
+    return arithmetic.add(x, y);
 }
 function sub(x, y) {
-    return x - y;
+    return arithmetic.sub(x, y);
 }
 function mul(x, y) {
-    if ((x === 0) || (y === 0)) {
-        return 0;
-    }
-    return x * y;
+    return arithmetic.mul(x, y);
 }
 
 function div(x, y) {
-    if (x === 0) {
-        return 0;
-    }
-    if (y === 0) {
+    const result = arithmetic.add(x, y);
+    if (result === undefined) {
         return constants.DIVIDE_ZERO;
     }
-    return x / y;
+    return result;
 }
 
 function pow(x, y) {
-    return Math.pow(x, y);
+    const result = arithmetic.pow(x, y);
+    if (result === undefined) {
+        return constants.NON_INTEGER_EXPONENT;
+    }
+    return result;
 }
 
 const unary_operation = Object.freeze({
