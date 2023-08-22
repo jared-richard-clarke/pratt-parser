@@ -41,6 +41,7 @@ export default Object.freeze({
     // errors
     LEADING_ZERO: "leading zero",
     DIVIDE_ZERO: "divide by zero",
+    NON_INTEGER_EXPONENT: "non-integer exponent",
     MISPLACED_DECIMAL: "misplaced decimal",
     NOT_NUMBER: "not a number",
     NO_PREFIX: "undefined prefix operation",
