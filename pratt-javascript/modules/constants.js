@@ -43,6 +43,7 @@ export default Object.freeze({
     NUMBER: "number",
     ERROR: "error",
     // === errors ===
+    // Right padding added for formatting.
     UNKNOWN: "Unknown character. ",
     LEADING_ZERO: "Leading zero. ",
     MISPLACED_DECIMAL: "Misplaced decimal. ",
