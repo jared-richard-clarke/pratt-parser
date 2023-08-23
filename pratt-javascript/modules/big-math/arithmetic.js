@@ -21,7 +21,7 @@ function floor(x) {
         0,
     );
 }
-function adjust_terms(op) {
+function match_terms(op) {
     return function (x, y) {
         const differential = x.exponent - y.exponent;
         if (differential === 0) {
@@ -50,8 +50,8 @@ function adjust_terms(op) {
     };
 }
 
-const add = adjust_terms((x, y) => x + y);
-const sub = adjust_terms((x, y) => x - y);
+const add = match_terms((x, y) => x + y);
+const sub = match_terms((x, y) => x - y);
 
 function equal(x, y) {
     x = encoders.normalize(x);
@@ -70,7 +70,7 @@ function mul(x, y) {
     );
 }
 
-// - Division by zero is undefined.
+// Division by zero is undefined.
 function div(x, y) {
     if (utils.is_zero(x)) {
         return constants.BIGFLOAT_ZERO;
