@@ -5,34 +5,28 @@ const BIGINT_TWO = 2n;
 const BIGINT_TEN = 10n;
 const BIGINT_TEN_MILLION = 10000000n;
 
+// "make_bigfloat" is not a constant, but its inclusion in this module
+// eliminates circular dependencies, that is, preventing "make_bigfloat"
+// from depending on constants that depend on it.
+function make_bigfloat(coefficient, exponent) {
+    const x = Object.create(null);
+    x.coefficient = coefficient;
+    x.exponent = exponent;
+    return Object.freeze(x);
+}
+
 // errors
 const DIVIDE_ZERO = "Divide by zero. ";
 const NON_INTEGER_EXPONENT = "Non-integer exponent. ";
 
-const BIGFLOAT_ZERO = (function () {
-    const x = Object.create(null);
-    x.coefficient = BIGINT_ZERO;
-    x.exponent = 0;
-    return Object.freeze(x);
-})();
-
-const BIGFLOAT_ONE = (function () {
-    const x = Object.create(null);
-    x.coefficient = BIGINT_ONE;
-    x.exponent = 0;
-    return Object.freeze(x);
-})();
-
-const BIGFLOAT_TWO = (function () {
-    const x = Object.create(null);
-    x.coefficient = BIGINT_TWO;
-    x.exponent = 0;
-    return Object.freeze(x);
-})();
+const BIGFLOAT_ZERO = make_bigfloat(BIGINT_ZERO, 0);
+const BIGFLOAT_ONE = make_bigfloat(BIGINT_ONE, 0);
+const BIGFLOAT_TWO = make_bigfloat(BIGINT_TWO, 0);
 
 const PRECISION = -4;
 
 export default Object.freeze({
+    make_bigfloat,
     BIGINT_NEG_ONE,
     BIGINT_ZERO,
     BIGINT_ONE,
