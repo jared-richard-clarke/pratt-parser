@@ -28,11 +28,13 @@ function pow(x, y) {
 const unary_operation = Object.freeze({
     [constants.ADD]: identity,
     [constants.SUBTRACT]: neg,
+    [constants.SUBTRACT_ALT]: neg,
 });
 
 const binary_operation = Object.freeze({
     [constants.ADD]: add,
     [constants.SUBTRACT]: sub,
+    [constants.SUBTRACT_ALT]: sub,
     [constants.IMPLIED_MULTIPLY]: mul,
     [constants.MULTIPLY]: mul,
     [constants.MULTIPLY_ALT]: mul,
@@ -79,7 +81,11 @@ function is_exponent(x) {
 }
 
 const is_plus_minus = (function () {
-    const set = new Set([constants.ADD, constants.SUBTRACT]);
+    const set = new Set([
+        constants.ADD,
+        constants.SUBTRACT,
+        constants.SUBTRACT_ALT,
+    ]);
     return function (x) {
         return set.has(x);
     };
@@ -111,6 +117,7 @@ const is_operator = (function () {
     const set = new Set([
         constants.ADD,
         constants.SUBTRACT,
+        constants.SUBTRACT_ALT,
         constants.MULTIPLY,
         constants.MULTIPLY_ALT,
         constants.DIVIDE,
