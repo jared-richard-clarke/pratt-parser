@@ -4,6 +4,7 @@ import utils from "./modules/utils.js";
 import encoders from "./modules/big-math/encoders.js";
 
 const parser = (function () {
+    // === parser: private methods ===
     function parse_expression(rbp) {
         const token = next();
         const [prefix, ok] = table.get_parser("prefix", token.type);
@@ -110,7 +111,7 @@ const parser = (function () {
         return peek() === expect;
     }
 
-    // parser lookup table
+    // === parser: lookup table ===
     const table = (function () {
         function register(bind, type, parser) {
             registry.prefix[type] = parser;
@@ -131,6 +132,7 @@ const parser = (function () {
             });
         }
 
+        // === table: internal state ===
         const registry = {
             prefix: {},
             infix: {},
@@ -165,21 +167,22 @@ const parser = (function () {
         ], parse_unary);
         register(60, constants.ERROR, parse_error);
 
-        const m = Object.create(null);
+        // === table: public methods ===
+        const methods = Object.create(null);
 
-        m.get_parser = function (category, type) {
+        methods.get_parser = function (category, type) {
             const parser = registry[category][type];
             return parser === undefined ? [null, false] : [parser, true];
         };
 
-        m.get_binding = function (category, type) {
+        methods.get_binding = function (category, type) {
             return registry[category][type];
         };
 
-        return Object.freeze(m);
+        return Object.freeze(methods);
     })();
 
-    // parser state
+    // parser: internal state
     const state = {
         source: [],
         length: 0,
@@ -187,19 +190,19 @@ const parser = (function () {
         end: 0,
     };
 
-    // === public methods ===
-    const m = Object.create(null);
+    // === parser: public methods ===
+    const methods = Object.create(null);
 
-    m.set = function (text) {
+    methods.set = function (text) {
         const tokens = scan(text);
         state.source = tokens;
         state.length = tokens.length;
         state.index = 0;
         state.end = tokens.length - 1;
-        return m;
+        return methods;
     };
 
-    m.run = function () {
+    methods.run = function () {
         const [x, error] = parse_expression(0);
         if (error !== null) {
             return [null, error];
@@ -213,7 +216,7 @@ const parser = (function () {
         return [x, null];
     };
 
-    return Object.freeze(m);
+    return Object.freeze(methods);
 })();
 
 export function parse(text) {
