@@ -1,21 +1,21 @@
 export default Object.freeze({
-    // spaces
+    // === spaces ===
     WHITE_SPACE: " ",
     TAB: "\t",
     LINEFEED: "\n",
     CARRIAGE_RETURN: "\r",
     VERTICAL_TAB: "\v",
     FORM_FEED: "\f",
-    // general symbols
+    // === general symbols ===
     DECIMAL_POINT: ".",
     OPEN_PAREN: "(",
     CLOSE_PAREN: ")",
     UPPER_E: "E",
     LOWER_E: "e",
     NAN: "NaN",
-    // end-of-input flag
+    // === end-of-input flag ===
     EOF: "eof",
-    // digits
+    // === digits ===
     ZERO: "0",
     ONE: "1",
     TWO: "2",
@@ -26,19 +26,23 @@ export default Object.freeze({
     SEVEN: "7",
     EIGHT: "8",
     NINE: "9",
-    // operators
+    // === operators ===
     ADD: "+",
-    SUBTRACT: "-",
+    // U+2212: unicode minus
+    SUBTRACT: "−",
+    // U+002d: hyphen-minus
+    SUBTRACT_ALT: "-",
+    // U+00d7: multiplication
     MULTIPLY: "×",
     MULTIPLY_ALT: "*",
     IMPLIED_MULTIPLY: "imp-x",
     DIVIDE: "÷",
     DIVIDE_ALT: "/",
     EXPONENT: "^",
-    // token labels
+    // === token labels ===
     NUMBER: "number",
     ERROR: "error",
-    // errors
+    // === errors ===
     UNKNOWN: "Unknown character. ",
     LEADING_ZERO: "Leading zero. ",
     MISPLACED_DECIMAL: "Misplaced decimal. ",
