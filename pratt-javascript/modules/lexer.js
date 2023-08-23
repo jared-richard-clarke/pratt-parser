@@ -2,7 +2,7 @@ import constants from "./constants.js";
 import utils from "./utils.js";
 
 const lexer = (function () {
-    // === private methods ===
+    // === lexer: private methods ===
     function add_token(type, value, message, column, length) {
         state.tokens.push(
             { type, value, message, column, length },
@@ -183,7 +183,7 @@ const lexer = (function () {
             return;
         }
     }
-    // === internal state ===
+    // === lexer: internal state ===
     const state = {
         characters: [],
         tokens: [],
@@ -191,19 +191,19 @@ const lexer = (function () {
         start: 0,
         current: 0,
     };
-    // === public methods ===
-    const m = Object.create(null);
+    // === lexer: public methods ===
+    const methods = Object.create(null);
 
-    m.set = function (text) {
+    methods.set = function (text) {
         const spread = [...text];
         state.characters = spread;
         state.tokens = [];
         state.end = spread.length - 1;
         state.start = 0;
         state.current = 0;
-        return m;
+        return methods;
     };
-    m.run = function () {
+    methods.run = function () {
         while (!is_end()) {
             state.start = state.current;
             scan_token();
@@ -217,7 +217,7 @@ const lexer = (function () {
         );
         return state.tokens;
     };
-    return Object.freeze(m);
+    return Object.freeze(methods);
 })();
 
 export default function scan(text) {
