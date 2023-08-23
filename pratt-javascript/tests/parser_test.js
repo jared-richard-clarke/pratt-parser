@@ -6,24 +6,24 @@ import { parse } from "../parser.js";
 Deno.test("snapshot", async function (t) {
     const x = parse("1 + 2 * 3");
     await assertSnapshot(t, x);
-})
+});
 
 Deno.test("snapshot", async function (t) {
     const x = parse("0.1 + 0.2");
     await assertSnapshot(t, x);
 });
 
-Deno.test("snapshot", async function(t) {
+Deno.test("snapshot", async function (t) {
     const x = parse("1 / 0");
     await assertSnapshot(t, x);
 });
 
-Deno.test("snapshot", async function(t) {
+Deno.test("snapshot", async function (t) {
     const x = parse("2 ^ 3 ^ 4");
     await assertSnapshot(t, x);
 });
 
-Deno.test("snapshot", async function(t) {
+Deno.test("snapshot", async function (t) {
     const x = parse("5 ^ 2.5");
     await assertSnapshot(t, x);
 });
