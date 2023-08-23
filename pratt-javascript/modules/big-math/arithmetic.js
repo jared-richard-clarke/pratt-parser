@@ -3,7 +3,7 @@ import encoders from "./encoders.js";
 import utils from "./utils.js";
 
 function neg(x) {
-    return encoders.make_bigfloat(-x.coefficient, x.exponent);
+    return constants.make_bigfloat(-x.coefficient, x.exponent);
 }
 function floor(x) {
     const { coefficient, exponent } = x;
@@ -11,12 +11,12 @@ function floor(x) {
         return x;
     }
     if (exponent > 0) {
-        return encoders.make_bigfloat(
+        return constants.make_bigfloat(
             coefficient * constants.BIGINT_TEN ** BigInt(exponent),
             0,
         );
     }
-    return encoders.make_bigfloat(
+    return constants.make_bigfloat(
         coefficient / constants.BIGINT_TEN ** BigInt(-exponent),
         0,
     );
@@ -25,13 +25,13 @@ function match_terms(op) {
     return function (x, y) {
         const differential = x.exponent - y.exponent;
         if (differential === 0) {
-            return encoders.make_bigfloat(
+            return constants.make_bigfloat(
                 op(x.coefficient, y.coefficient),
                 x.exponent,
             );
         }
         if (differential > 0) {
-            return encoders.make_bigfloat(
+            return constants.make_bigfloat(
                 op(
                     x.coefficient *
                         constants.BIGINT_TEN ** BigInt(differential),
@@ -40,7 +40,7 @@ function match_terms(op) {
                 y.exponent,
             );
         }
-        return encoders.make_bigfloat(
+        return constants.make_bigfloat(
             op(
                 x.coefficient,
                 y.coefficient * constants.BIGINT_TEN ** BigInt(-differential),
@@ -64,7 +64,7 @@ function gt(x, y) {
 }
 
 function mul(x, y) {
-    return encoders.make_bigfloat(
+    return constants.make_bigfloat(
         x.coefficient * y.coefficient,
         x.exponent + y.exponent,
     );
@@ -95,7 +95,7 @@ function div(x, y) {
     ) {
         coefficient += utils.bigint_signum(x.coefficient);
     }
-    return encoders.make_bigfloat(coefficient, exponent);
+    return constants.make_bigfloat(coefficient, exponent);
 }
 
 // Exponentiation by squaring.
