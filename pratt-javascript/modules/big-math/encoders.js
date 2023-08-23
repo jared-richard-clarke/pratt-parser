@@ -1,22 +1,12 @@
 import constants from "./constants.js";
 import utils from "./utils.js";
 
-function make_bigfloat(coefficient, exponent) {
-    if (coefficient === constants.BIGINT_ZERO) {
-        return constants.BIGFLOAT_ZERO;
-    }
-    const x = Object.create(null);
-    x.coefficient = coefficient;
-    x.exponent = exponent;
-    return Object.freeze(x);
-}
-
 function normalize(x) {
     let { coefficient, exponent } = x;
     if (exponent > 0) {
         coefficient = coefficient * constants.BIGINT_TEN ** BigInt(exponent);
         exponent = 0;
-        return make_bigfloat(coefficient, exponent);
+        return constants.make_bigfloat(coefficient, exponent);
     }
     if (exponent < 0) {
         let quotient;
@@ -39,9 +29,9 @@ function normalize(x) {
             coefficient = quotient;
             exponent += 1;
         }
-        return make_bigfloat(coefficient, exponent);
+        return constants.make_bigfloat(coefficient, exponent);
     }
-    return make_bigfloat(coefficient, exponent);
+    return constants.make_bigfloat(coefficient, exponent);
 }
 
 function decode(x, y) {
@@ -50,7 +40,7 @@ function decode(x, y) {
     //                ^-----^^----------^^-----------------^
     //                | int || fraction ||    exponent     |
     if (typeof x === "bigint") {
-        return make_bigfloat(x, base);
+        return constants.make_bigfloat(x, base);
     }
     const match = x.match(pattern);
     if (match) {
@@ -112,7 +102,6 @@ function encode_scientific(x) {
 }
 
 export default Object.freeze({
-    make_bigfloat,
     normalize,
     decode,
     encode,
