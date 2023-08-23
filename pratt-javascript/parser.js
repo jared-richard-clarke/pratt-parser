@@ -110,14 +110,6 @@ const parser = (function () {
         return peek() === expect;
     }
 
-    // parser state
-    const state = {
-        source: [],
-        length: 0,
-        index: 0,
-        end: 0,
-    };
-
     // parser lookup table
     const table = (function () {
         function register(bind, type, parser) {
@@ -149,7 +141,11 @@ const parser = (function () {
         register(0, constants.EOF, parse_eof);
         register(0, constants.NUMBER, parse_number);
         register(0, constants.OPEN_PAREN, parse_grouping);
-        register_binary(10, [constants.ADD, constants.SUBTRACT], parse_left);
+        register_binary(10, [
+            constants.ADD,
+            constants.SUBTRACT,
+            constants.SUBTRACT_ALT,
+        ], parse_left);
         register_binary(
             20,
             [
@@ -162,7 +158,11 @@ const parser = (function () {
         );
         register_binary(30, [constants.EXPONENT], parse_right);
         register_binary(40, [constants.IMPLIED_MULTIPLY], parse_left);
-        register_unary(50, [constants.ADD, constants.SUBTRACT], parse_unary);
+        register_unary(50, [
+            constants.ADD,
+            constants.SUBTRACT,
+            constants.SUBTRACT_ALT,
+        ], parse_unary);
         register(60, constants.ERROR, parse_error);
 
         const m = Object.create(null);
@@ -178,6 +178,14 @@ const parser = (function () {
 
         return Object.freeze(m);
     })();
+
+    // parser state
+    const state = {
+        source: [],
+        length: 0,
+        index: 0,
+        end: 0,
+    };
 
     // === public methods ===
     const m = Object.create(null);
