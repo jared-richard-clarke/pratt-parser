@@ -193,7 +193,7 @@ const parser = (function () {
     // === parser: public methods ===
     const methods = Object.create(null);
 
-    methods.set = function (text) {
+    methods.input = function (text) {
         const tokens = scan(text);
         state.source = tokens;
         state.length = tokens.length;
@@ -220,5 +220,5 @@ const parser = (function () {
 })();
 
 export function parse(text) {
-    return parser.set(text).run();
+    return parser.input(text).run();
 }
