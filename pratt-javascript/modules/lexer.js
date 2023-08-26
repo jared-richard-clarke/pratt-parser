@@ -194,7 +194,7 @@ const lexer = (function () {
     // === lexer: public methods ===
     const methods = Object.create(null);
 
-    methods.set = function (text) {
+    methods.input = function (text) {
         const spread = [...text];
         state.characters = spread;
         state.tokens = [];
@@ -221,5 +221,5 @@ const lexer = (function () {
 })();
 
 export default function scan(text) {
-    return lexer.set(text).run();
+    return lexer.input(text).run();
 }
