@@ -213,7 +213,11 @@ const parser = (function () {
             token.message += constants.INCOMPLETE_EXPRESSION;
             return [null, token];
         }
-        return [x, null];
+        // Use scientific notation for exceedingly large or small numbers.
+        if (utils.is_exceeding(x)) {
+            return [encoders.encode_scientific(x), null];
+        }
+        return [encoders.encode(x), null];
     };
 
     return Object.freeze(methods);
