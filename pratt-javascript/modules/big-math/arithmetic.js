@@ -53,14 +53,26 @@ function match_terms(op) {
 const add = match_terms((x, y) => x + y);
 const sub = match_terms((x, y) => x - y);
 
-function equal(x, y) {
+function eq(x, y) {
     x = encoders.normalize(x);
     y = encoders.normalize(y);
     return (x.coefficient === y.coefficient) && (x.exponent === y.exponent);
 }
+function ge(x, y) {
+    const difference = sub(x, y);
+    return difference.coefficient >= constants.BIGINT_ZERO;
+}
 function gt(x, y) {
     const difference = sub(x, y);
     return difference.coefficient > constants.BIGINT_ZERO;
+}
+function le(x, y) {
+    const difference = sub(x, y);
+    return difference.coefficient <= constants.BIGINT_ZERO;
+}
+function lt(x, y) {
+    const difference = sub(x, y);
+    return difference.coefficient < constants.BIGINT_ZERO;
 }
 
 function mul(x, y) {
@@ -99,6 +111,28 @@ function div(x, y) {
 }
 
 // Exponentiation by squaring.
+// - (-2) ^ 0.5 returns NaN. A negative base and a non-integer exponent
+// cannot be defined as a real number.
+// -2 ^ (-2 ^ -2) -> NaN | (-2 ^ -2) ^ -2 -> 16
+//  ^ negative base and non-integer exponent.
+// Some mathematicians consider 0 ^ 0 an undefined value.
+// 0 ** -y -> Infinity, 0n ** -y -> Range Error
+// pow(a,b) = exp( b * log(a) )
+
+// pow(a,b) = exp( b * log(a) )
+// exp(x)   = sum[n = 0->inf]  x^n / n!    // <- Taylor Series
+// ln(x)    = sum[n = 1->inf]  (x-1)^n / n
+// x^n      = n == 0  ? 1   // unless x == 0
+//           (n%2==0) ? x^(n/2) * x^(n/2)
+//           otherwise x*x^(n-1)
+//           // faster than loop for large n,
+
+// A typical implementation of pow(x,y) (i.e. x^y) involves computing exp(y*log(x))
+
+// A fractional exponent like 1/n means to take the n-th root:
+
+// x1/n  =  n√x
+
 function pow(x, y) {
     // Current implementation does not support non-integer exponents.
     if (encoders.normalize(y).exponent !== 0) {
@@ -126,6 +160,11 @@ function pow(x, y) {
 }
 
 export default Object.freeze({
+    eq,
+    ge,
+    gt,
+    le,
+    lt,
     neg,
     add,
     sub,
