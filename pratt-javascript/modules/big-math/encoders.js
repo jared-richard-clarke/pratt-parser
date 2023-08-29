@@ -91,6 +91,7 @@ function encode_scientific(x) {
     const e = x.exponent + text.length - 1;
     if (text.length > 1) {
         text = text.slice(0, 1) + "." + text.slice(1);
+        text = utils.trim_zeroes(text);
     }
     if (e !== 0) {
         text += "e" + e;
