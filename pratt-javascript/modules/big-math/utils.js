@@ -24,6 +24,16 @@ function bigint_signum(x) {
     }
     return constants.BIGINT_ONE;
 }
+function trim_zeroes(x) {
+    x = [...x];
+    while (x[x.length - 1] === "0") {
+        x.pop();
+    }
+    if (x[x.length - 1] === ".") {
+        x.pop();
+    }
+    return x.join("");
+}
 
 export default Object.freeze({
     is_zero,
@@ -32,4 +42,5 @@ export default Object.freeze({
     is_odd,
     bigint_abs,
     bigint_signum,
+    trim_zeroes,
 });
