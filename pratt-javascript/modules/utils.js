@@ -43,6 +43,13 @@ const binary_operation = Object.freeze({
     [constants.EXPONENT]: pow,
 });
 
+function is_exceeding(x) {
+    const EXPONENT_LIMIT = 21;
+    const COEFFICIENT_LIMIT = 1000000000000000000000n;
+    return Math.abs(x.exponent) >= EXPONENT_LIMIT ||
+        x.coefficient >= COEFFICIENT_LIMIT;
+}
+
 const is_space = (function () {
     const set = new Set([
         constants.WHITE_SPACE,
@@ -130,6 +137,7 @@ const is_operator = (function () {
 })();
 
 export default Object.freeze({
+    is_exceeding,
     unary_operation,
     binary_operation,
     is_space,
