@@ -241,6 +241,6 @@ const parser = (function () {
     return Object.freeze(methods);
 })();
 
-export function parse(text) {
+export default function parse(text) {
     return parser.input(text).run();
 }
