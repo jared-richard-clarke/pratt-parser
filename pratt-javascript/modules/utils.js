@@ -46,8 +46,10 @@ const binary_operation = Object.freeze({
 function is_exceeding(x) {
     const EXPONENT_LIMIT = 21;
     const COEFFICIENT_LIMIT = 1000000000000000000000n;
-    return Math.abs(x.exponent) >= EXPONENT_LIMIT ||
-        x.coefficient >= COEFFICIENT_LIMIT;
+    return (
+        Math.abs(x.exponent) >= EXPONENT_LIMIT ||
+        x.coefficient >= COEFFICIENT_LIMIT
+    );
 }
 
 const is_space = (function () {
@@ -83,7 +85,7 @@ const is_paren = (function () {
     };
 })();
 
-function is_exponent(x) {
+function is_exponent_shorthand(x) {
     return x === constants.UPPER_E || x === constants.LOWER_E;
 }
 
@@ -145,7 +147,7 @@ export default Object.freeze({
     is_open_paren,
     is_close_paren,
     is_paren,
-    is_exponent,
+    is_exponent_shorthand,
     is_plus_minus,
     is_zero,
     is_digit,
