@@ -4,9 +4,7 @@ import utils from "./utils.js";
 const lexer = (function () {
     // === lexer: private methods ===
     function add_token(type, value, message, column, length) {
-        state.tokens.push(
-            { type, value, message, column, length },
-        );
+        state.tokens.push({ type, value, message, column, length });
     }
     function is_end() {
         return state.current > state.end;
@@ -40,36 +38,19 @@ const lexer = (function () {
         if (utils.is_space(char)) {
             return;
         } else if (utils.is_operator(char)) {
-            add_token(
-                char,
-                null,
-                "",
-                state.start,
-                1,
-            );
+            add_token(char, null, "", state.start, 1);
             return;
         } else if (utils.is_paren(char)) {
-            add_token(
-                char,
-                null,
-                "",
-                state.start,
-                1,
-            );
+            add_token(char, null, "", state.start, 1);
             // Check for implied multiplication: (7+11)(11+7), or (7+11)7
             if (utils.is_close_paren(char)) {
                 skip_whitespace();
                 const next_char = peek();
                 if (
-                    utils.is_digit(next_char) || utils.is_open_paren(next_char)
+                    utils.is_digit(next_char) ||
+                    utils.is_open_paren(next_char)
                 ) {
-                    add_token(
-                        constants.IMPLIED_MULTIPLY,
-                        null,
-                        "",
-                        null,
-                        0,
-                    );
+                    add_token(constants.IMPLIED_MULTIPLY, null, "", null, 0);
                 }
             }
             // Check for empty parentheses: ().
@@ -106,7 +87,10 @@ const lexer = (function () {
                 }
             }
             // Exponential notation: 7e11.
-            if (utils.is_exponent(peek()) && utils.is_digit(peek_next())) {
+            if (
+                utils.is_exponent_shorthand(peek()) &&
+                utils.is_digit(peek_next())
+            ) {
                 next();
                 while (utils.is_digit(peek())) {
                     next();
@@ -114,7 +98,7 @@ const lexer = (function () {
             }
             // Exponential notation: 7e[+-]11.
             if (
-                utils.is_exponent(peek()) &&
+                utils.is_exponent_shorthand(peek()) &&
                 utils.is_plus_minus(peek_next()) &&
                 utils.is_digit(peek_after_next())
             ) {
@@ -124,10 +108,8 @@ const lexer = (function () {
                     next();
                 }
             }
-            const number_text = state.characters.slice(
-                state.start,
-                state.current,
-            )
+            const number_text = state.characters
+                .slice(state.start, state.current)
                 .join("");
             add_token(
                 constants.NUMBER,
@@ -139,13 +121,7 @@ const lexer = (function () {
             // Check for implied multiplication: 7(1 + 2)
             skip_whitespace();
             if (utils.is_open_paren(peek())) {
-                add_token(
-                    constants.IMPLIED_MULTIPLY,
-                    null,
-                    "",
-                    null,
-                    0,
-                );
+                add_token(constants.IMPLIED_MULTIPLY, null, "", null, 0);
             }
             return;
         } else if (utils.is_decimal(char)) {
@@ -158,9 +134,7 @@ const lexer = (function () {
                 1,
             );
             return;
-        } else if (
-            (char === "N") && (peek() === "a") && (peek_next() === "N")
-        ) {
+        } else if (char === "N" && peek() === "a" && peek_next() === "N") {
             // Check for NaN: not a number.
             next();
             next();
@@ -170,6 +144,16 @@ const lexer = (function () {
                 constants.NOT_NUMBER,
                 state.start,
                 state.current - state.start,
+            );
+            return;
+        } else if (utils.is_exponent_shorthand(char)) {
+            // Check for misplaced exponent shorthand: "e" or "E".
+            add_token(
+                constants.ERROR,
+                char,
+                constants.MISPLACED_EXPONENT,
+                state.start,
+                1,
             );
             return;
         } else {
@@ -208,13 +192,7 @@ const lexer = (function () {
             state.start = state.current;
             scan_token();
         }
-        add_token(
-            constants.EOF,
-            null,
-            "",
-            state.end + 1,
-            0,
-        );
+        add_token(constants.EOF, null, "", state.end + 1, 0);
         return state.tokens;
     };
     return Object.freeze(methods);
