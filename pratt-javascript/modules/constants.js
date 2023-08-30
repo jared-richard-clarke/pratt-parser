@@ -47,6 +47,7 @@ export default Object.freeze({
     UNKNOWN: "Unknown character. ",
     LEADING_ZERO: "Leading zero. ",
     MISPLACED_DECIMAL: "Misplaced decimal. ",
+    MISPLACED_EXPONENT: "Misplaced exponent shorthand. ",
     NOT_NUMBER: "Not a number. ",
     NO_PREFIX: "Undefined prefix operation. ",
     NO_INFIX: "Undefined infix operation. ",
