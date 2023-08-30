@@ -43,8 +43,12 @@ const parser = (function () {
         return [null, token];
     }
 
-    function parse_error(token) {
+    function parse_unary_error(token) {
         return [null, token];
+    }
+    function parse_binary_error(x, token) {
+        x = null;
+        return [x, token];
     }
 
     function parse_number(token) {
@@ -111,6 +115,17 @@ const parser = (function () {
         return peek() === expect;
     }
 
+    function flush_errors(error) {
+        const errors = [error];
+        while (state.index < state.end) {
+            const token = next();
+            if (token.type === "error") {
+                errors.push(token);
+            }
+        }
+        return errors;
+    }
+
     // === parser: lookup table ===
     const table = (function () {
         function register(bind, type, parser) {
@@ -165,7 +180,8 @@ const parser = (function () {
             constants.SUBTRACT,
             constants.SUBTRACT_ALT,
         ], parse_unary);
-        register(60, constants.ERROR, parse_error);
+        register(60, constants.ERROR, parse_unary_error);
+        register_binary(60, [constants.ERROR], parse_binary_error);
 
         // === table: public methods ===
         const methods = Object.create(null);
@@ -205,13 +221,15 @@ const parser = (function () {
     methods.run = function () {
         const [x, error] = parse_expression(0);
         if (error !== null) {
-            return [null, error];
+            const errors = flush_errors(error);
+            return [null, errors];
         }
         // Check for unused tokens.
         if (state.index < state.end) {
-            const token = state.source[state.index];
+            const token = next();
             token.message += constants.INCOMPLETE_EXPRESSION;
-            return [null, token];
+            const errors = flush_errors(token);
+            return [null, errors];
         }
         // Use scientific notation for exceedingly large or small numbers.
         if (utils.is_exceeding(x)) {
