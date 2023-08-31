@@ -2,6 +2,15 @@ import constants from "./constants.js";
 import utils from "./utils.js";
 
 const lexer = (function () {
+    // === lexer: state ===
+    const state = {
+        characters: [],
+        tokens: [],
+        end: 0,
+        start: 0,
+        current: 0,
+    };
+
     // === lexer: private methods ===
     function add_token(type, value, message, column, length) {
         state.tokens.push({ type, value, message, column, length });
@@ -167,14 +176,7 @@ const lexer = (function () {
             return;
         }
     }
-    // === lexer: internal state ===
-    const state = {
-        characters: [],
-        tokens: [],
-        end: 0,
-        start: 0,
-        current: 0,
-    };
+
     // === lexer: public methods ===
     const methods = Object.create(null);
 
@@ -192,7 +194,13 @@ const lexer = (function () {
             state.start = state.current;
             scan_token();
         }
-        add_token(constants.EOF, null, "", state.end + 1, 0);
+        add_token(
+            constants.EOF,
+            null,
+            "",
+            state.end + 1,
+            0,
+        );
         return state.tokens;
     };
     return Object.freeze(methods);
