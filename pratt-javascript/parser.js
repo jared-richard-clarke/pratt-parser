@@ -4,9 +4,71 @@ import utils from "./modules/utils.js";
 import encoders from "./modules/big-math/encoders.js";
 
 const parser = (function () {
+    // === parser: state ===
+    const state = (function () {
+        const tokens = {
+            source: [],
+            length: 0,
+            index: 0,
+            end: 0,
+        };
+
+        function set(source) {
+            tokens.source = source;
+            tokens.length = source.length;
+            tokens.index = 0;
+            tokens.end = source.length - 1;
+        }
+
+        function next() {
+            if (tokens.index >= tokens.end) {
+                return tokens.source[tokens.end];
+            }
+            const token = tokens.source[tokens.index];
+            tokens.index += 1;
+            return token;
+        }
+
+        function peek() {
+            return tokens.source[tokens.index].type;
+        }
+
+        function match(expect) {
+            return peek() === expect;
+        }
+
+        function consumed() {
+            return tokens.index >= tokens.end;
+        }
+        function length() {
+            return tokens.length;
+        }
+
+        function flush(error) {
+            const errors = [error];
+            while (tokens.index < tokens.end) {
+                const token = next();
+                if (token.type === "error") {
+                    errors.push(token);
+                }
+            }
+            return errors;
+        }
+
+        return Object.freeze({
+            set,
+            next,
+            peek,
+            match,
+            consumed,
+            length,
+            flush,
+        });
+    })();
+
     // === parser: private methods ===
     function parse_expression(rbp) {
-        const token = next();
+        const token = state.next();
         const [prefix, ok] = table.get_parser("prefix", token.type);
         if (!ok) {
             token.message += constants.NO_PREFIX;
@@ -16,8 +78,8 @@ const parser = (function () {
         if (error !== null) {
             return [null, error];
         }
-        while (rbp < table.get_binding("bind", peek())) {
-            const token = next();
+        while (rbp < table.get_binding("bind", state.peek())) {
+            const token = state.next();
             const [infix, ok] = table.get_parser("infix", token.type);
             if (!ok) {
                 token.message += constants.NO_INFIX;
@@ -32,7 +94,7 @@ const parser = (function () {
     }
 
     function parse_eof(token) {
-        if (state.length === 1) {
+        if (state.length() === 1) {
             // If the expression is empty, then the error spans it.
             token.length = token.column;
             token.column = 0;
@@ -90,44 +152,24 @@ const parser = (function () {
         if (error !== null) {
             return [null, error];
         }
-        if (!match(constants.CLOSE_PAREN)) {
+        if (!state.match(constants.CLOSE_PAREN)) {
             token.message += constants.MISMATCHED_PAREN;
             return [null, token];
         }
-        next();
+        state.next();
         return [x, null];
-    }
-
-    function next() {
-        if (state.index >= state.end) {
-            return state.source[state.end];
-        }
-        const token = state.source[state.index];
-        state.index += 1;
-        return token;
-    }
-
-    function peek() {
-        return state.source[state.index].type;
-    }
-
-    function match(expect) {
-        return peek() === expect;
-    }
-
-    function flush_errors(error) {
-        const errors = [error];
-        while (state.index < state.end) {
-            const token = next();
-            if (token.type === "error") {
-                errors.push(token);
-            }
-        }
-        return errors;
     }
 
     // === parser: lookup table ===
     const table = (function () {
+        // === table: registry ===
+        const registry = {
+            prefix: {},
+            infix: {},
+            bind: {},
+            prebind: {},
+        };
+
         function register(bind, type, parser) {
             registry.prefix[type] = parser;
             registry.bind[type] = bind;
@@ -147,22 +189,14 @@ const parser = (function () {
             });
         }
 
-        // === table: internal state ===
-        const registry = {
-            prefix: {},
-            infix: {},
-            bind: {},
-            prebind: {},
-        };
-
         register(0, constants.EOF, parse_eof);
         register(0, constants.NUMBER, parse_number);
         register(0, constants.OPEN_PAREN, parse_grouping);
-        register_binary(10, [
-            constants.ADD,
-            constants.SUBTRACT,
-            constants.SUBTRACT_ALT,
-        ], parse_left);
+        register_binary(
+            10,
+            [constants.ADD, constants.SUBTRACT, constants.SUBTRACT_ALT],
+            parse_left
+        );
         register_binary(
             20,
             [
@@ -171,64 +205,54 @@ const parser = (function () {
                 constants.DIVIDE,
                 constants.DIVIDE_ALT,
             ],
-            parse_left,
+            parse_left
         );
         register_binary(30, [constants.EXPONENT], parse_right);
         register_binary(40, [constants.IMPLIED_MULTIPLY], parse_left);
-        register_unary(50, [
-            constants.ADD,
-            constants.SUBTRACT,
-            constants.SUBTRACT_ALT,
-        ], parse_unary);
+        register_unary(
+            50,
+            [constants.ADD, constants.SUBTRACT, constants.SUBTRACT_ALT],
+            parse_unary
+        );
         register(60, constants.ERROR, parse_unary_error);
         register_binary(60, [constants.ERROR], parse_binary_error);
 
         // === table: public methods ===
-        const methods = Object.create(null);
-
-        methods.get_parser = function (category, type) {
+        function get_parser(category, type) {
             const parser = registry[category][type];
             return parser === undefined ? [null, false] : [parser, true];
-        };
+        }
 
-        methods.get_binding = function (category, type) {
+        function get_binding(category, type) {
             return registry[category][type];
-        };
+        }
 
-        return Object.freeze(methods);
+        return Object.freeze({
+            get_parser,
+            get_binding,
+        });
     })();
-
-    // parser: internal state
-    const state = {
-        source: [],
-        length: 0,
-        index: 0,
-        end: 0,
-    };
 
     // === parser: public methods ===
     const methods = Object.create(null);
 
     methods.input = function (text) {
         const tokens = scan(text);
-        state.source = tokens;
-        state.length = tokens.length;
-        state.index = 0;
-        state.end = tokens.length - 1;
+        state.set(tokens);
         return methods;
     };
 
     methods.run = function () {
         const [x, error] = parse_expression(0);
         if (error !== null) {
-            const errors = flush_errors(error);
+            const errors = state.flush(error);
             return [null, errors];
         }
         // Check for unused tokens.
-        if (state.index < state.end) {
-            const token = next();
+        if (!state.consumed()) {
+            const token = state.next();
             token.message += constants.INCOMPLETE_EXPRESSION;
-            const errors = flush_errors(token);
+            const errors = state.flush(token);
             return [null, errors];
         }
         // Use scientific notation for exceedingly large or small numbers.
