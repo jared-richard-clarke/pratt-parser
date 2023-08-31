@@ -195,7 +195,7 @@ const parser = (function () {
         register_binary(
             10,
             [constants.ADD, constants.SUBTRACT, constants.SUBTRACT_ALT],
-            parse_left
+            parse_left,
         );
         register_binary(
             20,
@@ -205,14 +205,14 @@ const parser = (function () {
                 constants.DIVIDE,
                 constants.DIVIDE_ALT,
             ],
-            parse_left
+            parse_left,
         );
         register_binary(30, [constants.EXPONENT], parse_right);
         register_binary(40, [constants.IMPLIED_MULTIPLY], parse_left);
         register_unary(
             50,
             [constants.ADD, constants.SUBTRACT, constants.SUBTRACT_ALT],
-            parse_unary
+            parse_unary,
         );
         register(60, constants.ERROR, parse_unary_error);
         register_binary(60, [constants.ERROR], parse_binary_error);
