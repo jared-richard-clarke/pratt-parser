@@ -40,7 +40,7 @@ const lexer = (function () {
             internal.current += 1;
             return internal.characters[current];
         }
-        function forward() {
+        function reset() {
             internal.start = internal.current;
         }
         function look_ahead(x) {
@@ -73,7 +73,7 @@ const lexer = (function () {
             add_token,
             consumed,
             next,
-            forward,
+            reset,
             look_ahead,
             peek,
             peek_next,
@@ -84,6 +84,7 @@ const lexer = (function () {
     })();
 
     function scan_token() {
+        state.reset();
         const char = state.next();
         if (utils.is_space(char)) {
             return;
@@ -235,7 +236,6 @@ const lexer = (function () {
     };
     methods.run = function () {
         while (!state.consumed()) {
-            state.forward();
             scan_token();
         }
         state.add_token(constants.EOF, null, "", state.end + 1, 0);
