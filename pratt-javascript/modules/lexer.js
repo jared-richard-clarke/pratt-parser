@@ -15,7 +15,7 @@ const lexer = (function () {
     function add_token(type, value, message, column, length) {
         state.tokens.push({ type, value, message, column, length });
     }
-    function is_end() {
+    function consumed() {
         return state.current > state.end;
     }
     function next() {
@@ -70,7 +70,7 @@ const lexer = (function () {
                     null,
                     constants.EMPTY_PARENS,
                     state.start,
-                    state.current - state.start,
+                    state.current - state.start
                 );
             }
             return;
@@ -82,7 +82,7 @@ const lexer = (function () {
                     constants.ZERO,
                     constants.LEADING_ZERO,
                     state.start,
-                    1,
+                    1
                 );
                 return;
             }
@@ -125,7 +125,7 @@ const lexer = (function () {
                 number_text,
                 "",
                 state.start,
-                state.current - state.start,
+                state.current - state.start
             );
             // Check for implied multiplication: 7(1 + 2)
             skip_whitespace();
@@ -140,7 +140,7 @@ const lexer = (function () {
                 constants.DECIMAL_POINT,
                 constants.MISPLACED_DECIMAL,
                 state.start,
-                1,
+                1
             );
             return;
         } else if (char === "N" && peek() === "a" && peek_next() === "N") {
@@ -152,7 +152,7 @@ const lexer = (function () {
                 constants.NAN,
                 constants.NOT_NUMBER,
                 state.start,
-                state.current - state.start,
+                state.current - state.start
             );
             return;
         } else if (utils.is_exponent_shorthand(char)) {
@@ -162,17 +162,11 @@ const lexer = (function () {
                 char,
                 constants.MISPLACED_EXPONENT,
                 state.start,
-                1,
+                1
             );
             return;
         } else {
-            add_token(
-                constants.ERROR,
-                char,
-                constants.UNKNOWN,
-                state.start,
-                1,
-            );
+            add_token(constants.ERROR, char, constants.UNKNOWN, state.start, 1);
             return;
         }
     }
@@ -190,17 +184,11 @@ const lexer = (function () {
         return methods;
     };
     methods.run = function () {
-        while (!is_end()) {
+        while (!consumed()) {
             state.start = state.current;
             scan_token();
         }
-        add_token(
-            constants.EOF,
-            null,
-            "",
-            state.end + 1,
-            0,
-        );
+        add_token(constants.EOF, null, "", state.end + 1, 0);
         return state.tokens;
     };
     return Object.freeze(methods);
