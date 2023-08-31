@@ -29,6 +29,9 @@ const lexer = (function () {
         function lexeme_length() {
             return internal.current - internal.start;
         }
+        function end() {
+            return internal.end;
+        }
         function add_token(type, value, message, column, length) {
             internal.tokens.push({ type, value, message, column, length });
         }
@@ -70,6 +73,7 @@ const lexer = (function () {
             lexeme,
             lexeme_start,
             lexeme_length,
+            end,
             add_token,
             consumed,
             next,
@@ -238,7 +242,7 @@ const lexer = (function () {
         while (!state.consumed()) {
             scan_token();
         }
-        state.add_token(constants.EOF, null, "", state.end + 1, 0);
+        state.add_token(constants.EOF, null, "", state.end() + 1, 0);
         return state.tokens();
     };
     return Object.freeze(methods);
