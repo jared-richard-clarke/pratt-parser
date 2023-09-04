@@ -70,6 +70,10 @@ function is_decimal(x) {
     return x === constants.DECIMAL_POINT;
 }
 
+function is_nan(x) {
+    return x === constants.NAN;
+}
+
 function is_open_paren(x) {
     return x === constants.OPEN_PAREN;
 }
@@ -85,7 +89,7 @@ const is_paren = (function () {
     };
 })();
 
-function is_exponent_shorthand(x) {
+function is_exponent_suffix(x) {
     return x === constants.UPPER_E || x === constants.LOWER_E;
 }
 
@@ -138,18 +142,29 @@ const is_operator = (function () {
     };
 })();
 
+const is_ascii_letter = (function () {
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const upper = lower.toUpperCase();
+    const set = new Set([...lower].concat([...upper]));
+    return function (x) {
+        return set.has(x);
+    };
+})();
+
 export default Object.freeze({
     is_exceeding,
     unary_operation,
     binary_operation,
     is_space,
     is_decimal,
+    is_nan,
     is_open_paren,
     is_close_paren,
     is_paren,
-    is_exponent_shorthand,
+    is_exponent_suffix,
     is_plus_minus,
     is_zero,
     is_digit,
     is_operator,
+    is_ascii_letter,
 });
