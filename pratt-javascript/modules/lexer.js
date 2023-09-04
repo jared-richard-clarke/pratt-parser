@@ -20,7 +20,8 @@ const lexer = (function () {
             internal.current = 0;
         }
         function lexeme() {
-            return internal.characters.slice(internal.start, internal.current)
+            return internal.characters
+                .slice(internal.start, internal.current)
                 .join("");
         }
         function lexeme_start() {
@@ -83,7 +84,7 @@ const lexer = (function () {
             peek_next,
             peek_after_next,
             skip_whitespace,
-            tokens
+            tokens,
         });
     })();
 
@@ -152,7 +153,7 @@ const lexer = (function () {
             }
             // Exponential notation: 7e11.
             if (
-                utils.is_exponent_shorthand(state.peek()) &&
+                utils.is_exponent_suffix(state.peek()) &&
                 utils.is_digit(state.peek_next())
             ) {
                 state.next();
@@ -162,7 +163,7 @@ const lexer = (function () {
             }
             // Exponential notation: 7e[+-]11.
             if (
-                utils.is_exponent_shorthand(state.peek()) &&
+                utils.is_exponent_suffix(state.peek()) &&
                 utils.is_plus_minus(state.peek_next()) &&
                 utils.is_digit(state.peek_after_next())
             ) {
@@ -195,28 +196,40 @@ const lexer = (function () {
                 1,
             );
             return;
-        } else if (
-            char === "N" && state.peek() === "a" && state.peek_next() === "N"
-        ) {
+        } else if (utils.is_ascii_letter(char)) {
+            state.next();
+            while (utils.is_ascii_letter(state.peek())) {
+                state.next();
+            }
+            const lexeme = state.lexeme();
             // Check for NaN: not a number.
-            state.next();
-            state.next();
+            if (utils.is_nan(lexeme)) {
+                state.add_token(
+                    constants.ERROR,
+                    constants.NAN,
+                    constants.NOT_NUMBER,
+                    state.lexeme_start(),
+                    state.lexeme_length(),
+                );
+                return;
+            }
+            // Check for misplaced exponent suffix: "e" or "E".
+            if (utils.is_exponent_suffix(lexeme)) {
+                state.add_token(
+                    constants.ERROR,
+                    char,
+                    constants.MISPLACED_EXPONENT,
+                    state.lexeme_start(),
+                    1,
+                );
+                return;
+            }
             state.add_token(
                 constants.ERROR,
-                constants.NAN,
-                constants.NOT_NUMBER,
+                lexeme,
+                constants.UNKNOWN,
                 state.lexeme_start(),
                 state.lexeme_length(),
-            );
-            return;
-        } else if (utils.is_exponent_shorthand(char)) {
-            // Check for misplaced exponent shorthand: "e" or "E".
-            state.add_token(
-                constants.ERROR,
-                char,
-                constants.MISPLACED_EXPONENT,
-                state.lexeme_start(),
-                1,
             );
             return;
         } else {
