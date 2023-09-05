@@ -1,6 +1,8 @@
 import constants from "./constants.js";
 import utils from "./utils.js";
 
+// Adjust the coefficient and exponent so that the absolute value
+// of the big-float object is at least 1 but less than 10.
 function normalize(x) {
     let { coefficient, exponent } = x;
     if (exponent > 0) {
@@ -34,6 +36,7 @@ function normalize(x) {
     return constants.make_bigfloat(coefficient, exponent);
 }
 
+// Transform string representation of a decimal number into a big-float object.
 function decode(x, y) {
     const base = y || 0;
     const pattern = /^(-?\d+)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/;
@@ -55,6 +58,7 @@ function decode(x, y) {
     return constants.BIGFLOAT_ZERO;
 }
 
+// Transform a big-float object into its decimal string representation.
 function encode(x) {
     if (x.coefficient === constants.BIGINT_ZERO) {
         return "0";
@@ -80,6 +84,7 @@ function encode(x) {
     return text;
 }
 
+// Transform a big-float object into its scientific notation string representation.
 function encode_scientific(x) {
     if (utils.is_zero(x)) {
         return "0";
