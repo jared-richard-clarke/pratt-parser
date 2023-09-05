@@ -13,8 +13,8 @@ import encoders from "./modules/big-math/encoders.js";
 //
 // > parser.run() -> [string, null] | [null, [token]]
 //   Iterates through the token array. Instead of weaving a syntax tree, "parser.run" evaluates
-//   the nodes of the tree as it parses. Returns a two part array — "[string, null]" if succeeding,
-//   "[null, [token]]" if failing. "string" is an evaluated arithmetic expression, and "[token]"
+//   the nodes of the tree as it parses. Returns a two part array — "[string, null]" if successful,
+//   "[null, [token]]" if unsuccessful. "string" is an evaluated arithmetic expression, and "[token]"
 //   is an array of error tokens both locating and describing errors within the input string.
 const parser = (function () {
     // === parser: state ===
