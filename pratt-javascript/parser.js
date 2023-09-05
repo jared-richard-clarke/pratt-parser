@@ -1,24 +1,19 @@
 import constants from "./modules/constants.js";
-import scan from "./modules/lexer.js";
+import { scan } from "./modules/lexer.js";
 import utils from "./modules/utils.js";
 import encoders from "./modules/big-math/encoders.js";
 
-// === parser ===
-// A parser object that both scans, parses, and evaluates strings as arithmetic expressions.
+// parse(string) -> [string, null] | [null, [token]]
+//     where token = { type, value, message, column, length }
 //
-// > parser.input(string) -> parser
-//   Inputs a string and sets the parser state. Transforms string into an iterable array of tokens.
-//   Related properties "length", "index", and "end" provide the machinery to navigate the token array.
-//   Returns parser object to the caller to allow method chaining.
-//
-// > parser.run() -> [string, null] | [null, [token]]
-//   Iterates through the token array. Instead of weaving a syntax tree, "parser.run" evaluates
-//   the nodes of the tree as it parses. Returns a two part array — "[string, null]" if successful,
-//   "[null, [token]]" if unsuccessful. "string" is an evaluated arithmetic expression, and "[token]"
-//   is an array of error tokens both locating and describing errors within the input string.
-const parser = (function () {
-    // === parser: state ===
-    // Tracks the parser within the token array.
+// Both scans, parses, and evaluates a string as an arithmetic expression.
+// Instead of weaving an abstract syntax tree, "parse" evaluates the expression directly.
+// Returns a two part array — "[string, null]" if successful, "[null, [token]]" if unsuccessful.
+// "string" is an evaluated arithmetic expression, and "[token]" is an array of error tokens
+// both locating and describing errors within the input string.
+export const parse = (function () {
+    // === parse: state ===
+    // Tracks parser's internal state.
     //
     // > state.set(string)
     //   Resets the parser with its new input.
@@ -40,7 +35,8 @@ const parser = (function () {
     //   Returns the length of the internal token array.
     //
     // > state.flush(token) -> [token] where token.type = "error"
-    //   Collects all the error tokens into a single array.
+    //   Collects all the error tokens into a single array and
+    //   returns it to the caller.
     const state = (function () {
         const tokens = {
             source: [],
@@ -96,7 +92,7 @@ const parser = (function () {
         });
     })();
 
-    // === parser: internal parsers ===
+    // === parse: parsers ===
     // Top down operator precedence parsing, as imagined by Vaughan Pratt,
     // combines lexical semantics with functions. Each lexeme is assigned a
     // function — its semantic code. To parse a string of lexemes is to execute
@@ -106,7 +102,7 @@ const parser = (function () {
     // 1. prefix: a lexeme function without a left expression.
     // 2. infix: a lexeme function with a left expression.
     //
-    // This semantic code forms the parsers internal to the parser object.
+    // This semantic code forms the parsers internal to "parse".
 
     // The engine of Pratt's technique, "parse_expression" drives the parser,
     // calling the semantic code of each lexeme in turn from left to right.
@@ -220,7 +216,7 @@ const parser = (function () {
         return [x, null];
     }
 
-    // === parser: table ===
+    // === parse: table ===
     // Maps all the parsers and bindings to their associated lexemes.
     //
     // > table.get_parser(string) -> [parser, true] | [null, false]
@@ -299,16 +295,12 @@ const parser = (function () {
         });
     })();
 
-    // === parser: public methods ===
-    const methods = Object.create(null);
-
-    methods.input = function (text) {
+    // === parser ===
+    return function (text) {
+        // Transform text into tokens and set internal state.
         const tokens = scan(text);
         state.set(tokens);
-        return methods;
-    };
-
-    methods.run = function () {
+        // Parse expression. Uses state implicitly.
         const [x, error] = parse_expression(0);
         if (error !== null) {
             const errors = state.flush(error);
@@ -327,15 +319,4 @@ const parser = (function () {
         }
         return [encoders.encode(x), null];
     };
-
-    return Object.freeze(methods);
 })();
-
-// parse(string) -> [string, null] | [null, [token]]
-//     where token = { type, value, message, column, length }
-//
-// Wraps the parser object in a simpler one-function API. Inputs text
-// to the parser, runs the parser, and then outputs the parser result.
-export default function parse(text) {
-    return parser.input(text).run();
-}
