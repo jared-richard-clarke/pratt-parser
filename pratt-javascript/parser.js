@@ -6,8 +6,8 @@ import encoders from "./modules/big-math/encoders.js";
 // parse(string) -> [string, null] | [null, [token]]
 //     where token = { type, value, message, column, length }
 //
-// Both scans, parses, and evaluates a string as an arithmetic expression.
-// Instead of weaving an abstract syntax tree, "parse" evaluates the expression directly.
+// Scans, parses, and evaluates a string as an arithmetic expression.
+// "parse" does not build an abstract syntax tree. Instead it evaluates the expression as it parses.
 // Returns a two part array — "[string, null]" if successful, "[null, [token]]" if unsuccessful.
 // "string" is an evaluated arithmetic expression, and "[token]" is an array of error tokens
 // both locating and describing errors within the input string.
@@ -300,7 +300,7 @@ export const parse = (function () {
         // Transform text into tokens and set internal state.
         const tokens = scan(text);
         state.set(tokens);
-        // Parse expression. Uses state implicitly.
+        // Parse expression.
         const [x, error] = parse_expression(0);
         if (error !== null) {
             const errors = state.flush(error);
@@ -313,6 +313,7 @@ export const parse = (function () {
             const errors = state.flush(token);
             return [null, errors];
         }
+        // Re-encode big-float object as string.
         // Use scientific notation for exceedingly large or small numbers.
         if (utils.is_exceeding(x)) {
             return [encoders.encode_scientific(x), null];
