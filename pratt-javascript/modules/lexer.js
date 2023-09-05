@@ -16,7 +16,7 @@ import utils from "./utils.js";
 // > lexer.run() -> [token]:
 //
 //   Drives the lexer, transforming a character array into a token array. Characters are one-letter
-//   strings whereas tokens are objects containing lexemes, descriptions, and positions.
+//   strings whereas tokens are objects containing lexemes, related descriptions, and positional information.
 const lexer = (function () {
     // === lexer: state ===
     // Tracks the lexer within the character array.
