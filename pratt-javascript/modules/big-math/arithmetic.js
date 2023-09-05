@@ -2,9 +2,12 @@ import constants from "./constants.js";
 import encoders from "./encoders.js";
 import utils from "./utils.js";
 
+// Negates big-float "x". Positive if negative. Negative if positive.
 function neg(x) {
     return constants.make_bigfloat(-x.coefficient, x.exponent);
 }
+
+// Truncates the fractional component of big-float "x".
 function floor(x) {
     const { coefficient, exponent } = x;
     if (exponent === 0) {
@@ -21,6 +24,9 @@ function floor(x) {
         0,
     );
 }
+
+// Adjusts the components of big-float "x" and big-float "y"
+// so that they can be added or subtracted.
 function match_terms(op) {
     return function (x, y) {
         const differential = x.exponent - y.exponent;
@@ -50,31 +56,39 @@ function match_terms(op) {
     };
 }
 
+// big-float "x" + big-float "y".
 const add = match_terms((x, y) => x + y);
+// big-float "x" - big-float "y".
 const sub = match_terms((x, y) => x - y);
 
+// big-float "x" = big-float "y".
 function eq(x, y) {
     x = encoders.normalize(x);
     y = encoders.normalize(y);
     return (x.coefficient === y.coefficient) && (x.exponent === y.exponent);
 }
+// big-float "x" >= big-float "y"
 function ge(x, y) {
     const difference = sub(x, y);
     return difference.coefficient >= constants.BIGINT_ZERO;
 }
+// big-float "x" > big-float "y"
 function gt(x, y) {
     const difference = sub(x, y);
     return difference.coefficient > constants.BIGINT_ZERO;
 }
+// big-float "x" <= big-float "y"
 function le(x, y) {
     const difference = sub(x, y);
     return difference.coefficient <= constants.BIGINT_ZERO;
 }
+// big-float "x" < big-float "y"
 function lt(x, y) {
     const difference = sub(x, y);
     return difference.coefficient < constants.BIGINT_ZERO;
 }
 
+// big-float "x" × big-float "y"
 function mul(x, y) {
     return constants.make_bigfloat(
         x.coefficient * y.coefficient,
@@ -82,6 +96,7 @@ function mul(x, y) {
     );
 }
 
+// big-float "x" ÷ big-float "y"
 // Division by zero is undefined.
 function div(x, y) {
     if (utils.is_zero(x)) {
@@ -110,7 +125,8 @@ function div(x, y) {
     return constants.make_bigfloat(coefficient, exponent);
 }
 
-// Exponentiation by squaring.
+// big-float "x" ^ big-float "y"
+// Performs exponentiation by squaring.
 function pow(x, y) {
     // Current implementation does not support non-integer exponents.
     if (encoders.normalize(y).exponent !== 0) {
