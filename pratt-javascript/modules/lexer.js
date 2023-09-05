@@ -1,25 +1,19 @@
 import constants from "./constants.js";
 import utils from "./utils.js";
 
-// === lexer ===
-// A lexer object that transforms a string into an array of token objects.
-// Errors have dedicated error tokens, so failure is impossible.
+// scan(string) -> [token]
+//     where token = { type, value, message, column, length }
 //
-// > lexer.input(string) -> lexer:
-//   Inputs a string and sets the lexer state. Transforms string into an iterable array of characters.
-//   Properties `tokens`, `end`, `start`, and `current` provide the machinery to navigate
-//   the characters array.
-//   Returns lexer object to the caller to allow method chaining.
-//
-// > lexer.run() -> [token]:
-//   Drives the lexer, transforming a character array into a token array. Characters are one-letter
-//   strings whereas tokens are objects containing lexemes, related descriptions, and positional information.
-const lexer = (function () {
+// A lexer that transforms a string into an array of tokens — objects
+// containing lexemes, related descriptions, and positional information.
+export const scan = (function () {
     // === lexer: state ===
-    // Tracks the lexer within the character array.
+    // Tracks the lexer within the string.
     //
     // > state.set(string)
-    //   Resets the lexer with new input.
+    //   Resets the lexer with new input. Transforms string into
+    //   an iterable array of characters. Uses spread syntax to
+    //   avoid direct indexing into a UTF-16 encoded string.
     //
     // > state.lexeme() -> string
     //   Returns a lexeme by slicing into the characters array.
@@ -306,29 +300,17 @@ const lexer = (function () {
         }
     }
 
-    // === lexer: public methods ===
-    const methods = Object.create(null);
-
-    methods.input = function (text) {
+    // === lexer ===
+    return function (text) {
+        // Set the internal state of the lexer.
         state.set(text);
-        return methods;
-    };
-    methods.run = function () {
+        // Run the lexer until all input is consumed.
         while (!state.consumed()) {
             scan_token();
         }
+        // Append "eof" token. Flags the end of the input.
         state.add_token(constants.EOF, null, "", state.end() + 1, 0);
+        // Return array of tokens.
         return state.tokens();
     };
-    return Object.freeze(methods);
 })();
-
-// === scan ===
-// scan(string) -> [token]
-//     where token = { type, value, message, column, length }
-//
-// Wraps the lexer object in a simpler one-function API.
-// Inputs text to the lexer, runs the lexer, and returns the lexer output.
-export default function scan(text) {
-    return lexer.input(text).run();
-}
