@@ -2,24 +2,64 @@ import constants from "./constants.js";
 import utils from "./utils.js";
 
 // === lexer ===
-//
 // A lexer object that transforms a string into an array of token objects.
 // Errors have dedicated error tokens, so failure is impossible.
 //
 // > lexer.input(string) -> lexer:
-//
 //   Inputs a string and sets the lexer state. Transforms string into an iterable array of characters.
 //   Properties `tokens`, `end`, `start`, and `current` provide the machinery to navigate
-//   the character array.
+//   the characters array.
 //   Returns lexer object to the caller to allow method chaining.
 //
 // > lexer.run() -> [token]:
-//
 //   Drives the lexer, transforming a character array into a token array. Characters are one-letter
 //   strings whereas tokens are objects containing lexemes, related descriptions, and positional information.
 const lexer = (function () {
     // === lexer: state ===
     // Tracks the lexer within the character array.
+    //
+    // > state.set(string)
+    //   Resets the lexer with new input.
+    //
+    // > state.lexeme() -> string
+    //   Returns a lexeme by slicing into the characters array.
+    //
+    // > state.lexeme_start() -> number
+    //   Returns the starting position of the current potential lexeme.
+    //
+    // > state.lexeme_length() -> number
+    //   Returns the length of the current potential lexeme.
+    //
+    // > state.end() -> number
+    //   Returns the final index of the internal characters array.
+    //
+    // > state.add_token(token)
+    //   Appends a new token to the internal tokens array.
+    //
+    // > state.consumed() -> boolean
+    //   Checks if the lexer has consumed all its input.
+    //
+    // > state.next() -> character
+    //   Moves the lexer to the next character within the characters array.
+    //   Returns the character to the caller for potential processing.
+    //
+    // > state.reset()
+    //   Moves the lexer to the start of the next potential lexeme.
+    //
+    // > state.peek() -> string
+    //   Look ahead one character.
+    //
+    // > state.peek_next() -> string
+    //   Look ahead two characters.
+    //
+    // > state.peek_after_next() -> string
+    //   Look ahead three characters.
+    //
+    // > state.skip_whitespace()
+    //   Skips whitespace characters while moving the lexer forward.
+    //
+    // > state.tokens() -> [tokens]
+    //   Returns the internal tokens array to the caller.
     const state = (function () {
         const internal = {
             characters: [],
@@ -28,7 +68,6 @@ const lexer = (function () {
             start: 0,
             current: 0,
         };
-        // Resets the lexer with its next input.
         function set(text) {
             const spread = [...text];
             internal.characters = spread;
@@ -37,43 +76,37 @@ const lexer = (function () {
             internal.start = 0;
             internal.current = 0;
         }
-        // Returns a lexeme from the characters array.
         function lexeme() {
             return internal.characters
                 .slice(internal.start, internal.current)
                 .join("");
         }
-        // Returns the starting position of a lexeme.
         function lexeme_start() {
             return internal.start;
         }
-        // Returns the length of a lexeme.
         function lexeme_length() {
             return internal.current - internal.start;
         }
-        // Returns the end position of the characters array.
         function end() {
             return internal.end;
         }
-        // Appends a new token to the tokens array.
         function add_token(type, value, message, column, length) {
             internal.tokens.push({ type, value, message, column, length });
         }
-        // Checks if the lexer has consumed its input.
         function consumed() {
             return internal.current > internal.end;
         }
-        // Moves the lexer to the next character within the characters array.
         function next() {
             const current = internal.current;
             internal.current += 1;
             return internal.characters[current];
         }
-        // Move the lexer to the start of the next potential lexeme.
         function reset() {
             internal.start = internal.current;
         }
-        // Look ahead to the next character without consuming it.
+
+        // Factory function produces methods that look ahead by a set number
+        // of characters into the character array without the lexer consuming them.
         function look_ahead(x) {
             x -= 1;
             return function () {
@@ -84,20 +117,15 @@ const lexer = (function () {
                 return internal.characters[index];
             };
         }
-        // Look ahead by one character.
         const peek = look_ahead(1);
-        // Look ahead by two characters.
         const peek_next = look_ahead(2);
-        // Look ahead by three characters.
         const peek_after_next = look_ahead(3);
 
-        // Skips whitespace characters while moving the lexer forward.
         function skip_whitespace() {
             while (utils.is_space(peek())) {
                 internal.current += 1;
             }
         }
-        // Returns the tokens array to the caller.
         function tokens() {
             return internal.tokens;
         }
@@ -296,6 +324,9 @@ const lexer = (function () {
 })();
 
 // === scan ===
+// scan(string) -> [token]
+//     where token = { type, value, message, column, length }
+//
 // Wraps the lexer object in a simpler one-function API.
 // Inputs text to the lexer, runs the lexer, and returns the lexer output.
 export default function scan(text) {
