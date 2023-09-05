@@ -6,21 +6,41 @@ import encoders from "./modules/big-math/encoders.js";
 // === parser ===
 // A parser object that both scans, parses, and evaluates strings as arithmetic expressions.
 //
-// > parser.input(string) -> parser:
-//
+// > parser.input(string) -> parser
 //   Inputs a string and sets the parser state. Transforms string into an iterable array of tokens.
-//   Related properties `length`, `index`, and `end` provide the machinery to navigate the token array.
+//   Related properties "length", "index", and "end" provide the machinery to navigate the token array.
 //   Returns parser object to the caller to allow method chaining.
 //
-// > parser.run() -> [string, [token]]:
-//
-//   Iterates through the token array. Instead of weaving a syntax tree, `parser.run` evaluates
-//   the nodes of the tree as it parses. Returns a two part array — `[string, null]` if succeeding,
-//   `[null, [token]]` if failing. `string` is an evaluated arithmetic expression, and `[token]`
+// > parser.run() -> [string, null] | [null, [token]]
+//   Iterates through the token array. Instead of weaving a syntax tree, "parser.run" evaluates
+//   the nodes of the tree as it parses. Returns a two part array — "[string, null]" if succeeding,
+//   "[null, [token]]" if failing. "string" is an evaluated arithmetic expression, and "[token]"
 //   is an array of error tokens both locating and describing errors within the input string.
 const parser = (function () {
     // === parser: state ===
     // Tracks the parser within the token array.
+    //
+    // > state.set(string)
+    //   Resets the parser with its new input.
+    //
+    // > state.next() -> token
+    //   Moves the parser to the next token within the source array.
+    //   Returns the previous token.
+    //
+    // > state.peek() -> token.type
+    //   Returns the type of the next token without consuming the token.
+    //
+    // > state.match(string) -> boolean
+    //   Checks if the proceeding token type matches the expected token type.
+    //
+    // > state.consumed() -> boolean
+    //   Checks if the parser has consumed all its input.
+    //
+    // > state.length() -> number
+    //   Returns the length of the internal token array.
+    //
+    // > state.flush(token) -> [token] where token.type = "error"
+    //   Collects all the error tokens into a single array.
     const state = (function () {
         const tokens = {
             source: [],
@@ -28,14 +48,12 @@ const parser = (function () {
             index: 0,
             end: 0,
         };
-        // Resets the parser with its next input.
         function set(source) {
             tokens.source = source;
             tokens.length = source.length;
             tokens.index = 0;
             tokens.end = source.length - 1;
         }
-        // Moves the parser to the next token within the source array.
         function next() {
             if (tokens.index >= tokens.end) {
                 return tokens.source[tokens.end];
@@ -44,23 +62,18 @@ const parser = (function () {
             tokens.index += 1;
             return token;
         }
-        // The returns the type of the next token without consuming it.
         function peek() {
             return tokens.source[tokens.index].type;
         }
-        // Checks if the proceeding token type matches the expected token type.
         function match(expect) {
             return peek() === expect;
         }
-        // Checks if the parser has consumed all its input.
         function consumed() {
             return tokens.index >= tokens.end;
         }
-        // Returns the length of the internal token array.
         function length() {
             return tokens.length;
         }
-        // Collects all the error tokens into a single array.
         function flush(error) {
             const errors = [error];
             while (tokens.index < tokens.end) {
@@ -84,7 +97,6 @@ const parser = (function () {
     })();
 
     // === parser: internal parsers ===
-    //
     // Top down operator precedence parsing, as imagined by Vaughan Pratt,
     // combines lexical semantics with functions. Each lexeme is assigned a
     // function — its semantic code. To parse a string of lexemes is to execute
@@ -95,7 +107,7 @@ const parser = (function () {
     // 2. infix: a lexeme function with a left expression.
     //
     // This semantic code forms the parsers internal to the parser object.
-    //
+
     // The engine of Pratt's technique, "parse_expression" drives the parser,
     // calling the semantic code of each lexeme in turn from left to right.
     // For every level of precedence — dictated by binding power — there is a call
@@ -208,8 +220,16 @@ const parser = (function () {
         return [x, null];
     }
 
-    // === parser: lookup table ===
-    // "table" maps all the parsers and bindings to their associated lexemes.
+    // === parser: table ===
+    // Maps all the parsers and bindings to their associated lexemes.
+    //
+    // > table.get_parser(string) -> [parser, true] | [null, false]
+    //   If the parser exists for the associated lexeme, returns the
+    //   parser alongside boolean true. Otherwise returns null alongside
+    //   boolean false.
+    //
+    // > table.get_binding(string) -> number
+    //   Returns the binding power of the associated lexeme.
     const table = (function () {
         // === table: registry ===
         const registry = {
@@ -265,15 +285,10 @@ const parser = (function () {
         register(60, constants.ERROR, parse_unary_error);
         register_binary(60, [constants.ERROR], parse_binary_error);
 
-        // === table: public methods ===
-        // If the parser exists for the associated lexeme, returns the
-        // parser alongside boolean true. Otherwise returns null alongside
-        // boolean false.
         function get_parser(category, type) {
             const parser = registry[category][type];
             return parser === undefined ? [null, false] : [parser, true];
         }
-        // Returns the binding power of the associated lexeme.
         function get_binding(category, type) {
             return registry[category][type];
         }
@@ -316,7 +331,9 @@ const parser = (function () {
     return Object.freeze(methods);
 })();
 
-// === parse ===
+// parse(string) -> [string, null] | [null, [token]]
+//     where token = { type, value, message, column, length }
+//
 // Wraps the parser object in a simpler one-function API. Inputs text
 // to the parser, runs the parser, and then outputs the parser result.
 export default function parse(text) {
