@@ -1,8 +1,8 @@
 import constants from "./constants.js";
 import utils from "./utils.js";
 
-// Adjust the coefficient and exponent so that the absolute value
-// of the big-float object is at least 1 but less than 10.
+// Adjust big-float object until its exponent is as close as possible to 0.
+// Allows simpler comparisons and conversions.
 function normalize(x) {
     let { coefficient, exponent } = x;
     if (exponent > 0) {
