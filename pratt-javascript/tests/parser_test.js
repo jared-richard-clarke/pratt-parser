@@ -1,5 +1,5 @@
 import { assertSnapshot } from "https://deno.land/std@0.199.0/testing/snapshot.ts";
-import parse from "../parser.js";
+import { parse } from "../parser.js";
 
 // Snapshots to quickly catch unexpected changes to parser output.
 
