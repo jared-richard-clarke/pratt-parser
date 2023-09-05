@@ -3,8 +3,24 @@ import scan from "./modules/lexer.js";
 import utils from "./modules/utils.js";
 import encoders from "./modules/big-math/encoders.js";
 
+// === parser ===
+// A parser object that both scans, parses, and evaluates strings as arithmetic expressions.
+//
+// > parser.input(string) -> parser:
+//
+//   Inputs a string and sets the parser state. Transforms string into an iterable array of tokens.
+//   Related properties `length`, `index`, and `end` provide the machinery to navigate the token array.
+//   Returns parser object to the caller to allow method chaining.
+//
+// > parser.run() -> [string, [token]]:
+//
+//   Iterates through the token array. Instead of weaving a syntax tree, `parser.run` evaluates
+//   the nodes of the tree as it parses. Returns a two part array — `[string, null]` if succeeding,
+//   `[null, [token]]` if failing. `string` is an evaluated arithmetic expression, and `[token]`
+//   is an array of error tokens both locating and describing errors within the input string.
 const parser = (function () {
     // === parser: state ===
+    // Tracks the parser within the token array.
     const state = (function () {
         const tokens = {
             source: [],
@@ -12,14 +28,14 @@ const parser = (function () {
             index: 0,
             end: 0,
         };
-
+        // Resets the parser with its next input.
         function set(source) {
             tokens.source = source;
             tokens.length = source.length;
             tokens.index = 0;
             tokens.end = source.length - 1;
         }
-
+        // Moves the parser to the next token within the source array.
         function next() {
             if (tokens.index >= tokens.end) {
                 return tokens.source[tokens.end];
@@ -28,22 +44,23 @@ const parser = (function () {
             tokens.index += 1;
             return token;
         }
-
+        // The returns the type of the next token without consuming it.
         function peek() {
             return tokens.source[tokens.index].type;
         }
-
+        // Checks if the proceeding token type matches the expected token type.
         function match(expect) {
             return peek() === expect;
         }
-
+        // Checks if the parser has consumed all its input.
         function consumed() {
             return tokens.index >= tokens.end;
         }
+        // Returns the length of the internal token array.
         function length() {
             return tokens.length;
         }
-
+        // Collects all the error tokens into a single array.
         function flush(error) {
             const errors = [error];
             while (tokens.index < tokens.end) {
@@ -66,7 +83,25 @@ const parser = (function () {
         });
     })();
 
-    // === parser: private methods ===
+    // === parser: internal parsers ===
+    //
+    // Top down operator precedence parsing, as imagined by Vaughan Pratt,
+    // combines lexical semantics with functions. Each lexeme is assigned a
+    // function — its semantic code. To parse a string of lexemes is to execute
+    // the semantic code of each lexeme in turn from left to right.
+    //
+    // There are two types of semantic code:
+    // 1. prefix: a lexeme function without a left expression.
+    // 2. infix: a lexeme function with a left expression.
+    //
+    // This semantic code forms the parsers internal to the parser object.
+    //
+    // The engine of Pratt's technique, "parse_expression" drives the parser,
+    // calling the semantic code of each lexeme in turn from left to right.
+    // For every level of precedence — dictated by binding power — there is a call
+    // to "parse_expression" either through the "prefix" parser or "infix" parser
+    // of the associated lexeme. The resolution of "parse_expression" is to return
+    // either an evaluated expression or an array of error tokens.
     function parse_expression(rbp) {
         const token = state.next();
         const [prefix, ok] = table.get_parser("prefix", token.type);
@@ -93,6 +128,8 @@ const parser = (function () {
         return [x, null];
     }
 
+    // The "eof" token marks the end of a token array. Calling code
+    // on this token means an error. "parse_eof" resolves these errors.
     function parse_eof(token) {
         if (state.length() === 1) {
             // If the expression is empty, then the error spans it.
@@ -105,19 +142,23 @@ const parser = (function () {
         return [null, token];
     }
 
+    // Resolves any error token called in a prefix position.
     function parse_unary_error(token) {
         return [null, token];
     }
+    // Resolves any error token called in an infix position.
     function parse_binary_error(x, token) {
         x = null;
         return [x, token];
     }
-
+    // Parses number expressions. Transforms string value into
+    // a big float object for evaluation.
     function parse_number(token) {
         const number = encoders.decode(token.value);
         return [number, null];
     }
-
+    // Parses unary expressions. Parses expression, and, if successful,
+    // calls the associated unary operation on that expression.
     function parse_unary(token) {
         const bind = table.get_binding("prebind", token.type);
         const [x, error] = parse_expression(bind);
@@ -128,6 +169,9 @@ const parser = (function () {
         return [operation(x), null];
     }
 
+    // Parses binary expressions. Takes a left expression and parses
+    // right expression, and, if successful, calls the associated
+    // binary operation on both the right and left expressions.
     function parse_binary(left) {
         return function (x, token) {
             const bind = table.get_binding("bind", token.type);
@@ -144,9 +188,13 @@ const parser = (function () {
             return [value, null];
         };
     }
+    // Parses binary expressions that associate left.
     const parse_left = parse_binary(true);
+    // Parses binary expressions that associate right.
     const parse_right = parse_binary(false);
 
+    // Parses expressions grouped within parentheses. If an expression is parsed successfully,
+    // following an open parenthesis, "parse_grouping" checks for a matching closed parenthesis.
     function parse_grouping(token) {
         const [x, error] = parse_expression(0);
         if (error !== null) {
@@ -161,6 +209,7 @@ const parser = (function () {
     }
 
     // === parser: lookup table ===
+    // "table" maps all the parsers and bindings to their associated lexemes.
     const table = (function () {
         // === table: registry ===
         const registry = {
@@ -169,26 +218,25 @@ const parser = (function () {
             bind: {},
             prebind: {},
         };
-
+        // Helper functions map the parsers and bindings to their associated lexemes
+        // within the lookup table's internal registry.
         function register(bind, type, parser) {
             registry.prefix[type] = parser;
             registry.bind[type] = bind;
         }
-
         function register_unary(bind, types, parser) {
             types.forEach((type) => {
                 registry.prefix[type] = parser;
                 registry.prebind[type] = bind;
             });
         }
-
         function register_binary(bind, types, parser) {
             types.forEach((type) => {
                 registry.infix[type] = parser;
                 registry.bind[type] = bind;
             });
         }
-
+        // Building the lookup table.
         register(0, constants.EOF, parse_eof);
         register(0, constants.NUMBER, parse_number);
         register(0, constants.OPEN_PAREN, parse_grouping);
@@ -218,11 +266,14 @@ const parser = (function () {
         register_binary(60, [constants.ERROR], parse_binary_error);
 
         // === table: public methods ===
+        // If the parser exists for the associated lexeme, returns the
+        // parser alongside boolean true. Otherwise returns null alongside
+        // boolean false.
         function get_parser(category, type) {
             const parser = registry[category][type];
             return parser === undefined ? [null, false] : [parser, true];
         }
-
+        // Returns the binding power of the associated lexeme.
         function get_binding(category, type) {
             return registry[category][type];
         }
@@ -265,6 +316,9 @@ const parser = (function () {
     return Object.freeze(methods);
 })();
 
+// === parse ===
+// Wraps the parser object in a simpler one-function API. Inputs text
+// to the parser, runs the parser, and then outputs the parser result.
 export default function parse(text) {
     return parser.input(text).run();
 }
