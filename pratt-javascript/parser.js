@@ -322,10 +322,8 @@ export const parse = (function () {
     };
 })();
 
-// format(parser, string) -> [string, null] | [null, string]
-// Applies parser to string, formats the result, and returns it in a two-part array.
-// If successful, the first value is the formatted result, and the second value is null.
-// If unsuccessful, the first value is null, and the second value is the formatted error.
+// format(parser, string) -> string
+// Applies parser to a string and formats the result.
 export function format(parser, text) {
     const [success, errors] = parser(text);
     if (success !== null) {
@@ -342,8 +340,9 @@ export function format(parser, text) {
         .map((error, index, array) => {
             let offset = 0;
             const column = error.column;
-            if (index >= 1) {
-                offset = array[index - 1].column;
+            if (index > 0) {
+                const prev = array[index - 1];
+                offset = prev.column + prev.length;
             }
             return space.repeat(column - offset) + caret;
         })
