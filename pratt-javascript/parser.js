@@ -321,3 +321,34 @@ export const parse = (function () {
         return [encoders.encode(x), null];
     };
 })();
+
+// format(parser, string) -> string
+// Applies parser to string then returns a formatted string of the parsed result.
+export function format(parser, text) {
+    const [success, errors] = parser(text);
+    if (success !== null) {
+        return success;
+    }
+
+    const space = constants.WHITE_SPACE;
+    const linefeed = constants.LINEFEED;
+    const period = "." + space;
+    const caret = "^";
+    const expression = text.replace(/\s/g, space) + linefeed;
+
+    const arrows = errors
+        .map((error) => {
+            const column = (error.column === 0 || error.column === 1)
+                ? error.column
+                : error.column - 1;
+            return space.repeat(column) + caret;
+        })
+        .join("") + linefeed;
+    const messages = errors
+        .map((error, index) => {
+            const count = String(index + 1) + period;
+            return count + error.message;
+        })
+        .join("") + linefeed;
+    return expression + arrows + messages;
+}
