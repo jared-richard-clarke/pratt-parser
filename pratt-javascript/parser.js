@@ -322,8 +322,10 @@ export const parse = (function () {
     };
 })();
 
-// format(parser, string) -> string
-// Applies parser to string then returns a formatted string of the parsed result.
+// format(parser, string) -> [string, null] | [null, string]
+// Applies parser to string, formats the result, and returns it in a two-part array.
+// If successful, the first value is the formatted result, and the second value is null.
+// If unsuccessful, the first value is null, and the second value is the formatted error.
 export function format(parser, text) {
     const [success, errors] = parser(text);
     if (success !== null) {
@@ -337,13 +339,16 @@ export function format(parser, text) {
     const expression = text.replace(/\s/g, space) + linefeed;
 
     const arrows = errors
-        .map((error) => {
-            const column = (error.column === 0 || error.column === 1)
-                ? error.column
-                : error.column - 1;
-            return space.repeat(column) + caret;
+        .map((error, index, array) => {
+            let offset = 0;
+            const column = error.column;
+            if (index >= 1) {
+                offset = array[index - 1].column;
+            }
+            return space.repeat(column - offset) + caret;
         })
         .join("") + linefeed;
+
     const messages = errors
         .map((error, index) => {
             const count = String(index + 1) + period;
