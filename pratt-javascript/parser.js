@@ -323,7 +323,7 @@ export const parse = (function () {
 })();
 
 // format(parser, string) -> string
-// Applies parser to a string and formats the result.
+// Applies parser to a string and formats result.
 export function format(parser, text) {
     const [success, errors] = parser(text);
     if (success !== null) {
