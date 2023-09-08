@@ -152,25 +152,25 @@ export const scan = (function () {
         } else if (utils.is_operator(char)) {
             state.add_token(char, null, "", state.lexeme_start(), 1);
             return;
-        } else if (utils.is_paren(char)) {
+        } else if (utils.is_close_paren(char)) {
             state.add_token(char, null, "", state.lexeme_start(), 1);
             // Check for implied multiplication: (7+11)(11+7), or (7+11)7
-            if (utils.is_close_paren(char)) {
-                state.skip_whitespace();
-                const next_char = state.peek();
-                if (
-                    utils.is_digit(next_char) ||
-                    utils.is_open_paren(next_char)
-                ) {
-                    state.add_token(
-                        constants.IMPLIED_MULTIPLY,
-                        null,
-                        "",
-                        null,
-                        0,
-                    );
-                }
+            state.skip_whitespace();
+            const next_char = state.peek();
+            if (
+                utils.is_digit(next_char) ||
+                utils.is_open_paren(next_char)
+            ) {
+                state.add_token(
+                    constants.IMPLIED_MULTIPLY,
+                    null,
+                    "",
+                    null,
+                    0,
+                );
             }
+        } else if (utils.is_open_paren(char)) {
+            state.add_token(char, null, "", state.lexeme_start(), 1);
             // Check for empty parentheses: ().
             state.skip_whitespace();
             if (utils.is_close_paren(state.peek())) {
@@ -182,7 +182,6 @@ export const scan = (function () {
                     state.lexeme_length(),
                 );
             }
-            return;
         } else if (utils.is_digit(char)) {
             // Check for leading zero error: 07 + 11
             if (utils.is_zero(char) && utils.is_digit(state.peek())) {
