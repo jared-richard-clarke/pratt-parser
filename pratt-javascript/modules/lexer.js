@@ -257,11 +257,15 @@ export const scan = (function () {
                 state.next();
             }
             const lexeme = state.lexeme();
-            // Check for NaN: not a number.
-            if (utils.is_nan(lexeme)) {
+            // Check for NaN, undefined, or Infinity.
+            if (
+                utils.is_nan(lexeme) ||
+                utils.is_undefined(lexeme) ||
+                utils.is_infinity(lexeme)
+            ) {
                 state.add_token(
                     constants.ERROR,
-                    constants.NAN,
+                    lexeme,
                     constants.NOT_NUMBER,
                     state.lexeme_start(),
                     state.lexeme_length(),
