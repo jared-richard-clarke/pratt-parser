@@ -252,7 +252,6 @@ export const scan = (function () {
             );
             return;
         } else if (utils.is_ascii_letter(char)) {
-            state.next();
             while (utils.is_ascii_letter(state.peek())) {
                 state.next();
             }
