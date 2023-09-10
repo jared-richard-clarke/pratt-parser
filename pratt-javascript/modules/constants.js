@@ -13,6 +13,8 @@ export default Object.freeze({
     UPPER_E: "E",
     LOWER_E: "e",
     NAN: "NaN",
+    UNDEFINED: "undefined",
+    INFINITY: "Infinity",
     // === end-of-input flag ===
     EOF: "eof",
     // === digits ===
