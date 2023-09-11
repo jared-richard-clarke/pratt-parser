@@ -309,7 +309,7 @@ export const parse = (function () {
         // Check for unused tokens.
         if (!state.consumed()) {
             const token = state.next();
-            if (utils.is_close_paren(token.type)) {
+            if (token.type === constants.CLOSE_PAREN) {
                 token.message += constants.MISMATCHED_PAREN;
             } else {
                 token.message += constants.INCOMPLETE_EXPRESSION;
