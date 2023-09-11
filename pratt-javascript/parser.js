@@ -271,13 +271,13 @@ export const parse = (function () {
             ],
             parse_left,
         );
-        register_binary(30, [constants.EXPONENT], parse_right);
-        register_binary(40, [constants.IMPLIED_MULTIPLY], parse_left);
+        register_binary(30, [constants.IMPLIED_MULTIPLY], parse_left);
         register_unary(
-            50,
+            40,
             [constants.ADD, constants.SUBTRACT, constants.SUBTRACT_ALT],
             parse_unary,
         );
+        register_binary(50, [constants.EXPONENT], parse_right);
         register(60, constants.ERROR, parse_unary_error);
         register_binary(60, [constants.ERROR], parse_binary_error);
 
