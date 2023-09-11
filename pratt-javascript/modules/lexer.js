@@ -152,14 +152,14 @@ export const scan = (function () {
         } else if (utils.is_operator(char)) {
             state.add_token(char, null, "", state.lexeme_start(), 1);
             return;
-        } else if (utils.is_close_paren(char)) {
+        } else if (char === constants.CLOSE_PAREN) {
             state.add_token(char, null, "", state.lexeme_start(), 1);
             // Check for implied multiplication: (7+11)(11+7), or (7+11)7
             state.skip_whitespace();
             const next_char = state.peek();
             if (
                 utils.is_digit(next_char) ||
-                utils.is_open_paren(next_char)
+                (next_char === constants.OPEN_PAREN)
             ) {
                 state.add_token(
                     constants.IMPLIED_MULTIPLY,
@@ -169,11 +169,11 @@ export const scan = (function () {
                     0,
                 );
             }
-        } else if (utils.is_open_paren(char)) {
+        } else if (char === constants.OPEN_PAREN) {
             state.add_token(char, null, "", state.lexeme_start(), 1);
             // Check for empty parentheses: ().
             state.skip_whitespace();
-            if (utils.is_close_paren(state.peek())) {
+            if (state.peek() === constants.CLOSE_PAREN) {
                 state.add_token(
                     constants.ERROR,
                     null,
@@ -184,7 +184,7 @@ export const scan = (function () {
             }
         } else if (utils.is_digit(char)) {
             // Check for leading zero error: 07 + 11
-            if (utils.is_zero(char) && utils.is_digit(state.peek())) {
+            if ((char === constants.ZERO) && utils.is_digit(state.peek())) {
                 state.add_token(
                     constants.ERROR,
                     constants.ZERO,
@@ -198,7 +198,7 @@ export const scan = (function () {
                 state.next();
             }
             if (
-                utils.is_decimal(state.peek()) &&
+                (state.peek() === constants.DECIMAL_POINT) &&
                 utils.is_digit(state.peek_next())
             ) {
                 state.next();
@@ -237,11 +237,11 @@ export const scan = (function () {
             );
             // Check for implied multiplication: 7(1 + 2)
             state.skip_whitespace();
-            if (utils.is_open_paren(state.peek())) {
+            if (state.peek() === constants.OPEN_PAREN) {
                 state.add_token(constants.IMPLIED_MULTIPLY, null, "", null, 0);
             }
             return;
-        } else if (utils.is_decimal(char)) {
+        } else if (char === constants.DECIMAL_POINT) {
             // Check for misplaced decimal point.
             state.add_token(
                 constants.ERROR,
@@ -258,9 +258,9 @@ export const scan = (function () {
             const lexeme = state.lexeme();
             // Check for NaN, undefined, or Infinity.
             if (
-                utils.is_nan(lexeme) ||
-                utils.is_undefined(lexeme) ||
-                utils.is_infinity(lexeme)
+                (lexeme === constants.NAN) ||
+                (lexeme === constants.UNDEFINED) ||
+                (lexeme === constants.INFINITY)
             ) {
                 state.add_token(
                     constants.ERROR,
