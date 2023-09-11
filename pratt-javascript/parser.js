@@ -340,7 +340,7 @@ export function format(parser, text) {
     const caret = "^";
     const expression = text.replace(/\s/g, space) + linefeed;
 
-    let arrows = errors
+    const locators = errors
         .map((error, index, array) => {
             let offset = 0;
             const column = error.column;
@@ -349,16 +349,14 @@ export function format(parser, text) {
                 offset = prev.column + prev.length;
             }
             return space.repeat(column - offset) + caret;
-        });
-    arrows.push(linefeed);
-    arrows = arrows.join("");
+        })
+        .join("") + linefeed;
 
-    let messages = errors
+    const messages = errors
         .map((error, index) => {
             const count = String(index + 1) + period;
             return count + error.message;
-        });
-    messages.push(linefeed);
-    messages = messages.join("");
-    return expression + arrows + messages;
+        })
+        .join("") + linefeed;
+    return expression + locators + messages;
 }
