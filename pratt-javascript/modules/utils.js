@@ -66,22 +66,6 @@ const is_space = (function () {
     };
 })();
 
-function is_decimal(x) {
-    return x === constants.DECIMAL_POINT;
-}
-
-function is_nan(x) {
-    return x === constants.NAN;
-}
-
-function is_open_paren(x) {
-    return x === constants.OPEN_PAREN;
-}
-
-function is_close_paren(x) {
-    return x === constants.CLOSE_PAREN;
-}
-
 const is_paren = (function () {
     const set = new Set([constants.OPEN_PAREN, constants.CLOSE_PAREN]);
     return function (x) {
@@ -103,10 +87,6 @@ const is_plus_minus = (function () {
         return set.has(x);
     };
 })();
-
-function is_zero(x) {
-    return x === constants.ZERO;
-}
 
 const is_digit = (function () {
     const set = new Set([
@@ -156,14 +136,9 @@ export default Object.freeze({
     unary_operation,
     binary_operation,
     is_space,
-    is_decimal,
-    is_nan,
-    is_open_paren,
-    is_close_paren,
     is_paren,
     is_exponent_suffix,
     is_plus_minus,
-    is_zero,
     is_digit,
     is_operator,
     is_ascii_letter,
