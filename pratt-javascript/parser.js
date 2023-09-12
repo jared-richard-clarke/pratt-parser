@@ -114,7 +114,7 @@ export const parse = (function () {
         const token = state.next();
         const [prefix, ok] = table.get_parser("prefix", token.type);
         if (!ok) {
-            token.message += constants.NO_PREFIX;
+            token.message += constants.NOT_PREFIX;
             return [null, token];
         }
         let [x, error] = prefix(token);
@@ -125,7 +125,7 @@ export const parse = (function () {
             const token = state.next();
             const [infix, ok] = table.get_parser("infix", token.type);
             if (!ok) {
-                token.message += constants.NO_INFIX;
+                token.message += constants.NOT_INFIX;
                 return [null, token];
             }
             [x, error] = infix(x, token);
