@@ -46,7 +46,7 @@ export default Object.freeze({
     ERROR: "error",
     // === errors ===
     // Right padding added for formatting.
-    UNKNOWN: "Undefined symbol. ",
+    UNKNOWN: "Unknown identifier. ",
     LEADING_ZERO: "Leading zero. ",
     MISPLACED_DECIMAL: "Misplaced decimal. ",
     MISPLACED_EXPONENT: "Misplaced exponent suffix. ",
