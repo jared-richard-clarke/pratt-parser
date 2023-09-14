@@ -253,6 +253,8 @@ export const parse = (function () {
             });
         }
         // Building the lookup table.
+        register(0, constants.ERROR, parse_unary_error);
+        register_binary(0, [constants.ERROR], parse_binary_error);
         register(0, constants.EOF, parse_eof);
         register(0, constants.NUMBER, parse_number);
         register(0, constants.OPEN_PAREN, parse_grouping);
@@ -278,8 +280,6 @@ export const parse = (function () {
             parse_unary,
         );
         register_binary(50, [constants.EXPONENT], parse_right);
-        register(60, constants.ERROR, parse_unary_error);
-        register_binary(60, [constants.ERROR], parse_binary_error);
 
         function get_parser(category, type) {
             const parser = registry[category][type];
