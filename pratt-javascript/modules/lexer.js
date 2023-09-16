@@ -63,10 +63,10 @@ export const scan = (function () {
             current: 0,     // The current character index.
         };
         function set(text) {
-            const spread = [...text];
-            internal.characters = spread;
+            const iter = [...text];
+            internal.characters = iter;
             internal.tokens = [];
-            internal.end = spread.length - 1;
+            internal.end = iter.length - 1;
             internal.start = 0;
             internal.current = 0;
         }
