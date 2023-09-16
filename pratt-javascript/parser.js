@@ -158,15 +158,6 @@ export const parse = (function () {
         return [null, token];
     }
 
-    // Resolves any error token called in a prefix position.
-    function parse_unary_error(token) {
-        return [null, token];
-    }
-    // Resolves any error token called in an infix position.
-    function parse_binary_error(x, token) {
-        x = null;
-        return [x, token];
-    }
     // Parses number expressions. Transforms string value into
     // a big float object for evaluation.
     function parse_number(token) {
@@ -252,8 +243,8 @@ export const parse = (function () {
             });
         }
         register(0, [constants.ERROR], {
-            prefix: parse_unary_error,
-            infix: parse_binary_error,
+            prefix: null,
+            infix: null,
         });
         register(0, [constants.EOF], {
             prefix: parse_eof,
@@ -331,10 +322,9 @@ export const parse = (function () {
             const token = state.next();
             if (token.type === constants.CLOSE_PAREN) {
                 token.message += constants.MISMATCHED_PAREN;
-            } else if (token.type === constants.NUMBER) {
+            }
+            if (token.type === constants.NUMBER) {
                 token.message += constants.MISPLACED_NUMBER;
-            } else {
-                token.message += constants.INCOMPLETE_EXPRESSION;
             }
             const errors = state.flush(token);
             return [null, errors];
