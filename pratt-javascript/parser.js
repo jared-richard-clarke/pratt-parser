@@ -262,11 +262,11 @@ export const parse = (function () {
             prefix: parse_closed_paren,
             infix: null,
         });
-        register(10, [constants.ADD], {
-            prefix: parse_unary,
-            infix: parse_left,
-        });
-        register(10, [constants.SUBTRACT, constants.SUBTRACT_ALT], {
+        register(10, [
+            constants.ADD,
+            constants.SUBTRACT,
+            constants.SUBTRACT_ALT,
+        ], {
             prefix: parse_unary,
             infix: parse_left,
         });
