@@ -56,11 +56,11 @@ export const scan = (function () {
     //   Returns the internal tokens array to the caller.
     const state = (function () {
         const internal = {
-            characters: [], // Source string as array of characters.
-            tokens: [],     // Characters converted to lexemes converted to tokens.
-            end: 0,         // Last character index.
-            start: 0,       // The start of the potential lexeme.
-            current: 0,     // The current character index.
+            characters: [],
+            tokens: [],
+            end: 0,
+            start: 0,
+            current: 0,
         };
         function set(text) {
             const iter = [...text];
