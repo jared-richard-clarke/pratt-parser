@@ -99,36 +99,36 @@ export const parse = (function () {
     // the semantic code of each lexeme in turn from left to right.
     //
     // There are two types of semantic code:
-    // 1. prefix: a lexeme function without a left expression.
-    // 2. infix: a lexeme function with a left expression.
+    // 1. nud: a lexeme function without a left expression.
+    // 2. led: a lexeme function with a left expression.
     //
     // This semantic code forms the parsers internal to "parse".
 
     // The engine of Pratt's technique, "parse_expression" drives the parser,
     // calling the semantic code of each lexeme in turn from left to right.
     // For every level of precedence — dictated by binding power — there is a call
-    // to "parse_expression" either through the "prefix" parser or "infix" parser
+    // to "parse_expression" either through the "nud" parser or "led" parser
     // of the associated lexeme. The resolution of "parse_expression" is to return
     // either an evaluated expression or an array of error tokens.
     function parse_expression(rbp) {
         const token = state.next();
-        const [prefix, ok] = table.get_parser(token.type, "prefix");
+        const [nud, ok] = table.get_parser(token.type, "nud");
         if (!ok) {
             token.message += constants.NOT_PREFIX;
             return [null, token];
         }
-        let [x, error] = prefix(token);
+        let [x, error] = nud(token);
         if (error !== null) {
             return [null, error];
         }
         while (rbp < table.get_binding(state.peek())) {
             const token = state.next();
-            const [infix, ok] = table.get_parser(token.type, "infix");
+            const [led, ok] = table.get_parser(token.type, "led");
             if (!ok) {
                 token.message += constants.NOT_INFIX;
                 return [null, token];
             }
-            [x, error] = infix(x, token);
+            [x, error] = led(x, token);
             if (error !== null) {
                 return [null, error];
             }
@@ -233,43 +233,43 @@ export const parse = (function () {
         const registry = Object.create(null);
         // Helper function maps the parsers and bindings to their associated lexemes
         // within the lookup table's internal registry.
-        function register(bind, lexemes, { prefix, infix }) {
+        function register(bind, lexemes, { nud, led }) {
             lexemes.forEach((lexeme) => {
                 registry[lexeme] = {
                     bind,
-                    prefix,
-                    infix,
+                    nud,
+                    led,
                 };
             });
         }
         register(0, [constants.ERROR], {
-            prefix: null,
-            infix: null,
+            nud: null,
+            led: null,
         });
         register(0, [constants.EOF], {
-            prefix: parse_eof,
-            infix: null,
+            nud: parse_eof,
+            led: null,
         });
         register(0, [constants.NUMBER], {
-            prefix: parse_number,
-            infix: null,
+            nud: parse_number,
+            led: null,
         });
         register(0, [constants.OPEN_PAREN], {
-            prefix: parse_grouping,
-            infix: null,
+            nud: parse_grouping,
+            led: null,
         });
         register(0, [constants.CLOSE_PAREN], {
-            prefix: parse_closed_paren,
-            infix: null,
+            nud: parse_closed_paren,
+            led: null,
         });
-        register(10, [
-            constants.ADD,
-            constants.SUBTRACT,
-            constants.SUBTRACT_ALT,
-        ], {
-            prefix: parse_unary,
-            infix: parse_left,
-        });
+        register(
+            10,
+            [constants.ADD, constants.SUBTRACT, constants.SUBTRACT_ALT],
+            {
+                nud: parse_unary,
+                led: parse_left,
+            },
+        );
         register(
             20,
             [
@@ -278,20 +278,20 @@ export const parse = (function () {
                 constants.DIVIDE,
                 constants.DIVIDE_ALT,
             ],
-            { prefix: null, infix: parse_left },
+            { nud: null, led: parse_left },
         );
         register(30, [constants.IMPLIED_MULTIPLY], {
-            prefix: null,
-            infix: parse_left,
+            nud: null,
+            led: parse_left,
         });
         register(40, [constants.EXPONENT], {
-            prefix: null,
-            infix: parse_right,
+            nud: null,
+            led: parse_right,
         });
 
         function get_parser(lexeme, type) {
             const parser = registry[lexeme][type];
-            return (parser === null || parser === undefined)
+            return parser === null || parser === undefined
                 ? [null, false]
                 : [parser, true];
         }
