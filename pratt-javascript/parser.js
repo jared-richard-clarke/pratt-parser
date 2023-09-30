@@ -106,10 +106,10 @@ export const parse = (function () {
 
     // The engine of Pratt's technique, "parse_expression" drives the parser,
     // calling the semantic code of each lexeme in turn from left to right.
-    // For every level of precedence — dictated by binding power — there is a call
-    // to "parse_expression" either through the "nud" parser or "led" parser
+    // For every level of precedence — dictated by position and binding power —
+    // there is a call to "parse_expression" either through the "nud" or "led" parser
     // of the associated lexeme. The resolution of "parse_expression" is to return
-    // either an evaluated expression or an array of error tokens.
+    // either an evaluated expression or an error token.
     function parse_expression(rbp) {
         const token = state.next();
         const [nud, ok] = table.get_parser(token.type, "nud");
