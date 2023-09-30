@@ -171,17 +171,6 @@ export const scan = (function () {
             }
         } else if (char === constants.OPEN_PAREN) {
             state.add_token(char, null, "", state.lexeme_start(), 1);
-            // Check for empty parentheses: ().
-            state.skip_whitespace();
-            if (state.peek() === constants.CLOSE_PAREN) {
-                state.add_token(
-                    constants.ERROR,
-                    null,
-                    constants.EMPTY_PARENS,
-                    state.lexeme_start(),
-                    state.lexeme_length(),
-                );
-            }
         } else if (utils.is_digit(char)) {
             // Check for leading zero error: 07 + 11
             if ((char === constants.ZERO) && utils.is_digit(state.peek())) {
