@@ -203,6 +203,11 @@ export const parse = (function () {
     // Parses expressions grouped within parentheses. If an expression is parsed successfully,
     // following an open parenthesis, "parse_grouping" checks for a matching closed parenthesis.
     function parse_grouping(token) {
+        // Check for empty parenthetical grouping.
+        if (state.match(constants.CLOSE_PAREN)) {
+            token.message += constants.EMPTY_PARENS;
+            return [null, token];
+        }
         const [x, error] = parse_expression(0);
         if (error !== null) {
             return [null, error];
