@@ -1,7 +1,7 @@
 # Pratt Parser
 
-Contained within in this repository are two experimental, top-down operator precedence parsers based
-on ideas pioneered by computer scientist Vaughan R. Pratt. One is implemented in Go, the other in JavaScript.
+Contained within in this repository are two experimental, **top-down operator precedence** parsers based
+on ideas pioneered by computer scientist **Vaughan R. Pratt**. One is implemented in **Go**, the other in **JavaScript**.
 
 ## JavaScript Implementation
 
