@@ -59,36 +59,38 @@ type scanner struct {
 	tokens []Token // Array slice of accumulating tokens.
 	length int     // Number of bytes in the source string.
 
-	offset int // Total string offset. Counts bytes.
-	start  int // Start of a lexeme within source string. Counts bytes.
-	line   int // Counts newlines ('\n').
-	column int // Tracks the start of a lexeme within a newline. Counts runes.
+	byteOffset int // Total string offset. Counts bytes.
+	byteStart  int // Start of a lexeme within source string. Counts bytes.
+	runeOffset int // Tracks the offset of a lexeme within a newline. Counts runes.
+	runeStart  int // Tracks the start of a lexeme within a newline. Counts runes.
+	line       int // Counts newlines ('\n').
 }
 
 func (sc *scanner) end() bool {
-	return sc.offset >= sc.length
+	return sc.byteOffset >= sc.length
 }
 
 // Skips whitespace: '\t', '\n', '\v', '\f', '\r', ' ', U+0085 (NEL), U+00A0 (NBSP).
 func (sc *scanner) skip() {
 	for {
-		r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
+		r, w := utf8.DecodeRuneInString(sc.source[sc.byteOffset:])
 		if !unicode.IsSpace(r) {
 			break
 		}
-		sc.column += 1
-		sc.offset += w
+		sc.runeOffset += 1
+		sc.byteOffset += w
 		if r == newline {
 			sc.line += 1
-			sc.column = 0
+			sc.runeOffset = 0
+			sc.runeStart = 0
 		}
 	}
 }
 
 func (sc *scanner) next() rune {
-	r, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
-	sc.column += 1
-	sc.offset += w
+	r, w := utf8.DecodeRuneInString(sc.source[sc.byteOffset:])
+	sc.runeOffset += 1
+	sc.byteOffset += w
 	return r
 }
 
@@ -96,13 +98,13 @@ func (sc *scanner) peek() rune {
 	if sc.end() {
 		return eof
 	}
-	r, _ := utf8.DecodeRuneInString(sc.source[sc.offset:])
+	r, _ := utf8.DecodeRuneInString(sc.source[sc.byteOffset:])
 	return r
 }
 
 func (sc *scanner) peekNext() rune {
-	_, w := utf8.DecodeRuneInString(sc.source[sc.offset:])
-	offset := sc.offset + w
+	_, w := utf8.DecodeRuneInString(sc.source[sc.byteOffset:])
+	offset := sc.byteOffset + w
 	if offset >= sc.length {
 		return eof
 	}
@@ -111,22 +113,11 @@ func (sc *scanner) peekNext() rune {
 }
 
 func (sc *scanner) addToken(t LexType, v string) {
-	runeCount := utf8.RuneCountInString(sc.source[sc.start:sc.offset])
-	lexOffset := 0
-	// Center column on character representation of rune.
-	// [ w, o, r, d ] not [ w, o, r, d ]
-	//   ^                 ^
-	if runeCount > 1 {
-		lexOffset = runeCount - 1
-	}
-	// Ensure column count begins at start of lexeme.
-	column := sc.column - lexOffset
-
 	sc.tokens = append(sc.tokens, Token{
 		Typeof: t,
 		Value:  v,
 		Line:   sc.line,
-		Column: column,
+		Column: sc.runeStart,
 	})
 }
 
@@ -137,7 +128,8 @@ func (sc *scanner) scanToken() error {
 	case r == whiteSpace, r == carriageReturn, r == tab:
 		return nil
 	case r == newline:
-		sc.column = 0
+		sc.runeOffset = 0
+		sc.runeStart = 0
 		sc.line += 1
 		return nil
 	// punctuators
@@ -188,7 +180,7 @@ func (sc *scanner) scanToken() error {
 				sc.next()
 			}
 		}
-		text := sc.source[sc.start:sc.offset]
+		text := sc.source[sc.byteStart:sc.byteOffset]
 		sc.addToken(Number, text)
 		// Check for implied multiplication: 7x or 7(7+11)
 		sc.skip()
@@ -202,29 +194,31 @@ func (sc *scanner) scanToken() error {
 		for isAlphaNumeric(sc.peek()) {
 			sc.next()
 		}
-		text := sc.source[sc.start:sc.offset]
+		text := sc.source[sc.byteStart:sc.byteOffset]
 		sc.addToken(Symbol, text)
 		return nil
 	// undefined
 	default:
 		msg := "unexpected character: %q line:%d, column:%d"
-		return fmt.Errorf(msg, r, sc.line, sc.column)
+		return fmt.Errorf(msg, r, sc.line, sc.runeStart)
 	}
 }
 
 // The Lexer API: drives the scanner.
 func Scan(t string) ([]Token, error) {
 	sc := scanner{
-		source: t,
-		tokens: make([]Token, 0),
-		length: len(t),
-		offset: 0,
-		start:  0,
-		line:   1,
-		column: 0,
+		source:     t,
+		tokens:     make([]Token, 0),
+		length:     len(t),
+		byteOffset: 0,
+		byteStart:  0,
+		runeOffset: 1,
+		runeStart:  1,
+		line:       1,
 	}
 	for !sc.end() {
-		sc.start = sc.offset
+		sc.byteStart = sc.byteOffset
+		sc.runeStart = sc.runeOffset
 		if err := sc.scanToken(); err != nil {
 			return nil, err
 		}
@@ -232,7 +226,7 @@ func Scan(t string) ([]Token, error) {
 	sc.tokens = append(sc.tokens, Token{
 		Typeof: EOF,
 		Line:   sc.line,
-		Column: sc.column + 1,
+		Column: sc.runeOffset,
 	})
 	return sc.tokens, nil
 }
