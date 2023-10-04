@@ -46,7 +46,7 @@ the AST into a formatted string.
 func main() {
     text := "sum(7, 11x)"
     node, _ := parser.Parse(text)
-    fmt.Print(parser.PrettyPrint(&node))
+    fmt.Print(parser.Sprint(&node))
 }
 // === standard output ===
 // Call{
