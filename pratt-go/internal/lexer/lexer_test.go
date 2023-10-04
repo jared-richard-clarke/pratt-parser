@@ -61,7 +61,7 @@ func TestScan(t *testing.T) {
 
 func TestEmpty(t *testing.T) {
 	text := " \n\t"
-	expect := []Token{mkEof(2, 2)}
+	expect := []Token{mkEof(2, 1)}
 	result, _ := Scan(text)
 	compare(expect, result, t, "Empty")
 }
@@ -220,21 +220,21 @@ func TestNewlines(t *testing.T) {
 			Typeof: Number,
 			Value:  "2",
 			Line:   2,
-			Column: 10,
+			Column: 9,
 		},
 		{
 			Typeof: Mul,
 			Value:  "*",
 			Line:   2,
-			Column: 12,
+			Column: 11,
 		},
 		{
 			Typeof: Number,
 			Value:  "3",
 			Line:   3,
-			Column: 10,
+			Column: 9,
 		},
-		mkEof(3, 11),
+		mkEof(3, 10),
 	}
 	result, _ = Scan(text)
 	compare(expect, result, t, "Newlines (2)")
