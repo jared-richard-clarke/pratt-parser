@@ -25,10 +25,9 @@ type nud func(lexer.Token) (Node, error)
 type led func(Node, lexer.Token) (Node, error)
 
 type table struct {
-	nuds     map[lexer.LexType]nud // lexeme -> nud
-	leds     map[lexer.LexType]led // lexeme -> led
-	prebinds map[lexer.LexType]int // lexeme -> prefix binding power
-	binds    map[lexer.LexType]int // lexeme -> binding power
+	nud  map[lexer.LexType]nud // lexeme -> nud
+	led  map[lexer.LexType]led // lexeme -> led
+	bind map[lexer.LexType]int // lexeme -> binding power
 }
 
 type parser struct {
@@ -56,15 +55,15 @@ func (p *parser) match(expect lexer.LexType) bool {
 	return p.peek() == expect
 }
 
-// The engine of Pratt's technique, "expression" drives the parser,
+// The engine of Pratt's technique, "parseExpression" drives the parser,
 // calling the semantic code of each lexeme in turn from left to right.
-// For every level of precedence — dictated by binding power — there is a call
-// to "expression" either through the "nud" or "led" of the associated lexeme.
-// The resolution of an "expression" is to return either a branch of an
-// abstract syntax tree or an error.
-func (p *parser) expression(rbp int) (Node, error) {
+// For every level of precedence — dictated by position and binding power —
+// there is a call to "parseExpression" either through the "nud" or "led"
+// of the associated lexeme. The resolution of "parseExpression" is to
+// return either the branch of an abstract syntax tree or an error.
+func (p *parser) parseExpression(rbp int) (Node, error) {
 	token := p.next()
-	nud, ok := p.nuds[token.Typeof]
+	nud, ok := p.nud[token.Typeof]
 	if !ok {
 		msg := "undefined prefix operation %q line:%d column:%d"
 		return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
@@ -73,9 +72,9 @@ func (p *parser) expression(rbp int) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	for rbp < p.binds[p.peek()] {
+	for rbp < p.bind[p.peek()] {
 		token := p.next()
-		led, ok := p.leds[token.Typeof]
+		led, ok := p.led[token.Typeof]
 		if !ok {
 			msg := "undefined infix operation %q line:%d column:%d"
 			return nil, fmt.Errorf(msg, token.Value, token.Line, token.Column)
@@ -89,17 +88,17 @@ func (p *parser) expression(rbp int) (Node, error) {
 }
 
 // Parses either empty or incomplete expressions.
-func (p *parser) eof(token lexer.Token) (Node, error) {
+func (p *parser) parseEOF(token lexer.Token) (Node, error) {
 	if len(p.src) == 1 {
 		return Empty{}, nil
 	}
-	msg := "incomplete expression, unexpected <EOF> line:%d column:%d"
+	msg := "incomplete parseExpression, unexpected <EOF> line:%d column:%d"
 	err := fmt.Errorf(msg, token.Line, token.Column)
 	return nil, err
 }
 
 // Parses numbers as 64-bit floating point.
-func (p *parser) number(token lexer.Token) (Node, error) {
+func (p *parser) parseNumber(token lexer.Token) (Node, error) {
 	num, err := strconv.ParseFloat(token.Value, 64)
 	if err != nil {
 		msg := "invalid number: %s line:%d column:%d"
@@ -114,7 +113,7 @@ func (p *parser) number(token lexer.Token) (Node, error) {
 
 // Parses symbols — otherwise known as identifiers.
 // Always returns Node. Has error type to satisfy "nud".
-func (p *parser) symbol(token lexer.Token) (Node, error) {
+func (p *parser) parseSymbol(token lexer.Token) (Node, error) {
 	return Symbol{
 		Value:  token.Value,
 		Line:   token.Line,
@@ -123,8 +122,8 @@ func (p *parser) symbol(token lexer.Token) (Node, error) {
 }
 
 // Parses unary expressions.
-func (p *parser) unary(token lexer.Token) (Node, error) {
-	node, err := p.expression(p.prebinds[token.Typeof])
+func (p *parser) parseUnary(token lexer.Token) (Node, error) {
+	node, err := p.parseExpression(p.bind[token.Typeof])
 	if err != nil {
 		return nil, err
 	}
@@ -137,8 +136,8 @@ func (p *parser) unary(token lexer.Token) (Node, error) {
 }
 
 // Parses binary expressions that associate left.
-func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
-	right, err := p.expression(p.binds[token.Typeof])
+func (p *parser) parseBinaryLeft(left Node, token lexer.Token) (Node, error) {
+	right, err := p.parseExpression(p.bind[token.Typeof])
 	if err != nil {
 		return nil, err
 	}
@@ -159,8 +158,8 @@ func (p *parser) binary(left Node, token lexer.Token) (Node, error) {
 }
 
 // Parses binary expressions that associate right.
-func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
-	right, err := p.expression(p.binds[token.Typeof] - 1)
+func (p *parser) parseBinaryRight(left Node, token lexer.Token) (Node, error) {
+	right, err := p.parseExpression(p.bind[token.Typeof] - 1)
 	if err != nil {
 		return nil, err
 	}
@@ -174,9 +173,9 @@ func (p *parser) binaryr(left Node, token lexer.Token) (Node, error) {
 }
 
 // Parses parenthetical expressions.
-func (p *parser) paren(token lexer.Token) (Node, error) {
+func (p *parser) parseGrouping(token lexer.Token) (Node, error) {
 	position := fmt.Sprintf("line:%d column:%d", token.Line, token.Column)
-	node, err := p.expression(0)
+	node, err := p.parseExpression(0)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +188,7 @@ func (p *parser) paren(token lexer.Token) (Node, error) {
 }
 
 // Parses function calls.
-func (p *parser) call(left Node, token lexer.Token) (Node, error) {
+func (p *parser) parseCall(left Node, token lexer.Token) (Node, error) {
 	// For now, the only valid function callees are symbols.
 	s, ok := left.(Symbol)
 	if !ok {
@@ -207,7 +206,7 @@ func (p *parser) call(left Node, token lexer.Token) (Node, error) {
 	}
 	var args []Node
 	for {
-		node, err := p.expression(0)
+		node, err := p.parseExpression(0)
 		if err != nil {
 			return nil, err
 		}
@@ -237,42 +236,40 @@ func init() {
 	// Build lookup table at package initialization.
 	pratt = parser{
 		table: &table{
-			nuds:     make(map[lexer.LexType]nud),
-			leds:     make(map[lexer.LexType]led),
-			prebinds: make(map[lexer.LexType]int),
-			binds:    make(map[lexer.LexType]int),
+			nud:  make(map[lexer.LexType]nud),
+			led:  make(map[lexer.LexType]led),
+			bind: make(map[lexer.LexType]int),
 		},
 	}
 	// Helper functions build lookup tables.
 	set := func(t lexer.LexType, n nud) {
-		pratt.nuds[t] = n
-		pratt.binds[t] = 0
+		pratt.nud[t] = n
+		pratt.bind[t] = 0
 	}
-	prefix := func(bp int, n nud, ts ...lexer.LexType) {
+	prefix := func(n nud, ts ...lexer.LexType) {
 		for _, t := range ts {
-			pratt.nuds[t] = n
-			pratt.prebinds[t] = bp
+			pratt.nud[t] = n
 		}
 	}
-	infix := func(bp int, l led, ts ...lexer.LexType) {
+	misfix := func(bp int, l led, ts ...lexer.LexType) {
 		for _, t := range ts {
-			pratt.leds[t] = l
-			pratt.binds[t] = bp
+			pratt.led[t] = l
+			pratt.bind[t] = bp
 		}
 	}
 
-	// Initialize lookup tables.
-	set(lexer.EOF, pratt.eof)
-	set(lexer.Number, pratt.number)
-	set(lexer.Symbol, pratt.symbol)
-	set(lexer.OpenParen, pratt.paren)
-	infix(10, pratt.binary, lexer.Equal, lexer.NotEqual)
-	infix(20, pratt.binary, lexer.Add, lexer.Sub)
-	infix(30, pratt.binary, lexer.Mul, lexer.Div)
-	infix(40, pratt.binaryr, lexer.Pow)
-	infix(50, pratt.binary, lexer.ImpMul)
-	prefix(60, pratt.unary, lexer.Add, lexer.Sub)
-	infix(70, pratt.call, lexer.OpenParen)
+	// Initialize lookup table.
+	set(lexer.EOF, pratt.parseEOF)
+	set(lexer.Number, pratt.parseNumber)
+	set(lexer.Symbol, pratt.parseSymbol)
+	set(lexer.OpenParen, pratt.parseGrouping)
+	prefix(pratt.parseUnary, lexer.Add, lexer.Sub)
+	misfix(10, pratt.parseBinaryLeft, lexer.Equal, lexer.NotEqual)
+	misfix(20, pratt.parseBinaryLeft, lexer.Add, lexer.Sub)
+	misfix(30, pratt.parseBinaryLeft, lexer.Mul, lexer.Div)
+	misfix(40, pratt.parseBinaryLeft, lexer.ImpMul)
+	misfix(50, pratt.parseBinaryRight, lexer.Pow)
+	misfix(70, pratt.parseCall, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
@@ -290,7 +287,7 @@ func Parse(s string) (Node, error) {
 		table: pratt.table, // Reuse lookup table from package initialization.
 	}
 	// Weave tokens into abstract syntax tree.
-	node, err := pratt.expression(0)
+	node, err := pratt.parseExpression(0)
 	if err != nil {
 		return nil, err
 	}
@@ -302,4 +299,3 @@ func Parse(s string) (Node, error) {
 	}
 	return node, nil
 }
-
