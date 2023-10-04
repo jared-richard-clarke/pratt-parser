@@ -269,7 +269,7 @@ func init() {
 	misfix(30, pratt.parseBinaryLeft, lexer.Mul, lexer.Div)
 	misfix(40, pratt.parseBinaryLeft, lexer.ImpMul)
 	misfix(50, pratt.parseBinaryRight, lexer.Pow)
-	misfix(70, pratt.parseCall, lexer.OpenParen)
+	misfix(60, pratt.parseCall, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
