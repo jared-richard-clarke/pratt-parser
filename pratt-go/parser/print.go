@@ -135,7 +135,7 @@ func (p *printer) format(n *Node) {
 }
 
 // Inputs a pointer to a Node and outputs a formatted string of that Node.
-func Sprint(n *Node) string {
+func Format(n *Node) string {
 	var b strings.Builder
 	p := printer{
 		spacer:  strings.Repeat(" ", 4),
