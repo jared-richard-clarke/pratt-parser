@@ -251,7 +251,7 @@ func init() {
 			pratt.nud[t] = n
 		}
 	}
-	misfix := func(bp int, l led, ts ...lexer.LexType) {
+	affix := func(bp int, l led, ts ...lexer.LexType) {
 		for _, t := range ts {
 			pratt.led[t] = l
 			pratt.bind[t] = bp
@@ -264,12 +264,12 @@ func init() {
 	set(lexer.Symbol, pratt.parseSymbol)
 	set(lexer.OpenParen, pratt.parseGrouping)
 	prefix(pratt.parseUnary, lexer.Add, lexer.Sub)
-	misfix(10, pratt.parseBinaryLeft, lexer.Equal, lexer.NotEqual)
-	misfix(20, pratt.parseBinaryLeft, lexer.Add, lexer.Sub)
-	misfix(30, pratt.parseBinaryLeft, lexer.Mul, lexer.Div)
-	misfix(40, pratt.parseBinaryLeft, lexer.ImpMul)
-	misfix(50, pratt.parseBinaryRight, lexer.Pow)
-	misfix(60, pratt.parseCall, lexer.OpenParen)
+	affix(10, pratt.parseBinaryLeft, lexer.Equal, lexer.NotEqual)
+	affix(20, pratt.parseBinaryLeft, lexer.Add, lexer.Sub)
+	affix(30, pratt.parseBinaryLeft, lexer.Mul, lexer.Div)
+	affix(40, pratt.parseBinaryLeft, lexer.ImpMul)
+	affix(50, pratt.parseBinaryRight, lexer.Pow)
+	affix(60, pratt.parseCall, lexer.OpenParen)
 }
 
 // Parser API: inputs string, outputs either AST or Error
