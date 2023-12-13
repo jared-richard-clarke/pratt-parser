@@ -5,9 +5,7 @@ on ideas pioneered by computer scientist **Vaughan R. Pratt**. One is implemente
 
 ## Sources
 
-I could not have built these parsers on my own. Many thanks to these excellent resources.
-
-| Article | Author |
+| Source  | Author |
 | :---    | :---   |
 | [Top Down Operator Precedence](https://tdop.github.io/) | Vaughan R. Pratt  |
 | [Top Down Operator Precedence](https://crockford.com/javascript/tdop/tdop.html) | Douglas Crockford |
