@@ -3,6 +3,17 @@
 Contained within in this repository are two experimental, **top-down operator precedence** parsers based
 on ideas pioneered by computer scientist **Vaughan R. Pratt**. One is implemented in **Go**, the other in **JavaScript**.
 
+## Sources
+
+I could not have built these parsers on my own. Many thanks to these excellent resources.
+
+| Article | Author |
+| :---    | :---   |
+| [Top Down Operator Precedence](https://tdop.github.io/) | Vaughan R. Pratt  |
+| [Top Down Operator Precedence](https://crockford.com/javascript/tdop/tdop.html) | Douglas Crockford |
+| [Top-Down operator precedence parsing](https://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing) | Eli Bendersky |
+| [Pratt Parsers: Expression Parsing Made Easy](https://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/) | Bob Nystrom |
+
 ## JavaScript Implementation
 
 JavaScript library scans, parses, and evaluates strings as arithmetic expressions.
@@ -79,14 +90,3 @@ func main() {
 //     Column: 4
 // }
 ```
-
-## Sources
-
-I could not have built these parsers on my own. Many thanks to these excellent resources.
-
-| Article | Author |
-| :---    | :---   |
-| [Top Down Operator Precedence](https://tdop.github.io/) | Vaughan R. Pratt  |
-| [Top Down Operator Precedence](https://crockford.com/javascript/tdop/tdop.html) | Douglas Crockford |
-| [Top-Down operator precedence parsing](https://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing) | Eli Bendersky |
-| [Pratt Parsers: Expression Parsing Made Easy](https://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/) | Bob Nystrom |
